@@ -1,0 +1,8 @@
+cheetah -> OK
+hyena -> OK
+fox -> 550
+cat -> OK
+lion -> 500
+tiger -> 400
+
+jeu test -> Ok

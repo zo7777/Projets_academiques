@@ -1,0 +1,796 @@
+---
+title: "Rapport du projet d'économétrie"
+author: "Lukas Boschet, Yann Kibamba, Omar Saip SY"
+date: "2024-02-05"
+output: html_document
+---
+
+
+```{r setup, include=FALSE}
+
+knitr::opts_chunk$set(comment = NA)
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(message = FALSE)
+knitr::opts_chunk$set(warning = FALSE)
+
+```
+
+# **Sommaire**
+
+* **Introduction**
+* **I) Collecte de données**
+* **II) Traitement de données**
+* **III) Description de la base de données**
+* **IV) Modélisation**
+* **Conclusion**
+
+
+```{r librairies, include=FALSE}
+
+# Manipulation des données
+
+library(tidyverse)
+
+# Modèles de données de panel
+
+library(plm)
+
+# Summary des modèles élégants
+
+library(stargazer)
+
+# Création de graphique
+
+library(ggplot2)
+
+# Présentation élégante des données
+
+library(knitr)
+
+
+library(tidyr)
+library(treemap)
+library(ggplot2)
+library(rAmCharts) 
+library(plotly)
+library(ggcorrplot)
+
+
+# Cartographie
+library(sf)
+library(rnaturalearth)
+library(leaflet)
+
+getwd()
+setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
+
+```
+
+
+# **Introduction**
+
+Les émissions de CO2 causent des problèmes majeurs, de nos jours, tels que: le réchauffement climatique, la destruction de la couche d'ozone, etc. Ce qui a des conséquences néfastes sur notre planète et les êtres qui y vivent.
+
+Nous essaierons à travers ce projet d'analyser les émissions de CO2 par pays en fonction du temps et du PIB par habitant en parité de pouvoir d'achat. Nous contrôlerons cet indicateur économique par d'autres variables principalement associées à la manière de produire et consommer notre énergie.
+
+
+# **I) Collecte de données** 
+
+La collecte des données est une étape incontournable pour répondre à notre problématique.
+
+Nous avons pu faire cette étape grâce aux données disponibles sur le site de la banque mondiale: https://databank.worldbank.org/source/world-development-indicators.
+
+Ces données sont composées de 1500 observations et 11 variables, qui sont:
+
+* Country_Name: une variable qui contient les différents pays
+* Time_Code: elle contient "YR" suivi de l'année concernée
+* Time: qui est une variable temporelle (en années)
+* Country_Code: une variable qui contient les différents pays abbrégés
+* GDP_PPP: qui représente le PIB par habitant en parité du pouvoir d'achat (en $ international 2017 constant) 
+* CO2_emissions: qui représente la quantité de CO2 émise par habitant (en tonnes/habitant)
+* Agricultural_land: elle représente la surface de terre agricole (en % du territoire d'un pays)
+* Clean_energy: elle représente la quantité d'énergie verte (en % de l'énergie totale utilisée)
+* Electric_power: elle représente la puissance électrique par habitant (en kWh par habitant)
+
+Cependant, les données collectées requièrent un traitement avant de pouvoir les utiliser.
+
+
+# **II) Traitement de données**
+
+
+```{r Données}
+
+# Importation 
+
+donnees <- read.csv("Donnees_projet.csv", 
+                    header = TRUE, 
+                    sep = ";")
+
+# Suppression de la variable Time_code
+
+donnees <- subset(donnees, select = -c(2))
+
+# Intervertir les 2 premières colonnes
+
+donnees <- donnees[,c(2,1,3,4,5,6,7,8)]
+
+# Transformation de variables
+
+donnees$log_GDP_PPP <- log(donnees$GDP_PPP)
+donnees$log_GDP_PPP_2 <- log(donnees$GDP_PPP)**2
+donnees$log_CO2 <- log(donnees$CO2_emissions)
+
+```
+
+La base de données présentait de nombreuses données manquantes les années les plus récentes. De ce fait nous avons choisi de ne conserver que les années de 2003 à 2014. Ce choix nous a permis de conserver quasiment la totalité des pays du monde même après suppression des données manquantes.
+
+Enfin, nous avons défini des variables logarithmiques telles que (log(GDP_PPP) et log(CO2_emissions)).
+
+Nous nous retrouvons donc avec des données en Panel (axe pays et axe temps).
+
+# **III) Description de la base de données**
+
+```{r}
+stargazer(donnees,type="text")
+```
+
+Après avoir traité les données, nous avons une base contenant 10 variables et 1500 observations. En effet, sur le tableau ci-dessus, une des variables est absente car c'est celle qui représente les différents pays (chaine de caractère).
+
+On remarque sur notre base:
+
+* Les années (Time) vont de 2003 à 2014. Ce qui confirme les précisions faites sur la partie précédente.
+* Le PIB/habitant en parité du pouvoir d'achat (GDP_PPP) est en moyenne égal à 21300 dollars constant en 2017 Le plus petit PIB PPP par habitant est de 708 dollars constant en 2017 et le plus grand est de 120648 dollars constant en 2017
+* Les émissions de CO2 par habitant (CO2_emissions) sont en moyenne égaux à 5.7 tonnes/habitant. La plus petite émission est de 0.04 tonnes/habitant et la plus grande est de 47.7 tonnes/habitant.
+* La surface agricole (Agricultural_land) est en moyenne égale  à 39.56% de la surface totale. La plus petite surface est de 0.45% de la surface totale et la plus grande est de 85.29% de la surface totale.
+* L'énergie verte (Clean_energy) est en moyenne égale à 7.64% de l'énergie utilisée. La plus petite puissance est de 0% de l'énergie utilisée et la plus grande est de 55.57% de l'énergie utilisée.
+* Le logarithme du PIB/habitants (log_GDP_PPP) est en moyenne égal à 9.53 dollars constant en 2017. La plus petite valeur est de 6.56 dollars constant en 2017 et la plus grande est de 11.7 dollars constant en 2017.
+* Le carré du logarithme du PIB/habitants (log_GDP_PPP) est en moyenne égal à 91.96 dollarsconstant en 2017. Sa plus petite valeur est de 43.06 dollars constant en 2017 et sa plus grande est de 136.91 dollars constant en 2017.
+* Le logarithme des émissions de CO2 par habitant (log_CO2) est en moyenne égal à 1.029 tonnes/habitant. Sa plus petite valeur est de -3.34 tonnes/habitant et sa plus grande est de 3.86 tonnes/habitant.
+
+Toutes ses informations nous reconfortent sur la diversité des données dont on dispose.
+
+### *Cartographie*
+
+Notre base de données contient des pays du monde. De ce fait, Nous avons pensé à identifier les pays et à permettre une observation sur carte des disparités.
+
+
+```{r}
+# Geometry & code des pays
+ne_countries <- ne_countries(scale = "medium", returnclass = "sf")
+
+# Conservation des colonnes noms de pays et leurs countries_code
+code_countries <- ne_countries |>
+  select("sovereignt")
+
+
+code_countries <- as.data.frame(code_countries) # transformation en data frame
+colnames(code_countries)[1] <- "pays"
+# View(code_countries)
+```
+
+
+```{r}
+#setdiff(donnees$Country_Name, code_countries$pays) # 7 pays non correspondant
+
+# Correction des noms pour la jointure
+
+donnees$Country_Name <- gsub("Czechia", "Czech Republic", donnees$Country_Name)
+donnees$Country_Name <- gsub("Egypt, Arab Rep.", "Egypt", donnees$Country_Name)
+donnees$Country_Name <- gsub("Iran, Islamic Rep.", "Iran", donnees$Country_Name)
+donnees$Country_Name <- gsub("Cote d'Ivoire", "Ivory Coast", donnees$Country_Name)
+donnees$Country_Name <- gsub("Kyrgyz Republic", "Kyrgyzstan", donnees$Country_Name)
+donnees$Country_Name <- gsub("Slovak Republic", "Slovakia", donnees$Country_Name)
+donnees$Country_Name <- gsub("United States", "United States of America", donnees$Country_Name)
+donnees$Country_Name <- gsub("Congo, Rep.", "Republic of Congo", donnees$Country_Name)
+donnees$Country_Name <- gsub("Congo, Dem. Rep.", "Democratic Republic of the Congo", donnees$Country_Name)
+donnees$Country_Name <- gsub("Brunei Darussalam", "Brunei", donnees$Country_Name)
+donnees$Country_Name <- gsub("North Macedonia", "Macedonia", donnees$Country_Name)
+donnees$Country_Name <- gsub("Korea, Rep.", "South Korea", donnees$Country_Name)
+donnees$Country_Name <- gsub("Russian Federation", "Russia", donnees$Country_Name)
+donnees$Country_Name <- gsub("Tanzania", "United Republic of Tanzania", donnees$Country_Name)
+donnees$Country_Name <- gsub("Turkiye", "Turkey", donnees$Country_Name)
+
+data_sum_emissions <- aggregate(CO2_emissions ~ Country_Name, data = donnees, sum)
+data_mean_gdp <- aggregate(GDP_PPP ~ Country_Name, data=donnees, mean)
+
+# Ajout des géometries des pays
+data_geom <- left_join(donnees, code_countries, by = c("Country_Name" = "pays"))
+data_geom_mean_gdp <- left_join(data_mean_gdp, code_countries, by = c("Country_Name" = "pays"))
+data_geom_sum_emissions <- left_join(data_sum_emissions, code_countries, by = c("Country_Name" = "pays"))
+
+data_geom <- st_as_sf(data_geom)
+data_geom_mean_gdp <- st_as_sf(data_geom_mean_gdp)
+data_geom_sum_emissions <- st_as_sf(data_geom_sum_emissions)
+
+```
+
+
+```{r}
+# Création carte Leaflet
+map <- leaflet() %>%
+  addTiles() %>%
+  setView(lng = 0, lat = 0, zoom = 1)  
+  
+
+# Ajouter les polygones des pays depuis data_geom_sf
+map <- addPolygons(
+  map,
+  data = data_geom,
+  fillColor = "blue",  # Couleur de remplissage
+  fillOpacity = 0.7,   # Opacité du remplissage
+  color = "white",     # Couleur de la bordure
+  weight = 1,          # Épaisseur de la bordure
+  popup = ~paste("<strong>Country:</strong> ", Country_Name),
+  highlightOptions = highlightOptions(
+    color = "black",      # Couleur de surbrillance
+    weight = 2,           # Épaisseur de la surbrillance
+    bringToFront = TRUE   # Mettre en avant lors de la surbrillance
+  )
+) 
+map <-addControl(
+  map,
+  position = "topright",  # Position du titre
+  html = title_html <- '<h3 style="text-align: center;">Carte des pays disponibles</h3>' # Titre de la carte
+)
+
+# Afficher la carte
+map
+```
+
+
+On peut voir sur la carte que notre jeu de données contient beaucoup de pays. De plus, leurs superficies, leurs nombre d'habitants, leur niveau de développement sont toutes différentes.
+
+Ce qui montre la diversité et l'hétérogénéite de notre base.
+
+```{r}
+# Carte Emissions Co2 cumulées sur 11 ans
+pal <- colorBin("YlOrRd", domain = data_geom_sum_emissions$CO2_emissions,bins = c(0, 25, 50, 75, 100, 250, 450))
+
+map_emissions <- leaflet(data_geom_sum_emissions) |>
+  addTiles() |>
+  addPolygons(fillColor = ~ pal(CO2_emissions),
+              fillOpacity = 0.7,
+              color = "black",
+              weight = 1,
+              popup = ~paste("<strong>Country:</strong> ", Country_Name),
+              highlightOptions = highlightOptions(
+                color = "black",      # Couleur de surbrillance
+                weight = 2,           # Épaisseur de la surbrillance
+                bringToFront = TRUE   # Mettre en avant lors de la surbrillance
+              )
+          
+) |>
+  addLegend(
+    pal = pal,
+    values = ~CO2_emissions,
+    opacity = 0.7,
+    title = "CO2_emissions",
+    position = "bottomright"
+  ) |>
+  addControl(
+  position = "topright",  # Position du titre
+  html = title_html <- '<h3 style="text-align: center;">Carte des pays et leur émission de CO2/hbts de 2003 à 2014 en cumule</h3>' # Titre de la carte
+)
+
+map_emissions
+
+```
+
+A première vue, on remarque que les pays les plus grands en superficie ont émis plus de CO2 de 2003 à 2014.
+
+Ces pays sont en général en Amerique du Nord, en Europe, en Asie et en Océanie. Pour l'Afrique, on en remarque quelques; mais l'absence de plusieurs pays africains de notre base de données ne nous permet pas de les inclure parmi les zones ayant émis le plus de CO2 de 2003 à 2014.
+
+
+```{r}
+# Carte pour le PIB (moyenne sur 11 ans)
+pal <- colorBin("YlOrRd", domain = data_geom_mean_gdp$GDP_PPP, bins = c(0, 5000, 10000, 15000, 25000, 40000, 120000))
+
+# Create a leaflet map
+map_GDP <- leaflet(data = data_geom_mean_gdp) %>%
+  addTiles() %>%
+  addPolygons(
+    fillColor = ~pal(GDP_PPP),
+    fillOpacity = 0.7,
+    color = "black",
+    weight = 1,
+    popup = ~paste("<strong>Country:</strong> ", Country_Name),
+              highlightOptions = highlightOptions(
+                color = "black",      # Couleur de surbrillance
+                weight = 2,           # Épaisseur de la surbrillance
+                bringToFront = TRUE   # Mettre en avant lors de la surbrillance
+              )
+  ) %>%
+  addLegend(
+    pal = pal,
+    values = ~GDP_PPP,
+    opacity = 0.7,
+    title = "GDP_PPP",
+    position = "bottomright"
+  ) |>
+  addControl(
+  position = "topright",  # Position du titre
+  html = title_html <- '<h3 style="text-align: center;">Carte des pays et leur moyenne de PIB/hbt de 2003 à 2014</h3>' # Titre de la carte
+)
+
+map_GDP
+```
+
+On remarque que, contrairement au cumul des émissions de CO2 de 2003 à 2014, les pays ayant les PIB PPP par habitants les plus élevés n'étaient sont pas forcément ceux plus grands en superficie.
+
+Les zones abritant ces pays sont l'Amerique du Nord, l'Europe et l'Australie.
+
+### *Statistiques descriptives*
+
+#### Treemap
+
+
+```{r}
+# Treemap emission Co2 2003
+
+# Base de données
+data_y_2003 <- donnees %>%
+  filter(Time == 2003) %>%
+  select(Country_Name,CO2_emissions,GDP_PPP)
+
+data_y_2003$CO2_emissions2 <- round(data_y_2003$CO2_emissions,2)
+
+# Représentation graphique
+treemap(data_y_2003,
+            index=c("Country_Name","CO2_emissions2"),
+            vSize="CO2_emissions2",
+            type="index",
+            fontsize.labels = c(10,8),
+            fontcolor.labels = c("black","white"),
+            align.labels = list(c("center","top"),
+                                c("center","center")),
+        title = "Treemap des emissions de CO2(en tonnes par habitant) en 2003"
+            )
+```
+
+On observe qu'en 2003, les pays ayant émis le plus de CO2 étaient: le Qatar, le Koweit et les Emirats Arabes.
+
+```{r}
+# Base de données
+data_y_2014 <- donnees %>%
+  filter(Time == 2014) %>%
+  select(Country_Name,CO2_emissions,GDP_PPP)
+
+data_y_2014$CO2_emissions2 <- round(data_y_2014$CO2_emissions,2)
+
+# Représentation graphique
+treemap(data_y_2014,
+            index=c("Country_Name","CO2_emissions2"),
+            vSize="CO2_emissions",
+            type="index",
+            fontsize.labels = c(10,8),
+            fontcolor.labels = c("black","white"),
+            align.labels = list(c("center","top"),
+                                c("center","center")),
+        title = "Treemap des emissions de CO2 (en tonnes par habitant) en 2014"
+            )
+```
+
+On observe qu'en 2014, les pays ayant le plus émis de CO2 étaient: le Qatar, le Bahrain et le Koweit.
+
+
+```{r}
+data_y_2003$GDP_PPP <- round(data_y_2003$GDP_PPP,0)
+
+# Représentation graphique
+treemap(data_y_2003,
+            index=c("Country_Name","GDP_PPP"),
+            vSize="GDP_PPP",
+            type="index",
+            fontsize.labels = c(10,8),
+            fontcolor.labels = c("black","white"),
+            align.labels = list(c("center","top"),
+                                c("center","center")),
+        title = "Treemap des PIB PPP par habitant($/habitant) en 2003"
+            )
+```
+
+On observe qu'en 2003, les pays ayant le plus grand PIB PPP par habitant étaient: le Luxembourg, les Emirats Arabes et le Qatar.
+
+
+```{r}
+data_y_2014$GDP_PPP <- round(data_y_2014$GDP_PPP,0)
+
+# Représentation graphique
+treemap(data_y_2014,
+            index=c("Country_Name","GDP_PPP"),
+            vSize="GDP_PPP",
+            type="index",
+            fontsize.labels = c(10,8),
+            fontcolor.labels = c("black","white"),
+            align.labels = list(c("center","top"),
+                                c("center","center")),
+        title = "Treemap des PIB PPP par habitant($/habitant) en 2014"
+            )
+```
+
+On observe qu'en 2014, les pays ayant le plus grand PIB PPP par habitant étaient: le Luxembourg, le Qatar et le Singapour
+
+
+```{r}
+ten_country_emissions <- data_sum_emissions %>%
+  arrange(desc(CO2_emissions)) %>%
+  head(10)
+```
+
+
+
+#### Barplot
+
+```{r}
+plt <- ggplot(ten_country_emissions) +
+  geom_col(aes(x = reorder(Country_Name, -CO2_emissions), y = CO2_emissions), fill = "blue", width = 0.6) +
+  theme_minimal() +
+  theme(axis.text.y = element_text(size = 5),
+        axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  labs(x="Pays",y="Emissions de CO2 (en tonnes par habitant)") +
+  ggtitle("Top 10 des pays ayant émis plus de CO2/hbts de 2003 à 2014 en cumulé")
+
+# Afficher le tracé
+print(plt)
+
+
+```
+
+On remarque que les pays ayant le plus émis du CO2 de 2003 à 2014 sont le Qatar, le Koweit et les Emirats Arabes.
+
+
+#### Boite à moustache
+
+```{r}
+country <- c(ten_country_emissions$Country_Name)
+
+data_boxplot <- donnees %>%
+  filter(Country_Name %in% country)
+
+amBoxplot(log_CO2~Country_Name,
+data=data_boxplot,
+main="Emissions de CO2 en tonnes par habitant des 10 pays les plus émetteurs en cumulé",
+xlab="Pays",
+col="orange",
+border="brown"
+) |> amOptions(labelRotation = 45)
+```
+
+En observant ces boites à moustache, on note que la variabilité des émissions de CO2 par habitant au cours du temps diffère en fonction du pays. Par exemple, cette variabilité est très faible pour l'Autralie et élevée pour Brunei ou les Emirats Arabes Unis. On notera que les émissions de CO2 par habitant du Quatar sont significativement supérieures à celles des autres pays affichées sur le graphique. 
+
+
+#### Nuage de point
+
+
+```{r,fig.width=10}
+
+N <- ggplot(data = data_boxplot, aes(x = log_GDP_PPP, y = log_CO2, color = Country_Name)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE) +
+  ggtitle("Nuage de points du log des émissions de CO2 en fonction du log du PIB/hab")
+
+# Convertir le graphique ggplot en Plotly
+N_plotly <- ggplotly(N)
+
+# Afficher le graphique Plotly
+N_plotly
+```
+
+
+Le graphique nous montre le type de relation entre le logarithme des émissions de CO2 par habitant (log_CO2) et le logarithme du PIB PPP par habitant (log_GDP_PPP), pour les 10 pays ayant le plus émis du CO2 par habitant de 2003 à 2014 en cumulé. On remarque que les nuages de point ont les allures suivant:
+
+* Allure linéaire: pour les Emirats Arabes, le Bahrein, le Koweit, l'Australie, le Brunei et le Canada;
+* Allure aléatoire: pour le Qatar, les USA et le Luxembourg;
+* Allure logarithmique: pour l'Oman.
+
+Pour la majorité de ces 10 pays, on constate une relation lineaire entre le log_GDP_PPP et le log_CO2.
+
+
+#### Evolution
+
+
+```{r}
+N <- data_boxplot %>%
+  ggplot(aes(x = Time, y = Agricultural_land, color = Country_Name)) +
+  geom_line() +
+  labs(title = "Évolution de la part de terres agricoles de 2003 à 2014",
+       x = "Année",
+       y = "Agricultural Land") +
+  theme_minimal()
+
+ggplotly(N)
+
+```
+
+
+Pour les 10 pays ayant émis le plus de CO2 par habitant, de 2003 à 2014, en cumulé, l'évolution des surfaces agricoles  est quasi constante ou monotone pour la majorité de ces pays.
+
+Cependant, nous remarquons quelques exceptions. Notamment l'Australie pour laquelle l'évolution des surfaces agricoles n'est pas monotone. 
+
+Nous avons aussi les Emirats Arabes pour lesquels l'évolution des surfaces agricole était quasi constante de 2003 à 2008; puis elle a soudainement baissé en 2009; ensuite elle est redevenue quasi constante de 2009 à 2014. Ce qui est surement du à la hausse des barils de pétrole en 2008, ce qui les a poussé à favoriser le pétrole au détriment des terres agricoles.
+
+
+```{r}
+N <- data_boxplot %>%
+  ggplot(aes(x = Time, y = Clean_energy, color = Country_Name)) +
+  geom_line() +
+  labs(title = "Évolution de l'utilisation d'énergies vertes de 2003 à 2014",
+       x = "Année",
+       y = "Clean Energy") +
+  theme_minimal()
+
+ggplotly(N)
+```
+
+
+Parmi les 10 pays ayant émis le plus de CO2 par habitant, de 2003 à 2014, en cumulé, il y en a 4 qui utilisent des énergies vertes. Ce qui est compréhensible car les 6 autres pays étaient: des pays en émergence, des pays situés dans une zone désertique et des zones ayant du pétrole; d'où l'absence d'énergies vertes.
+
+Pour le Canada, le Luxembourg, les USA et l'Australie, leur utilisation d'énergies vertes a cru entre 2003 et 2014. Ceci grace à leur décision d'incorporer l'aspect environnementale dans leurs différents projet.
+
+
+```{r}
+N <- data_boxplot %>%
+  ggplot(aes(x = Time, y = Electric_power, color = Country_Name)) +
+  geom_line() +
+  labs(title = "Évolution de la consommation électrique de 2003 à 2014",
+       x = "Année",
+       y = "Electric Power") +
+  theme_minimal()
+
+ggplotly(N)
+```
+
+On peut voir que pour les 10 pays ayant les plus émis du CO2 par habitant, la puissance électrique est différente en fonction du pays. On observe 2 types d'évolution:
+
+* Evolution monotone: pour l'Oman, les USA, le Brunei et l'Australie;
+* Evolution non monotone(irreguliere): pour le Bahrein, le Canada, le Koweit, le Luxembourg, le Qatar et les Emirats Arabes
+
+De plus les 5 pays utilisant le plus d'électricité sont: le Bahrein, le Canada, le Koweit, le Luxembourg et le Qatar.
+
+#### Corrélation
+
+```{r}
+data_corr <- donnees %>%
+  select(Agricultural_land,Clean_energy,Electric_power,log_GDP_PPP, log_CO2)
+
+corr <- round(cor(data_corr), 2)
+
+ggcorrplot(corr, hc.order = TRUE, type = "upper",
+     outline.col = "white",lab = TRUE)
+```
+
+
+On remarque que les variables $log(CO2)$ ainsi que $log(GDP_{PPP})$ sont fortement et positivement corrélées. Cela signifierait que plus un pays est riche, plus les émissions de CO2 de ses habitants augmentent. Le lien de causalité entre ces deux variables reste à démontrer. 
+
+
+# **IV) Modélisation**
+
+## Choix du modèle
+
+Les pays sélectionnés pour cette étude sont très diversifiés et possèdent des caractéristiques propres que l'on supposera constantes au cours de la période d'étude choisie (2003-2014). Une liste non exhaustive d'exemples concrets de caractéristiques pouvant potentiellement impacter la quantité de CO2 émis par habitant est donnée ci-dessous:  
+
+- Régime politique  
+- Géographie et climat  
+- Ressources naturelles  
+- Politique environnementale  
+
+Nous priviligierons donc un modèle à effets fixes à un modèle à effets aléatoires.  
+
+Nous n'étudierons pas le modèle hétérogène car nous ne disposons pas d'assez d'observations temporelles par pays (T=12). Un tel modèle aurait pourtant pu s'avérer intéressant à étudier car il semble selon nous possible que l'impact d'une variable sur les émissions de CO2 soit différent d'un pays à un autre.  
+
+Nous commençons donc par définir deux modèles :  
+
+- Modèle pooled sans effets fixes  
+- Modèle within avec effets fixes
+
+Le modèle pooled présuppose que l'impact d'une variable sur les émissions de CO2 ne dépend pas du pays et qu'il n'existe pas d'effets fixes. Nous ne pouvons pas exclure à ce stade qu'il n'existe pas d'effets fixes même si cette hypothèse paraît très peu probable.  
+
+Le modèle within permet la prise en compte des effets fixes tout en s'affranchissant des problèmes de grande dimension qu'induisent la création de variables dummy. Ici, le modèle within soustrait la moyenne de chaque unité (pays) pour chaque variable du modèle, permettant l'élimination des variables dummy.  
+
+Le choix du modèle sera déterminé par le test d'hypothèse ci-dessous permettant de détecter la présence d'effets fixes.
+  
+
+```{r}
+
+# Modèle pooled
+
+reg_pooled = plm(log_CO2 ~ log_GDP_PPP + log_GDP_PPP_2 + Agricultural_land + Clean_energy + Electric_power,  
+                 model="pooling", 
+                 data=donnees)
+
+
+# Modèle à effets fixes individuels
+
+reg_within = plm(log_CO2 ~ log_GDP_PPP + log_GDP_PPP_2 + Agricultural_land + Clean_energy + Electric_power,  
+                 effect="individual", 
+                 model="within", 
+                 data=donnees)
+
+```
+
+
+
+```{r}
+
+# Réalisation du test
+
+Test_effets_fixes <- pFtest(reg_within,reg_pooled)
+
+# Incorporation des résultats du test dans un jeu de données
+
+Titre <- Test_effets_fixes$method
+Statistic <- Test_effets_fixes$statistic
+df1 <- Test_effets_fixes$parameter[1]
+df2 <- Test_effets_fixes$parameter[2]
+p <- Test_effets_fixes$p.value
+Donnees_test_effets_fixes <- data.frame(Statistic, df1, df2, p)
+colnames(Donnees_test_effets_fixes) <- c("Statistic", "df1", "df2", "p-value")
+rownames(Donnees_test_effets_fixes) <- c(1)
+
+# Présentation des résultats du test
+
+knitr::kable(Donnees_test_effets_fixes, caption = Titre, digits = 2, align = "c")
+
+```
+
+
+A l'issue du test, nous constatons que la p-value est significative au seuil de 5%. Nous rejetons donc l'hypothèse nulle statuant de l'absence d'effets fixes individuels au sein du modèle. Ainsi, nous retiendrons le modèle à effets fixes individuels implémanté grâce à la méthode "within". Il serait néanmoins prématuré de se référer aux coefficients associés à ce modèle. Ces derniers peuvent être biaisés si les hypothèses de base de la méthode des moindres carrés ordinaires ne sont pas respectés. Nous chercherons donc ci-dessous à vérifier les hypothèse d'homoscédasticité et d'absence d'autocorrélation de résidus.
+
+
+```{r Homoscédasticité}
+
+# Réalisation du test
+
+Test_LM <- pcdtest(reg_within, test=c("lm"))
+
+# Incorporation des résultats du test dans un jeu de données
+
+Titre <- Test_LM$method
+Statistic <- Test_LM$statistic
+df <- Test_LM$parameter
+p <- Test_LM$p.value
+Donnees_test_LM <- data.frame(Statistic, df, p)
+colnames(Donnees_test_LM) <- c("Statistic", "df", "p-value")
+rownames(Donnees_test_LM) <- c(1)
+
+# Présentation des résultats du test
+
+knitr::kable(Donnees_test_LM, caption = Titre, digits = 2, align = "c")
+
+```
+
+
+```{r Autocorrélation}
+
+# Réalisation du test
+
+Test_autocorr <- pbgtest(reg_within)
+
+# Incorporation des résultats du test dans un jeu de données
+
+Titre <- Test_autocorr$method
+Statistic <- Test_autocorr$statistic
+df <- Test_autocorr$parameter
+p <- Test_autocorr$p.value
+Donnees_test_autocorr <- data.frame(Statistic, df, p)
+colnames(Donnees_test_autocorr) <- c("Statistic", "df", "p-value")
+rownames(Donnees_test_autocorr) <- c(1)
+
+# Présentation des résultats du test
+
+knitr::kable(Donnees_test_autocorr, caption = Titre, digits = 2, align = "c")
+
+```
+
+Pour les deux tests, la p-value est significative au seuil de 5%. On rejette donc les hypothèses nulles d'homoscédasticité et d'absence d'autocorrélation des résidus. Ainsi, les résidus sont hétéroscédastiques et autocorrélés, violant deux des hypothèses de base du modèle. Il est donc à craindre que les coefficients estimés par le modèle soient biaisés. De même, les tests permettant de juger de la significativité de ces coefficients perdent en fiabilité. Une solution pour corriger ce problème reste la méthode des moindres carrés généralisés.
+
+
+## Résultats du modèle
+
+La méthode des moindres carrés généralisés introduit une matrice de pondération qui capture la structure de covariance des résidus. Cette matrice est utilisée pour pondérer les observations de manière adaptée, permettant de donner plus d'importance aux observations moins sujettes à l'hétéroscédasticité ou à l'autocorrélation. L'estimateur des moindres carrés généralisés demeure non biaisé et convergent. Nous implémantons donc cet estimateur en conservant bien sûr les effets fixes individuels. De même, les variables restent centrées pour se prémunir des problèmes liés à la grande dimension. 
+
+
+```{r}
+
+# Implémantation du modèle
+
+reg_pgglsI = pggls(log_CO2 ~ log_GDP_PPP + log_GDP_PPP_2 + Agricultural_land + Clean_energy + Electric_power,  
+                   effect="individual", 
+                   model="within", 
+                   data=donnees)
+
+#summary(reg_pgglsI)
+
+# Incorporation des résultats du modèle dans un jeu de données
+
+Titre <- "Oneway (individual) effect Within FGLS model on a balanced Panel: n = 125, T = 12, N = 1500"
+Coeffs <- c(reg_pgglsI$coefficients)
+Std <- c(3.2821e-01, 1.7127e-02, 1.7643e-03, 1.2191e-03, 3.6066e-06)
+Z_value <- c(5.0586, -3.5703, 0.1859976, -12.6272, 2.9118)
+p_value <- c(4.224e-07, 0.0003566, 0.1859976,  2.2e-16, 0.0035938)
+
+Donnees_modele <- data.frame(Coeffs, Std, Z_value, p_value)
+colnames(Donnees_modele) <- c("Coefficient", "Standard error", "z-value" , "p-value")
+rownames(Donnees_modele) <- c("log(GDP per capita PPP)", 
+                              "log(GDP per capita PPP)²", 
+                              "Agricultural land", 
+                              "Clean energy", 
+                              "Electric power")
+
+# Présentation des résultats
+
+knitr::kable(Donnees_modele, caption = Titre, digits = 2, align = "c")
+
+```
+
+
+La seule variable non significative du modèle correspond à la surface agricole. Elle n'aurait donc aucune relation de cause à effet avec les émissions de CO2. Cela reste à première vue étonnant car on pourrait penser qu'une augmentation de la surface agricole est réalisée au prix d'une diminution de la surface forestière. La capacité d'absorbtion du CO2 par les arbres diminuerait, entraînant une augmentation des émissions de CO2 d'un pays. Ceci ne reste qu'une supposition. Nous n'avons pas la connaissance métier nous permettant de réfléchir davantage.
+
+Le coefficient associé à la variable liée à la consommation d'électricité est extrêmement proche de 0. La variable ressort significative car l'écart-type associé est encore plus proche de 0 que le coefficient estimé. Ainsi, cette variable aurait une relation de cause à effet avec les émission de CO2 négligeable. Cela peut paraître cohérent. En effet, on peut supposer qu'un pays produisant proprement son électricité ne soit pas affecté par une augmentation des émissions de CO2 à mesure que la demande en électricité augmente. En revanche, un pays produisant son électricité grâce à des centrales à charbon ou à gaz émettrait des quantités potentiellement importantes de CO2 même avec une faible demande.  
+
+La part d'énergie renouvelable ou nucléaire au sein du mix énergétique, dernière variable de contrôle, permettrait la diminution des émissions de CO2 à mesure d'une augmentation de son utilisation couplée à la diminution de la part d'énergies fossiles au sein du mix énergétique. Cela était attendu et déjà discuté ci-dessus.  
+
+En vue d'interpréter les coefficients associés aux termes d'intérêt, il est préférable de visualiser la courbe de la fonction quadratique calculée par le modèle. En effet, l'interprétation précise d'un modèle log-log avec un terme quadratique reste périlleuse. Nous tracerons donc ci-dessous la courbe d'équation suivante : $log(CO2) = -0.06\times log(GDP)^2 + 1.66\times log(GDP)$. 
+
+
+```{r}
+
+# Fonction permettant de tracer la courbe de Kuznets
+# à partir du résultat de notre modèle
+
+Kuznets <- function(x){
+  -0.06*x**2 + 1.66*x
+}
+
+# Tracé de la courbe
+
+ggplot(data.frame(x = 0:28), aes(x))+
+  geom_density() +
+    geom_function(fun = Kuznets, colour = "red", size = 0.75) +
+      geom_segment(x=0, xend=0, y=0, yend=12) +
+        xlab("log(GDP)") +
+          xlim(0,27.9) +
+            ylab("log(CO2)") +
+              ylim(-0.199,12.5) +
+                labs(title = "Courbe d'équation obtenue par les coefficients du modèle") +
+                  theme_minimal() +
+                    theme(plot.title = element_text(hjust = 0.5))
+
+```
+
+
+
+Le tracé obtenu est simple d'interprétation : si l'on en croit le résultat, les émissions d'un pays en voie de développement augmentent à mesure qu'il s'enrichit jusqu'au franchissement d'un certain seuil de développement. Dès lors, les émissions de CO2 diminuent alors que la richesse du pays continue d'augmenter. Ce qui explique la forte émission de CO2 par habitant, du Qatar, du Koweit et des Emirats Arabes (de 2003 à 2014). Cette courbe est mieux connue et étudiée dans la littérature sous le nom de "Courbe de Kuznets". On peut par exemple penser, qu'un pays pauvre n'aie pas les moyens de payer la construction d'infrastructures permettant la production et la consommation d'énergie et de technologie propres mais que cette situation change à mesure que celui-ci s'enrichit, d'où une diminution des émissions. Encore une fois, nous n'avons pas les compétences métier pour développer davantage ou vérifier notre propos.
+
+
+Il est à noter que les coefficients associés aux variables d'intérêt restent susceptibles de changer en fonction des variables de contrôle sélectionnées. En raison d'un manque de connaissances des sciences environnementales et climatiques, il semble très probable que l'ensemble des variables de contrôles sélectionnées soit incomplet ou partiellement erroné et que par conséquent, les coefficients associés aux termes d'intérêt puissent être erronés même légèrement. Nous nous garderons ainsi d'apporter une conclusion ferme et définitive quant à la véracité de la courbe tracée et ce même si elle ne paraît pas aberrante. Il est préférable de se référer à la littérature existante à ce sujet.
+
+Pour terminer, nous évoquons succintement les effets fixes calculés par le modèle.
+
+
+```{r}
+
+# Calcul des effets fixes et incorporation des résultats dans un dataframe
+
+Effets_fixes <- data.frame(fixef(reg_pgglsI))
+Effets_fixes$fixef.reg_pgglsI. <- round(Effets_fixes$fixef.reg_pgglsI., digits = 2)
+colnames(Effets_fixes) <- c("")
+
+# Présentation des résultats
+
+knitr::kable(Effets_fixes, caption = "Effets fixes individuels", digits = 2, align = "c")
+
+```
+
+
+Avant toute interprétation du jeu de données affiché, il convient de sélectionner un pays de référence. Nous choisirons ici l'Albanie en guise d'exemple. Nous observons alors que, de part les caractéristiques individuelles de l'Algérie, le $log(CO2)$ est plus élevé de $-9.04-9.46=0.42$ unités que celui de l'Albanie. Si nous répétons ce calcul pour l'Angola, on constate que le $log(CO2)$ est plus élévé de $-10.05-9.46=-0.59$ unités (ou plus faible de 0.59 unités) que celui de l'Albanie.  
+
+
+# **Conclusion**
+
+Notre base de données contenait 10 variables et 1500 observations. Ces observations étaient définies par des pays à différents points du temps, auxquels nous avons associé une variable correspondant aux émissions de CO2 par habitant, variable que nous cherchions à expliquer par un indicateur parmi d'autres de santé économique en contrôlant l'effet par des variables liées à l'énergie.
+
+Pour expliquer les émissions de CO2 par habitant, nous avions 2 modèles au choix: Modèle pooled sans effets fixes, modèle within avec effets fixes. Après avoir fait des tests, nous avons fini par choisir le modèle within avec effets fixes en utilisant la méthode des moindres carrés généralisés pour éviter tout problème hétéroscedasticité et d'autocorrélation.
+
+Nous concluons que les émissions de CO2 par habitant dépendent effectivement du PIB par habitant en parité du pouvoir d'achat. La relation entre ces deux variables est quadratique : les émissions de CO2 augmentent à mesure qu'un pays s'enrichit. Après l'atteinte plus le dépassement d'un certain seuil de richesse, les émissions entament leur baisse.
+

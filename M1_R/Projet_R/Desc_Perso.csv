@@ -1,0 +1,48 @@
+Valeur Modalité,Label modalité
+M1010,"Médecine générale (hors DES urgentistes, hors gériatrie)"
+M1020,Anatomie et cytologie pathologiques
+M1030,Anesthésie - Réanimation
+M1031,Réanimation médicale
+M1040,Cardiologie et maladies vasculaires
+M1050,Dermatologie - Vénérologie - Allergologie
+M1070,Endocrinologie et maladies métaboliques
+M1090,Gastro entérologie et hépatologie
+M1100,Médecine interne et immunologie clinique
+M1110,Néphrologie
+M1120,Neurologie
+M1130,Oncologie médicale
+M1140,Pédiatrie
+M1150,Pneumologie
+M1160,Radiologie
+M1170,Oncologie radiothérapique
+M1180,Médecine physique et de réadaptation
+M1190,Rhumatologie
+M1200,Autres spécialités médicales
+M1210,Médecine nucléaire
+M1310,Génétique
+M1320,Gériatrie
+M1330,Hématologie
+M1340,Médecine d'urgence
+M2010,Chirurgie générale
+M2020,Chirurgie maxillo-faciale  - Stomatologie - Chirurgie orale
+M2030,Chirurgie orthopédique et traumatologique
+M2040,"Chirurgie plastique, reconstructrice et esthétique"
+M2050,Gynécologie - Obstétrique
+M2060,Neuro-chirurgie
+M2070,Ophtalmologie
+M2080,Oto-Rhino-laryngologie
+M2100,Chirurgie urologique
+M2110,Autres spécialités chirurgicales
+M2120,Chirurgie digestive
+M2130,Chirurgie vasculaire
+M2140,Chirurgie thoracique et cardiaque
+M2150,Chirurgie infantile
+M3011,Médecins spécialisés en biologie médicale
+M3012,Pharmaciens spécialisés en biologie médicale
+M3020,Psychiatrie
+M3030,Odontologie
+M3040,Santé publique (y compris DIM)
+M3050,Pharmaciens (hors biologie médicale)
+M3060,Médecins du travail
+M3070,Autres
+M9999,TOTAL PERSONNEL MEDICAL

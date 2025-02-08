@@ -1,0 +1,790 @@
+---
+title: "NETWORK ANALYSIS"
+author: "Omar Saip SY; Yann KIBAMBA; Walid PARACHA"
+date: "2024-01-07"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+library(rstudioapi)
+library(reshape2)
+library(igraph)
+library(dplyr)
+library(tidyverse)
+library(plotly)
+library(estimatr)
+library(knitr)
+
+knitr::opts_chunk$set(echo = TRUE)
+
+```
+
+
+# **Sommaire**
+
+* **Introduction**
+* **Partie 1: Statistique descriptive**
+* **Partie 2:  Etude du rôle des effets de pairs dans les comportements de recyclage – modèle à la Manski** 
+* **Partie 3 - Etude du rôle des effets de pairs dans les comportements de recyclage – modèle à la Bramoullé**
+* **Conclusion**
+
+
+```{r, include=FALSE}
+setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
+```
+
+
+
+```{r, include=FALSE}
+setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
+#install.packages("pacman",repos = "http://cran.us.r-project.org")
+pacman::p_load(dplyr, ggplot2, sf,readr,readxl,tmap,tmaptools,opentripplanner)
+```
+
+# **Introduction**
+
+* L'analyse de réseaux sociaux permet de comprendre en quel sens une structure sociale contraint formellement des comportements, tout en résultant des interactions entre les éléments qui la constituent.
+* Dans cet optique, nous essaierons d'analyser un ensemble de laboratoires,les interactions entre leurs employés et l'impact des caractères socio-démographiques et de chaque laboratoire sur la tendance de recyclage de chaque employé.
+* Quelle est la structure du réseau? Qu'est ce qui impact la tendance à recycler de chaque employé?
+* Nous repondrons à ces questions sur notre rapport.
+
+
+# **Partie 1: Statistique descriptive** 
+
+
+```{r,echo=FALSE}
+
+data = read.csv("BDD_Rescampus_cleaned.csv",header=T,sep=',')
+
+
+```
+
+
+* La base de données contient des données sur des individus dans des laboratoires différents.
+* Le but est d'analyser les interactions entre les individus au sein d'un laboratoire et entre les laboratoires.
+
+### **Presentation**
+
+
+```{r,echo=FALSE}
+# 1.a
+ggplot(data=data, aes(x=lab)) + geom_bar(stat = "count") + ggtitle("Diagramme des effectifs dans chaque laboratoire")
+
+
+```
+
+* On a ici un diagramme en barre des effectifs dans chaque laboratoire.
+* Les individus de la base de données sont repatis dans 9 laboratoires
+* On constate un effectif plus grand dans le laboratoire 4 par rapport aux autres et un effectif plus faible dans le laboratoire 2.
+
+
+```{r,echo=FALSE}
+
+lab <- data |> filter(data$lab=="LAB8")
+
+```
+
+On se concentre ici sur le LAB8 pour regarder le résumé de la variable recyclage_index.
+
+```{r,echo=FALSE,comment=""}
+#1.b
+lab$recyclage_index <- as.numeric(lab$recyclage_index)
+summary(lab$recyclage_index)
+
+```
+
+Nous remarquons que, pour le laboratoire 8:
+* La valeur moyenne d'indice de recyclage est de 0.76. Ce qui signifie, en moyenne, un bon indice de recyclage dans ce laboratoire.
+* Le plus petit indice de recyclage est de 0.44
+* Le plus grand indice de recyclage est de 1
+
+### **Construction de la BDD reseau**
+
+```{r,collapse=FALSE}
+#2.a
+ NW <- lab |> select(1:7)
+
+#2.b
+coll_cite <-  melt(NW, id.vars="identifiant")
+coll_cite <- coll_cite |> select(-c("variable"))
+
+#2.c
+coll_cite <- coll_cite |> arrange(identifiant) |> na.omit()
+
+
+```
+
+```{r,collapse=FALSE}
+#2.d
+lab_socio <- lab |> select(c("identifiant","doctorat","revenu_sup_3000","femme",
+                              "age","nb_HH","recyclage_index"))
+
+```
+
+
+
+### **Statistique descriptive du réseau**
+
+
+```{r,echo=FALSE,comment=""}
+# 3.a
+comptage_personnes_citees <- function(dataset){
+  personnes <- unique(dataset$identifiant)
+  comptage <- c()
+  for(individu in personnes){
+    donnee <- dataset |> filter(dataset$identifiant==individu) |>
+      select(1:7)
+    nombre <- 0
+    for(i in 2:7){
+      if( !(is.na(donnee[,i])) ){
+        nombre <- nombre + 1
+      }
+    }
+    comptage <- c(comptage,nombre)
+    nombre <- 0
+  }
+  
+  tableau_comptage <- data.frame(personnes,nbre_collegue_cite=comptage)
+  return(tableau_comptage)
+}
+
+tableau_comptage <- comptage_personnes_citees(data)
+
+
+
+summary(tableau_comptage)
+
+```
+
+La base de données est constitué de 339 individus. On voit qu'il y a possiblement des individus isolés et qu'en moyenne un individu a 3 collègues et peut en avoir jusque 6.
+
+
+
+```{r,echo=FALSE,comment=""}
+#3.b
+personnes_isolees <- function(dataset){
+  personnes <- unique(dataset$identifiant)
+  isole <- c()
+  for(individu in personnes){
+    if( !(individu %in% dataset[,2]) && !(individu %in% dataset[,3]) && 
+        !(individu %in% dataset[,4]) && !(individu %in% dataset[,5]) &&
+        !(individu %in% dataset[,6]) && !(individu %in% dataset[,7]) ){
+      isole <- c(isole,individu)
+    }
+  }
+  return(isole)
+}
+
+isole <- personnes_isolees(data)
+
+cat("Les individus du Laboratoire 8 isolés sont: \n",isole,"\n",
+    "Ils sont au nombre de : ",length(isole))
+
+```
+
+
+
+```{r,echo=FALSE}
+#3.c
+creation_color_shape <- function(){
+  color <- c()
+  shape <- c()
+  for(individu in coll_cite$identifiant){
+    donnee <- lab_socio |> filter(lab_socio$identifiant == individu)
+    if(donnee[1,"revenu_sup_3000"] == 1 ){
+      color <- c(color,"red")
+    }else{
+      color <- c(color,"green")
+    }
+    if(donnee[1,"doctorat"]==1){
+      shape <- c(shape,"square")
+    }else{
+      shape <- c(shape,"circle")
+    }
+  }
+  coll_cite <- cbind(coll_cite,color,shape)
+  return(coll_cite)
+}
+
+coll_cite <- creation_color_shape()
+
+assignment_color <- function(){
+  color <- c()
+  for(i in 1:nrow(lab_socio)){
+    if(lab_socio[i,"revenu_sup_3000"] == 1){
+      color <- c(color,"red")
+    }else{
+      color <- c(color,"green")
+    }
+  }
+  lab_socio <- cbind(lab_socio,color)
+  return(lab_socio)
+}
+
+lab_socio <- assignment_color()
+
+graph <- graph_from_data_frame(coll_cite, directed = TRUE, vertices = lab_socio)
+
+```
+
+```{r,echo=FALSE,message=FALSE,warning=FALSE}
+color_vertices <- lab_socio %>%
+  group_by(revenu_sup_3000, color) %>%
+  summarise(n = n()) 
+
+shapes_edges <- coll_cite %>%
+  group_by(shape) %>%
+  summarise(n = n())
+
+```
+
+
+```{r,echo=FALSE}
+color_vertices$revenu_sup_3000 <- as.character(color_vertices$revenu_sup_3000)
+for(i in 1:nrow(color_vertices)){
+  if(color_vertices[i,"revenu_sup_3000"] == 1){
+    color_vertices[i,"revenu_sup_3000"] = "revenu > 3000"
+  }else{
+    color_vertices[i,"revenu_sup_3000"] = "revenu < 3000"
+  }
+}
+
+for(i in 1:nrow(shapes_edges)){
+  if(shapes_edges[i,"shape"] == "square"){
+    shapes_edges[i,"shape"] = "square: doctorat"
+  }else{
+    shapes_edges[i,"shape"] = "circle: NON doctorat"
+  }
+}
+
+
+```
+
+
+```{r,fig.width=20,fig.height=20,echo=FALSE}
+layout <- layout_with_fr(graph)
+E(graph)$color<-"black"
+plot(graph,
+     layout=layout,
+     vertex.label = gsub(" ", "\n", V(graph)$name),
+     vertex.shape = E(graph)$shape, 
+     vertex.color = V(graph)$color,
+     vertex.size = (V(graph)$recyclage_index + 0.3) * 5, 
+     vertex.frame.color = "gray", 
+     vertex.label.color = "black", 
+     vertex.label.cex = 0.8,
+     edge.arrow.size = 0.5)
+legend("topleft", legend = c(NA, "Node color:", as.character(color_vertices$revenu_sup_3000), NA, "Edge shape:", as.character(shapes_edges$shape)), pch = 19,
+       col = c(NA, NA, color_vertices$color, NA, NA), pt.cex = 5, cex = 2, bty = "n", ncol = 1,
+       title = "") 
+legend("topleft", legend = "", cex = 4, bty = "n", ncol = 1,
+       title = "Graph of The people cited in the survey in LAB 8")
+```
+
+
+* Analysons maintenant le graphe. 
+* Ce graphe illustre un réseau de citations entre individus dans le cadre d'une enquête au sein de LAB 8, où les couleurs des nœuds distinguent les revenus (rouge pour ceux supérieurs à 3000, vert pour inférieurs) et les formes indiquent le niveau d'éducation (les carrés pour les détenteurs d'un doctorat, les cercles sinon).
+* Visuellement, on constate une prédominance de personnes à revenu élevé (nœuds rouges) et un mélange d'individus avec et sans doctorat, signe d'une diversité académique.
+* Les connexions entre les nœuds suggèrent une structure de réseau bien interconnecté, avec des individus souvent citant ou étant cités par plusieurs autres, ce qui pourrait indiquer l'existence de figures centrales ou d'influence au sein de ce réseau.
+
+
+On peut maintenant afficher le nombre de degrés entrant et sortant par individus dans le laboratoire 8 et analyser la distribution des degrés au sein de ce laboratoire. 
+
+```{r,echo=FALSE}
+#3.d
+graph_degree_in <- igraph::degree(graph, mode = "in")
+graph_degree_out <- igraph::degree(graph, mode = "out")
+graph_degree <- igraph::degree(graph, mode = "total")
+```
+
+
+```{r,echo=FALSE,comment=""}
+node_degree <- data.frame(degree = graph_degree) %>%
+  tibble::rownames_to_column()
+
+union_characters <- left_join(lab_socio, node_degree, by = c("identifiant" = "rowname"))
+
+node_degree %>%
+  arrange(-degree) %>%
+  .[1:10, ]
+```
+
+```{r,echo=FALSE,comment=""}
+node_degree <- data.frame(degree_in = graph_degree_in) %>%
+  tibble::rownames_to_column()
+
+union_characters <- left_join(lab_socio, node_degree, by = c("identifiant" = "rowname"))
+
+node_degree %>%
+  arrange(-degree_in) %>%
+  .[1:10, ]
+```
+
+
+```{r,echo=FALSE,comment=""}
+node_degree <- data.frame(degree_out = graph_degree_out) %>%
+  tibble::rownames_to_column()
+
+union_characters <- left_join(lab_socio, node_degree, by = c("identifiant" = "rowname"))
+
+node_degree %>%
+  arrange(-degree_out) %>%
+  .[1:10, ]
+```
+
+
+```{r,echo=FALSE}
+graph_degree %>% 
+  as.vector() %>%              
+  as_tibble() %>%              
+  plot_ly(x = ~value) %>% 
+  add_histogram(histnorm = "probability")%>%
+  layout(title = "Distribution of degrees in the Lab network",
+         yaxis = list(title = 'Relative frequency'),
+         xaxis = list(title = 'Degree'))
+```
+
+On constate tout d'abord que plus d'un quart des individus sont reliés à 4 personnes. On constate aussi des valeurs extrêmes avec des gens connectés avec tout le monde dans le réseau ou des personnes isolées.
+
+
+```{r,echo=FALSE}
+graph_degree_in %>% 
+  as.vector() %>%              
+  as_tibble() %>%              
+  plot_ly(x = ~value) %>% 
+  add_histogram(histnorm = "probability")%>%
+  layout(title = "Distribution of degrees(incoming) in the Lab network",
+         yaxis = list(title = 'Relative frequency'),
+         xaxis = list(title = 'Degree'))
+```
+
+On a ici l'histogramme des degrés entrants. La plupart des gens ont 0,2 ou 4 degrés entrants. Il y a toutefois des valeurs extrêmes.
+
+```{r,echo=FALSE}
+graph_degree_out %>% 
+  as.vector() %>%              
+  as_tibble() %>%              
+  plot_ly(x = ~value) %>% 
+  add_histogram(histnorm = "probability")%>%
+  layout(title = "Distribution of degrees(outgoing) in the Lab network",
+         yaxis = list(title = 'Relative frequency'),
+         xaxis = list(title = 'Degree'))
+```
+
+* On a une distribution quasi uniforme. On voit toutefois que peu de gens ont 5 degrés sortants et que la plupart ont 6 degrés sortant. 
+* Ce qui s'explique par le fait qu'on ait 6 personnes à citer lors de l'enquete. La majorité des personnes ont cité 6 collegues, tandis que d'autres en ont cité un peu moins.
+* Il y a plus de personnes qui ont un degré entrant nul que de personnes qui ont un degré sortant nul.
+
+Regardons maintenant la distribution des distances au sein du réseau.
+
+```{r,echo=FALSE,message=FALSE,warning=FALSE,comment=""}
+cat("The average distance in the network is: ",mean_distance(graph))
+graph %>% 
+  distances() %>% 
+  as.vector() %>%              
+  as_tibble() %>%              
+  plot_ly(x = ~value) %>% 
+  add_histogram(histnorm = "probability")%>%
+  layout(title = "Distribution of distances in the Lab network",
+         yaxis = list(title = 'Relative frequency'),
+         xaxis = list(title = 'Distance'))
+```
+
+On remarque que la distribution semble normale centrée entre 2 et 3.
+
+On s'intéresse maintenant à la notion de centralité dans le graphe. Pour cela, on regarde la proximité nodale qui indique à quel point un nœud est proche de tous les autres nœuds dans le réseau.
+
+
+```{r,echo=FALSE}
+closeness_in <- igraph::closeness(graph, mode = "in")
+closeness_out <- igraph::closeness(graph, mode = "out")
+closeness <- igraph::closeness(graph, mode = "total")
+```
+
+
+```{r,echo=FALSE,comment=""}
+node_closeness <- data.frame(closeness = closeness) %>%
+  tibble::rownames_to_column()
+
+union_characters <- left_join(lab_socio, node_closeness, by = c("identifiant" = "rowname"))
+
+node_closeness %>%
+  arrange(-closeness) %>%
+  .[1:10, ]
+```
+
+* En prenant en compte les statistiques descriptives précédentes, on peut faire l'analyse suivante:
+* Au sein d'un réseau comprenant 300 individus, les faibles valeurs de proximité observées pourraient indiquer que le réseau n'est pas très dense, avec une distance moyenne relativement grande entre les individus. Cependant, la distribution des distances montre une concentration notable de courtes distances, ce qui suggère l'existence de clusters ou de groupes d'individus plus étroitement liés.
+* Concernant la distribution des degrés sortants, on remarque une prédominance de nœuds ayant peu de liens sortants, tandis que la distribution des degrés entrants révèle un plus grand équilibre, bien que quelques individus soient nettement plus cités que d'autres.
+* LAB8005 se démarque avec la plus haute valeur de proximité du réseau, ce qui implique qu'il est en moyenne le plus proche des autres individus, reflétant une position centrale dans le réseau. Cette centralité peut être interprétée comme une plus grande implication de cet individu dans les interactions au sein du réseau, possiblement en tant que référent fréquent ou source majeure de citations dans l'enquête.
+
+```{r,echo=FALSE,comment=""}
+node_closeness <- data.frame(closeness_in = closeness_in) %>%
+  tibble::rownames_to_column()
+
+union_characters <- left_join(lab_socio, node_closeness, by = c("identifiant" = "rowname"))
+
+node_closeness %>%
+  arrange(-closeness_in) %>%
+  .[1:10, ]
+```
+
+* Le nœud portant l'identifiant LAB8030 se distingue par une valeur de centralité de proximité entrante la plus élevée, atteignant 0.5. 
+* Cette mesure indique clairement sa position centrale dans le réseau, suggérant qu'il est plus accessible depuis d'autres nœuds en moyenne, ce qui peut signifier une influence significative au sein du projet. 
+* De plus, il est important de noter que les nœuds LAB8001 et LAB8029 présentent également des valeurs de proximité élevées, à 0.3333333, ce qui suggère qu'ils jouent également un rôle central au sein de ce réseau.
+
+
+```{r,echo=FALSE,comment=""}
+node_closeness <- data.frame(closeness_out = closeness_out) %>%
+  tibble::rownames_to_column()
+
+union_characters <- left_join(lab_socio, node_closeness, by = c("identifiant" = "rowname"))
+
+node_closeness %>%
+  arrange(-closeness_out) %>%
+  .[1:10, ]
+```
+
+* Le nœud LAB8008 a la valeur la plus élevée (0.011627907), ce qui signifie qu'il est le plus central selon cette métrique parmi les nœuds affichés. 
+* Cela pourrait indiquer que LAB8008 cite un grand nombre d'autres individus ou est impliqué dans de nombreuses interactions sortantes. 
+* Les valeurs de centralité diminuent pour les autres nœuds listés, avec LAB8034 ayant la valeur la plus basse (0.009615385), ce qui suggère qu'il est moins central dans le réseau en termes de connexions sortantes
+
+
+
+```{r,echo=FALSE,comment=""}
+betweenness <- igraph::betweenness(graph, directed = TRUE)
+
+node_betweenness <- data.frame(betweenness = betweenness) %>%
+  tibble::rownames_to_column() 
+
+union_characters <- left_join(lab_socio, node_betweenness, by = c("identifiant" = "rowname"))
+
+node_betweenness %>%
+  arrange(-betweenness) %>%
+  .[1:10, ]
+```
+
+* Les individus identifiés par LAB8035 et LAB8003 se distinguent par les valeurs les plus élevées, ce qui suggère qu'ils jouent fréquemment un rôle crucial en tant que points de passage obligés dans les chemins les plus courts entre d'autres paires de nœuds. 
+* Cette constatation suggère qu'ils occupent des positions de médiateur ou de pont essentielles dans le réseau, favorisant ou régulant la circulation de l'information ou des interactions entre les autres membres du réseau.
+* En outre, ces valeurs élevées peuvent indiquer des positions stratégiques, où ces individus ont le potentiel d'influencer ou de connecter divers groupes ou communautés au sein de la structure globale du réseau.
+
+
+```{r,echo=FALSE,comment=""}
+edge_betweenness <- igraph::edge_betweenness(graph, directed = TRUE)
+
+data.frame(edge = attr(E(graph), "vnames"),
+           betweenness = edge_betweenness) %>%
+  tibble::rownames_to_column() %>%
+  arrange(-betweenness) %>%
+  .[1:10, ]
+```
+
+Les liens entre les nœuds LAB8035|LAB8018 et LAB8015|LAB8003 affichent les valeurs les plus élevées en termes d'intermédiarité, indiquant ainsi qu'ils sont souvent empruntés dans les trajets les plus courts entre les nœuds du réseau. 
+
+
+```{r,echo=FALSE,comment=""}
+A=as_adjacency_matrix(graph, type = c("both"),sparse=FALSE)
+
+ 
+cat("The eigen value centrality of the graph is: ",eigen_centrality(graph)$value)
+```
+
+```{r,echo=FALSE,comment=""}
+eigen_centrality(graph)$vector
+```
+
+* Les sorties ci-dessus révèlent que le réseau possède une forte centralité basée sur ses propres vecteurs, avec certains nœuds ayant une influence marquée, indiquée par des valeurs élevées, ce qui suggère qu'ils sont des points clés dans le réseau, bien connectés et également liés à d'autres nœuds influents. 
+* En particulier, le nœud LAB8031 se distingue comme étant particulièrement central.
+
+
+```{r,echo=FALSE,comment=""}
+num_dyads <- sum(degree(graph, mode = "in") > 0 & degree(graph, mode = "out") > 0)
+
+cat("Number of dyads in the network:", num_dyads, "\n")
+```
+
+
+```{r,echo=FALSE,comment=""}
+classify_dyad <- function(graph, node1, node2) {
+  has_edge1_to_2 <- are_adjacent(graph, v1 = node2, v2 = node1)
+  has_edge2_to_1 <- are_adjacent(graph, v1 = node2, v2 = node1)
+  
+  if (has_edge1_to_2 && has_edge2_to_1) {
+    return("Mutual Dyad")
+  } else if (has_edge1_to_2) {
+    return("Asymmetric Dyad")
+  } else if (has_edge2_to_1) {
+    return("Reverse Asymmetric Dyad")
+  } else {
+    return("Null Dyad")
+  }
+}
+
+# Find and classify all dyads in the directed graph
+dyad_types <- sapply(1:vcount(graph), function(node1) {
+  sapply(1:vcount(graph), function(node2) {
+    if (node1 != node2) {
+      return(classify_dyad(graph, node1, node2))
+    } else {
+      return(NA)  # Skip self-loops
+    }
+  })
+})
+
+# Print the result
+colnames(dyad_types) <- colnames(A)
+rownames(dyad_types) <- rownames(A)
+
+```
+
+
+```{r,echo=FALSE,comment=""}
+list_dyad_types <- c()
+for(i in 1:nrow(dyad_types)){
+  for(j in 1:ncol(dyad_types)){
+    list_dyad_types <- c(list_dyad_types, dyad_types[i,j])
+  }
+}
+
+list_dyad_types <- unique(list_dyad_types)
+list_dyad_types <- na.omit(list_dyad_types)
+
+cat(" Les types de dyades du reseau sont: ",list_dyad_types[1]," et ",list_dyad_types[2])
+
+```
+
+Le nombre de dyades montre que plusieurs relations bidirectionnelles existent, impliquant une structure de réseau où de nombreux nœuds interagissent mutuellement.
+
+
+```{r,echo=FALSE,comment=""}
+diameter.nodes <- get.diameter(graph)
+V(graph)[diameter.nodes]$color <- "orange"
+E(graph)$color<-"black"
+E(graph, path=diameter.nodes)$color <- "orange"
+```
+
+
+```{r,fig.width=20,fig.height=20,echo=FALSE}
+plot(graph,
+     layout = layout,
+     vertex.label = gsub(" ", "\n", V(graph)$name),
+     vertex.shape = E(graph)$shape, 
+     vertex.size = betweenness * 0.04, 
+     vertex.frame.color = "gray", 
+     vertex.label.color = "black", 
+     vertex.label.cex = 0.8,
+     edge.width = edge_betweenness * 0.01,
+     edge.arrow.size = 0.5,
+     edge.color = E(graph)$color,
+     edge.lty = E(graph)$lty)
+legend("topleft", legend = c("Node color:", as.character(color_vertices$revenu_sup_3000), NA, "Edge shape:", as.character(shapes_edges$shape)), pch = 19,
+       col = c(NA, color_vertices$color, NA, NA,NA), pt.cex = 5, cex = 2, bty = "n", ncol = 1)
+legend("top", legend = "", cex = 2, bty = "n", ncol = 1,
+       title = "Graph of The people cited in the survey in LAB 8 with the diameter")
+```
+
+
+* On peut observer une diversité significative dans la répartition des niveaux de revenu et des titres de doctorat à travers le réseau, ce qui témoigne d'une variété socio-économique et éducative parmi les individus cités. Les connexions entre les nœuds associés à différents revenus et niveaux éducatifs révèlent que les interactions et les références ne sont pas limitées à des catégories spécifiques, mais qu'elles traversent ces diverses catégories.
+
+* Certains nœuds agissent comme des points centraux, avec un grand nombre de connexions entrantes et sortantes, ce qui peut indiquer qu'ils sont fortement cités ou référencés, potentiellement en tant que figures centrales ou influentes au sein du réseau. La présence de ces hubs peut jouer un rôle essentiel dans la propagation d'informations ou dans la dynamique sociale du groupe.
+
+* Bien que le réseau ne présente pas de "cliques", on peut néanmoins identifier l'existence de sous-groupes plus ou moins informels. Certains nœuds agissent comme des ponts entre ces sous-groupes, favorisant ainsi l'intégration globale du réseau.
+
+
+```{r,echo=FALSE,comment=""}
+
+cat("The graph's density is: ",graph.density(graph))
+```
+
+* La densité du graphe affiche une valeur de 0.0951417, ce qui indique une connectivité relativement faible au sein du réseau. En d'autres termes, seulement environ 9,5 % des liens possibles entre tous les nœuds sont effectivement établis. 
+* Cette constatation suggère qu'il existe encore un potentiel considérable pour de nouvelles connexions, malgré quelques individus bien connectés.
+
+```{r,echo=FALSE,comment=""}
+
+cat("The graph's reciprocity is: ",reciprocity(graph))
+```
+
+* En ce qui concerne la réciprocité du graphe, elle atteint un niveau de 0.5673759, révélant ainsi un degré de mutualité modéré à élevé dans les relations.
+* Environ 56,7 % des liens sont réciproques, ce qui signifie que lorsque quelqu'un, par exemple A, mentionne ou se réfère à quelqu'un d'autre, B, il y a une forte probabilité que B fasse également référence à A. 
+* Cette observation peut refléter un réseau où les collaborations, les communications ou les citations sont fréquemment bidirectionnelles.
+
+```{r,echo=FALSE,comment=""}
+
+cat("The graph's transitivity is: ",transitivity(graph))
+```
+
+* En ce qui concerne la transitivité, ou coefficient de clustering global, il est évalué à 0.330373. 
+* Ce chiffre suggère qu'un nœud donné a une probabilité de 33,03 % que ses voisins soient également connectés entre eux.
+* Cette constatation peut indiquer la présence de communautés ou de groupes compacts au sein du réseau, où les membres ont tendance à se regrouper. 
+* Cependant, cette valeur n'est pas excessivement élevée, ce qui suggère que le réseau ne présente pas une forte propension à former des cliques, et qu'il existe des possibilités d'accroître la cohésion au sein du réseau.
+
+# **Partie 2:  Etude du rôle des effets de pairs dans les comportements de recyclage – modèle à la Manski** 
+
+
+**Rappel :**
+
+Le modèle de Manski se réfère à l'idée que les individus prennent leurs décisions en tenant compte des choix de leurs pairs, formant ainsi des réseaux d'influence. Il se repose sur les critères suivants : 
+
+* un individu interagit avec tous les individus de son groupe
+* un individu n’interagit pas avec lui-même
+* un individu interagit avec aucune personne extérieure à son groupe
+
+
+
+```{r,echo=FALSE}
+# 4.a
+  data <- read.csv("BDD_Rescampus_cleaned.csv",header=T,sep=',')
+  t_m <- data.frame() # création d'un dataframe vide qui contiendra toutes les informations finales.
+  laboratoire <- unique(data$lab) # On récupère manière unique chaque labo
+  
+  for (labo in 1:length(laboratoire)){
+    
+    table_labo <- data[data$lab==laboratoire[labo],]
+    
+    for (i in 1:nrow(table_labo)){
+      
+     table_labo <- table_labo %>%
+        mutate(mean_doctorat = (sum(doctorat) - doctorat) / (n() - 1),
+               mean_revenu_sup_3000 = (sum(revenu_sup_3000) - revenu_sup_3000) / (n() - 1),
+               mean_femme = (sum(femme) - femme) / (n() - 1),
+               mean_age = (sum(age) - age) / (n() - 1),
+               mean_nb_HH = (sum(nb_HH) - nb_HH) / (n() - 1),
+               mean_recyclage_index = (sum(recyclage_index) - recyclage_index) / (n() - 1))
+        
+    }
+    t_m <- rbind(t_m,table_labo)
+    
+  }
+
+```
+
+
+```{r,echo=FALSE,comment=""}
+manski <- lm(recyclage_index~.-identifiant-Q8A-Q8B-Q8C-Q8D-Q8E-Q8F-lab,data=t_m)
+modele_manski <- lm(recyclage_index~doctorat+revenu_sup_3000+femme+age +nb_HH+mean_doctorat+
+                     mean_revenu_sup_3000+ mean_femme+mean_age+mean_nb_HH+
+                      mean_recyclage_index,data=t_m)
+summary(modele_manski)
+```
+
+De cette régression, on peut en tirer les conclusions suivantes:
+
+* Posséder un doctorat a un effet positif, mais non significatif sur l'indice de recyclage.
+* Avoir un revenu supérieur à 3000 a également un effet positif significatif sur l'indice de recyclage.
+* Etre une femme a un effet positif significatif sur l'indice de recyclage.
+* L'âge a un effet négatif significatif sur l'indice de recyclage, suggérant que cet indice tend à diminuer avec l'augmentation de l'âge.
+* Le nombre de personnes dans le ménage a un effet positif significatif sur l'indice de recyclage.
+* Les moyennes calculées pour les laboratoires montrent des tendances similaires, à l'exception de la moyenne de l'indice de recyclage au sein des laboratoires, qui na un effet négatif sur l'indice de recyclage.
+* De plus, la moyenne de l'âge au sein des laboratoires a un effet positif et significatif, ce qui contraste avec l'effet de l'âge au niveau individuel.
+
+En ne prenant que les variables significatives, nous pourrons conclure:
+
+* Avoir un revenu supérieur a 3000, etre une femme, le nombre personnes dans le ménage, l'age moyen du groupe(sans l'individu concerné), la moyenne du nombre personnes dans le ménage de chaque individus du groupe(sans l'individu concerné) ; ont un effet positif sur l'indice de recyclage de l'individu concerné. 
+* L'age(de l'individu concerné), l'indice de recyclage moyen dans le groupe ; ont un effet négatif sur l'indice de recyclage de l'individu concerné.
+
+**NB:** 
+
+* un effet positif signifie: plus la variable explicative augmente(ou diminue), plus la variable à expliquer augmente(ou diminue)
+* un effet négatif signifie: plus la variable explicative diminue(ou augmente), plus la variable à expliquer diminue(ou augmente)
+
+# **Partie 3 - Etude du rôle des effets de pairs dans les comportements de recyclage – modèle à la Bramoullé**
+
+
+```{r,echo=FALSE}
+BDD_ResCampus <- read.csv("BDD_Rescampus_cleaned.csv",header=T,sep=',')
+BDD_ResCampus<-as.data.frame(BDD_ResCampus)
+G <- matrix(0,nrow=nrow(BDD_ResCampus),nrow(BDD_ResCampus))#adjacency matrix
+for (j in 1:nrow(G)){ # for each individual
+lstfr <- c(which(colnames(BDD_ResCampus)=="Q8A"):which(colnames(BDD_ResCampus)=="Q8F")) # unique identifiers for j's friends
+for (k in lstfr){ # for each potential friendship relations
+if (!is.na(BDD_ResCampus[j,k])){ # if named a friend
+fr <- which(BDD_ResCampus$identifiant==BDD_ResCampus[j,k]) # find friend k' row number
+if (length(fr)>0){ # if friend k is found
+G[j,fr[1]] <- 1 # add link
+}
+}
+}
+}
+diag(G) <- 0 # zero on diagonal
+G<- G/rowSums(G)
+G<-ifelse(is.nan(G),0,G) #of course dividing by zero yields NaN
+```
+
+
+```{r,echo=FALSE,comment=""}
+modele_bramoulle <- iv_robust(recyclage_index~doctorat+revenu_sup_3000+femme+age +nb_HH
+                     |
+                      mean_doctorat+
+                     mean_revenu_sup_3000+ mean_femme+mean_age+mean_nb_HH+
+                     mean_recyclage_index +lab,
+                     data=t_m,
+                     clusters = lab)
+summary(modele_bramoulle)
+```
+
+Dans la régression linéaire robuste: 
+
+* le niveau de revenu supérieur à 3000 et le nombre de personnes dans le ménage montrent une corrélation positive significative avec l'indice de recyclage, indiquant que ces facteurs sont associés à un meilleur recyclage.
+* En revanche, l'âge a un impact négatif sur l'indice de recyclage, suggérant que les personnes plus âgées ont tendance à recycler moins. 
+* Les autres variables individuelles , telles que le fait d'avoir un doctorat et d'être une femme n'ont pas montré de significativité statistique dans ce modèle.
+* Malgré la significativité globale du modèle, la proportion de la variabilité de l'indice de recyclage expliquée par ces variables est relativement faible, comme le révèle le R-carré ajusté = 0.08.
+
+```{r,echo=FALSE}
+matrice_X <- data |> select(c("doctorat","revenu_sup_3000","femme",
+                              "age","nb_HH")) |> as.matrix()
+
+matrice_Y <- data |> select(c("recyclage_index")) |> as.matrix()
+
+```
+
+
+```{r,echo=FALSE,comment=""}
+GX <- G %*% matrice_X
+colnames(GX) <- c("G_doctorat","G_revenu_sup_3000","G_femme","G_age","G_nb_HH")
+G2X <- G %*% G %*% matrice_X
+colnames(G2X) <- c("G2_doctorat","G2_revenu_sup_3000","G2_femme","G2_age","G2_nb_HH")
+GY <- G %*% matrice_Y
+colnames(GY) <- c("G_recyclage_index")
+
+X <- data |> select(c("doctorat","revenu_sup_3000","femme",
+                              "age","nb_HH"))
+
+data_bramoulle_fix <- as.data.frame(cbind("recyclage_index"=data$recyclage_index,X,GX,G2X,GY))
+```
+
+
+```{r,echo=FALSE,comment=""}
+modele_bramoulle_fix <- iv_robust(recyclage_index~ doctorat+revenu_sup_3000+femme+ age + nb_HH +
+                                    G_doctorat+G_revenu_sup_3000+G_femme+ G_age + G_nb_HH
+                                  + G_recyclage_index
+                                  |
+                                    doctorat+revenu_sup_3000+femme+ age + nb_HH +
+                                    G_doctorat+G_revenu_sup_3000+G_femme+ G_age + G_nb_HH+
+                                    G2_doctorat+G2_revenu_sup_3000+G2_femme+ G2_age + G2_nb_HH,
+                     data=data_bramoulle_fix)
+summary(modele_bramoulle_fix)
+
+```
+
+* Les individus avec un revenu élevé et ceux vivant dans des ménages plus grands sont plus enclins à recycler, comme en témoignent les effets positifs et significatifs de ces variables sur l'indice de recyclage.
+* Inversement, une augmentation de l'âge est associée à une réduction de l'indice de recyclage, suggérant une tendance à moins recycler chez les individus plus âgés. 
+* Ni la détention d'un doctorat ni le sexe féminin ne montrent d'influence notable sur les comportements de recyclage selon les résultats de ce modèle. 
+* En outre, les interactions entre les variables étudiées ne révèlent pas d'impact marquant sur l'indice, indiquant que leurs effets ne sont pas amplifiés lorsqu'ils sont combinés. 
+* Le modèle a une capacité explicative limitée pour l'indice de recyclage, ce qui implique que d'autres variables, non comprises dans l'analyse, pourraient également être influentes.
+* Cependant, le modèle est globalement significatif, ce qui est confirmé par la significativité de la statistique F
+
+
+# **Conclusion**
+
+* La base de données est constitué de 339 individus répartis en 9 laboratoires.
+* Le réseau de citations entre individus dans le cadre d'une enquête au sein du laboratoire 8 a une structure de réseau bien interconnecté, avec des individus souvent citant ou étant cités par plusieurs autres. On note une variété socio-économique et éducative parmi les individus cité; les interactions et les références ne sont pas limitées à des catégories d'individus spécifiques.
+* Ce réseau contient des sous-groupes avec des nœuds agisseant comme des ponts entre ces sous-groupes.
+* Environ 9,5 % des liens possibles entre tous les nœuds sont effectivement établis, 56,7 % des liens sont réciproques.
+* La relation entre l'individu sert des positions de médiateur ou de pont essentielles dans le réseau, et d'autres ont un rôle central dans le reseau.
+* Pour étudier les variables qui impactent la tendance à recycler de chaque employé, nous avons fait trois modèles: un modèle Manski, un modèle de Bramoullé et un modèle de Bramoullé fixe. 
+* Le niveau de revenu supérieur à 3000 et le nombre de personnes dans le ménage montrent un effet positif significatif sur l'indice de recyclage.
+* L'age, l'indice de recyclage moyen dans le groupe ; ont un effet négatif sur l'indice de recyclage.
+
+
+

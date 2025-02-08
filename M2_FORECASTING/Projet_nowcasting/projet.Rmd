@@ -1,0 +1,571 @@
+---
+title: "Projet_Forecasting"
+output: html_notebook
+---
+
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = F)
+knitr::opts_chunk$set(comment = "")
+knitr::opts_chunk$set(warning = F)
+knitr::opts_chunk$set(message = F)
+```
+
+
+```{r}
+library(xts)
+library(readxl)
+library(astsa)
+library(ggfortify)
+library(forecast)
+library(fpp2)
+library(gets)
+library(urca)
+library(openxlsx)
+library(tidyverse)
+
+library(sf)
+library(magrittr)
+library(RColorBrewer)
+library(hrbrthemes)
+library(vtable)
+library(spdep)
+library(tmap)
+library(stringr)
+library(viridis)
+library(lattice)
+library(raster)
+library(orcutt)
+library(cowplot)
+library(corrgram)
+library(corrplot)
+library(stargazer)
+library(estimatr)
+
+library(MASS)
+library(ISLR)
+library(pls)
+library(caret)
+library(glmnet)
+library(rAmCharts)
+library(car)
+library(AER)
+library(readxl)
+library(zoo)
+library(midasr)
+
+getwd()
+setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
+
+```
+Importation
+
+```{r}
+gdp <- read_excel("GDP.xls",skip=10)
+construction <- read_excel("TTLCONS.xls",skip=10)
+```
+
+GDP: PIB des USA en milliards de dollars
+TTLCONS: depenses en construction en millions de dollars
+
+Ramener les TTLCONS en milliards de dollars
+
+```{r}
+#Ramener le montant des constructions en milliards de dollars
+
+construction$TTLCONS <- construction$TTLCONS/1000
+construction$observation_date <- as.Date(construction$observation_date)
+
+```
+
+
+```{r}
+gdp$observation_date <- as.Date(gdp$observation_date)
+#gdp <- gdp[which(gdp$observation_date>="1993-01-01"),]
+
+```
+
+Predictions TTLCONS pour Avril, Mai, Juin (modele ARIN=MA) dans le but de pouvoir faire la prediction du PIB pour le 2e trimestre de 2024
+
+```{r}
+y <- ts(construction$TTLCONS,start=c(1993,1),frequency=12)
+TTL_CONS_pred <- auto.arima(y, lambda = 0) |> forecast(h=3)
+
+
+TTLCONS_pred_data <- data.frame(
+  observation_date = as.Date(time(TTL_CONS_pred$mean)),
+  TTLCONS = as.numeric(TTL_CONS_pred$mean)
+)
+
+construction <- rbind(construction,TTLCONS_pred_data)
+```
+
+Aggregation des donnees mensuelles pour les ramener au trimestre
+
+```{r}
+quarterly_construction <- construction %>%
+  mutate(observation_date = paste0(format(observation_date, "%Y"), "-Q", quarter(observation_date))) %>%
+  group_by(observation_date) %>%
+  summarise(TTLCONS = sum(TTLCONS))
+```
+
+```{r}
+quarter_to_date <- function(q) {
+  year <- substr(q, 1, 4)
+  quarter <- substr(q, 6, 7)
+  month <- switch(quarter,
+                  "Q1" = "01",
+                  "Q2" = "04",
+                  "Q3" = "07",
+                  "Q4" = "10")
+  paste0(year, "-", month, "-01")
+}
+```
+
+```{r}
+quarterly_construction$observation_date <- as.Date(sapply(quarterly_construction$observation_date, quarter_to_date))
+
+```
+
+
+Creation de jeu de donnees qui contient le PIB et les TTLCONS trimestrielles en milliards de dollars
+
+```{r}
+gdp$lag_GDP <- lag(gdp$GDP)
+data <- merge(gdp,quarterly_construction,on='observation')
+```
+
+On decide de creer une variable retard du PIB pour pouvoir faire le modele de bridge (Voir formule)
+
+```{r}
+data$GDP <- ts(data$GDP,start=c(1993,1),frequency=4)
+data$TTLCONS <- ts(data$TTLCONS,start=c(1993,1),frequency=4)
+data$lag_GDP <- ts(data$lag_GDP,start=c(1993,1),frequency=4)
+```
+
+
+```{r}
+boxplot(data$GDP)
+sd(data$GDP)
+```
+# **Prevision Within Sample (WS)**
+
+### MODELE BRIDGE
+
+```{r}
+modele <- lm(GDP~TTLCONS+lag_GDP,data=data)
+summary(modele)
+```
+
+TTLCONS et lag_GDP significatifs au niveau 5%
+Modele globalement satisfaisant, car p-value du test de Fisher < 5%
+R2 = 99.8 %, Ce qui montre que les vqrs explicatives capturent bien la  variance du PIB
+
+
+```{r}
+plot(modele)
+```
+
+Le QQ-plot montre que les residus ont une distribution normale
+Les residus sont proches de 0 sauf pour une valeur extreme
+residus sont homscedasticiques car la variance de Residuals VS Fitted values est stable
+
+```{r}
+ggtsdisplay(residuals(modele))
+```
+
+De plus residus sont non autocorreles.
+Les hypotheses sont verifiees.
+
+
+```{r}
+last_ttlcons <- tail(quarterly_construction$TTLCONS,2)
+last_GDP <-tail(data$GDP,2)
+
+newdata <- data.frame(TTLCONS = last_ttlcons, lag_GDP = last_GDP)
+
+predictions_bridge <- predict(modele, newdata=newdata, interval="prediction")
+```
+
+Creer Series Temporelles pour les predictions
+
+```{r}
+last_obs <- end(data$GDP)
+start_future <- c(last_obs[1] + (last_obs[2] == 4), ifelse(last_obs[2] == 4, 1, last_obs[2] + 1))
+future_dates <- seq(as.yearqtr(last_obs[1] + (last_obs[2] - 1) / 4), length.out = nrow(predictions_bridge), by = 1/4)
+
+predicted_ts <- ts(predictions_bridge[, "fit"], start = c(2024, 1), frequency = 4)
+lower_ts <- ts(predictions_bridge[, "lwr"], start = c(2024, 1), frequency = 4)
+upper_ts <- ts(predictions_bridge[, "upr"], start = c(2024, 1), frequency = 4)
+```
+
+Tracer les predictions et l'intervalle de prediction
+
+```{r}
+combined_data <- data.frame(
+  Date = c(time(data$GDP), future_dates),
+  GDP = c(as.numeric(data$GDP), as.numeric(predicted_ts)),
+  Lower = c(rep(NA, length(data$GDP)), as.numeric(lower_ts)),
+  Upper = c(rep(NA, length(data$GDP)), as.numeric(upper_ts)),
+  Type = c(rep("Historique", length(data$GDP)), rep("Prévision", length(predicted_ts)))
+)
+
+# Visualisation avec ggplot2
+ggplot(combined_data, aes(x = Date, y = GDP, color = Type)) +
+  geom_line(size = 1) +
+  geom_point(size = 1) +
+  geom_ribbon(aes(ymin = Lower, ymax = Upper), fill = "blue", alpha = 0.2) +
+  labs(title = "Historique et Prévisions du PIB (en milliards de dollars) des USA",
+       x = "Date",
+       y = "PIB (en milliards de dollars)") +
+  theme_minimal() +
+  scale_color_manual(values = c("Historique" = "black", "Prévision" = "red"))
+
+predictions_bridge
+```
+
+### MIDAS Zero
+
+```{r}
+GDP <- data$GDP
+model_midas <- midas_r(GDP ~ mls(TTLCONS, 0:11, 3), data = list(TTLCONS = construction$TTLCONS[1:(length(construction$TTLCONS)-3)]),start=list(TTLCONS = rep(0, 12)))
+summary(model_midas)
+
+```
+Aucun Coef significatif au niveau 5%
+
+```{r}
+future_ttlcons <- data.frame(
+  date = seq(as.Date("2024-04-01"), by = "month", length.out = 3),
+  TTLCONS = tail(construction$TTLCONS,3)  # Remplacer par vos données futures
+)
+future_TTLCONS_ts <- ts(future_ttlcons$TTLCONS, start = c(2024, 4), frequency = 12)
+
+# Prédictions pour les trimestres futurs avec intervalles de prédiction
+predictions_midas <- forecast(model_midas, newdata = list(TTLCONS = future_TTLCONS_ts), h = 1, level = 95, se=T) 
+```
+
+
+```{r}
+plot(predictions_midas)
+predictions_midas
+```
+
+```{r}
+ggtsdisplay(residuals(model_midas))
+```
+
+residus heteroscedasticiques, autocorreles
+Capacite predictive laisse a desirer
+
+### MIDAS non Zero
+
+```{r}
+GDP <- data$GDP
+model_midas_non_zero <- midas_r(GDP ~ mls(TTLCONS, 0:11, 3), data = list(TTLCONS = construction$TTLCONS[1:(length(construction$TTLCONS)-3)]),start=list(TTLCONS = rep(1000, 12)))
+summary(model_midas_non_zero)
+
+```
+
+meme coef que le model zero, cela signifie que  Les données utilisées pour le modèle peuvent être suffisamment informatives pour guider le modèle vers des coefficients similaires, quelle que soit la valeur initiale.
+
+```{r}
+future_ttlcons <- data.frame(
+  date = seq(as.Date("2024-04-01"), by = "month", length.out = 3),
+  TTLCONS = tail(construction$TTLCONS,3)  # Remplacer par vos données futures
+)
+future_TTLCONS_ts <- ts(future_ttlcons$TTLCONS, start = c(2024, 4), frequency = 12)
+
+# Prédictions pour les trimestres futurs avec intervalles de prédiction
+predictions_midas_non_zero <- forecast(model_midas_non_zero, newdata = list(TTLCONS = future_TTLCONS_ts), h = 1, level = 95, se=T) 
+```
+
+
+```{r}
+plot(predictions_midas_non_zero)
+predictions_midas_non_zero
+```
+
+```{r}
+ggtsdisplay(residuals(predictions_midas_non_zero))
+```
+
+residus heteroscedasticiques, autocorreles
+Capacite predictive laisse a desirer
+
+
+# **Prevision Out OF Sample (OOS)**
+
+### MODELE BRIDGE
+
+```{r}
+split_date <- as.Date("2017-01-01")
+train_indices <- which(data$observation_date < split_date)
+test_indices <- which(data$observation_date >= split_date)
+
+data_train <- data[train_indices,]
+data_test <- data[test_indices,]
+```
+
+```{r}
+modele_oos <- lm(GDP~TTLCONS+lag_GDP,data=data_train)
+summary(modele_oos)
+```
+
+Pour cette prevision OOS avec le modele de bridge, on note que le retard du PIB est la seul variable significative au niveau 5%. TTLCONS n'est pas significative alors qu'elle l'etait dans la prevision WS
+Le R2 est 99.95%, donc le modele est bien ajuste
+Le test de Fisher est significatif au niveau 5%, d'ou le modele est globalement satisfaisant
+
+```{r}
+plot(modele_oos)
+ggtsdisplay(residuals(modele_oos))
+```
+
+Les residus suivent une loi normale, avec des outliers au niveau des extremites du QQ-plot
+Les residus semblent etre homoscedasticiques car la variabilite du nuage de pts Residus vs Valeurs reelles est constante, puis croit ensuite reste constante
+Les residus ne sont pas autocorreles.
+
+```{r}
+last_ttlcons <- c(data_test$TTLCONS,tail(quarterly_construction$TTLCONS,1))
+last_GDP <-c(data_train$GDP[length(data_train$GDP)],data_test$GDP)
+
+newdata <- data.frame(TTLCONS = last_ttlcons, lag_GDP = last_GDP)
+
+predictions_bridge_oos <- predict(modele, newdata=newdata, interval="prediction")
+
+```
+
+```{r}
+#last_obs <- end(ts(data_train$GDP,start=c(2017,1),frequency=4))
+#start_future <- c(last_obs[1] + (last_obs[2] == 4), ifelse(last_obs[2] == 4, 1, last_obs[2] + 1))
+
+predicted_ts <- ts(predictions_bridge_oos[, "fit"], start = c(2017, 1), frequency = 4)
+lower_ts <- ts(predictions_bridge_oos[, "lwr"], start = c(2017, 1), frequency = 4)
+upper_ts <- ts(predictions_bridge_oos[, "upr"], start = c(2017, 1), frequency = 4)
+
+data_prediction <- data.frame(Date = c(data_test$observation_date,tail(quarterly_construction$observation_date,1)), 
+                          Predicted = predictions_bridge_oos[, "fit"], 
+                          Lower = predictions_bridge_oos[, "lwr"], 
+                          Upper = predictions_bridge_oos[, "upr"])
+
+# Combinez les ensembles d'entraînement et de test pour les valeurs réelles
+actual_data <- data.frame(
+  Date = data$observation_date,
+  Actual = data$GDP
+)
+
+#data_prediction$Date <- as.yearqtr(data_prediction$Date, format = "%Y-Q%q")
+#actual_data$Date <- as.yearqtr(actual_data$Date, format = "%Y-Q%q")
+
+
+# Étape 4 : Création du graphique avec ggplot2
+ggplot() +
+  geom_line(data = actual_data, aes(x = Date, y = Actual, color = "Valeurs Réelles"), size = 1) +
+  geom_line(data = data_prediction, aes(x = Date, y = Predicted, color = "Prévisions"), size = 1, linetype = "dashed") +
+  geom_point(data = data_prediction, aes(x = Date[30], y = Predicted[30], color = "Prévisions 2e trimestre 2024"), size = 2) +
+  geom_ribbon(data = data_prediction, aes(x = Date, ymin = Lower, ymax = Upper), alpha = 0.2, fill = "blue") +
+  labs(title = "Prévisions du PIB vs Valeurs Réelles avec Intervalles de Prédiction",
+       x = "Date",
+       y = "PIB",
+       color = "Légende") +
+  scale_x_date(date_labels = as.yearqtr) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  scale_color_manual(values = c("Valeurs Réelles" = "black", "Prévisions" = "pink","Prévisions 2e trimestre 2024"="red"))
+tail(predictions_bridge_oos,1)
+```
+
+On peut voir sur l'ensemble de la periode de test, le modele predit bien le PIB, meme avec la baisse pendant la pandemie du Covid-19 en 2020
+Il predit au 2e trimestre de 2024 un PIB de 28717.93 milliards de dollars, avec un intervalle de [28192.53,29243.33].
+
+### Modele midas zero
+
+```{r}
+train_indices <- which(construction$observation_date < split_date)
+test_indices <- which(construction$observation_date >= split_date)
+
+construction_train <- construction[train_indices,]
+construction_test <- construction[test_indices,]
+
+
+construction_train$TTLCONS <- ts(construction_train$TTLCONS,start=c(1993,1),frequency=12)
+construction_test$TTLCONS <- ts(construction_test$TTLCONS,start=c(2017,1),frequency=12)
+
+```
+
+
+```{r}
+GDP <- ts(data_train$GDP,start=c(1993,1),frequency=4)
+model_midas_zero_oos <- midas_r(GDP ~ mls(TTLCONS, 0:11, 3), data = list(TTLCONS = construction_train$TTLCONS),start=list(TTLCONS = rep(0, 12)))
+summary(model_midas_zero_oos)
+```
+
+Aucune variable n'est significative au niveau 5%.
+
+
+```{r}
+future_ttlcons <- data.frame(
+  date = seq(split_date, by = "month", length.out = nrow(construction_test)),
+  TTLCONS = construction_test$TTLCONS  # Remplacer par vos données futures
+)
+future_TTLCONS_ts <- ts(future_ttlcons$TTLCONS, start = c(2017, 1), frequency = 12)
+
+# Prédictions pour les trimestres futurs avec intervalles de prédiction
+predictions_midas_zero_oos <- forecast(model_midas_zero_oos, newdata = list(TTLCONS = future_TTLCONS_ts), h = 1, level = 95, se=T) 
+```
+
+
+
+```{r}
+ggtsdisplay(residuals(predictions_midas_zero_oos))
+```
+
+Residus tjrs heteroscedasticiques et autocorreles.
+
+
+```{r}
+predicted_ts <- ts(predictions_midas_zero_oos$mean, start = c(2017, 1), frequency = 4)
+lower_ts <- ts(predictions_midas_zero_oos$lower, start = c(2017, 1), frequency = 4)
+upper_ts <- ts(predictions_midas_zero_oos$upper, start = c(2017, 1), frequency = 4)
+
+data_prediction <- data.frame(Date = c(data_test$observation_date,tail(quarterly_construction$observation_date,1)), 
+                          Predicted = predictions_midas_zero_oos$mean, 
+                          Lower = predictions_midas_zero_oos$lower, 
+                          Upper = predictions_midas_zero_oos$upper)
+
+# Combinez les ensembles d'entraînement et de test pour les valeurs réelles
+actual_data <- data.frame(
+  Date = data$observation_date,
+  Actual = data$GDP
+)
+
+#data_prediction$Date <- as.yearqtr(data_prediction$Date, format = "%Y-Q%q")
+#actual_data$Date <- as.yearqtr(actual_data$Date, format = "%Y-Q%q")
+
+
+# Étape 4 : Création du graphique avec ggplot2
+ggplot() +
+  geom_line(data = actual_data, aes(x = Date, y = Actual, color = "Valeurs Réelles"), size = 1) +
+  geom_line(data = data_prediction, aes(x = Date, y = Predicted, color = "Prévisions"), size = 1, linetype = "dashed") +
+  geom_point(data = data_prediction, aes(x = Date[30], y = Predicted[30], color = "Prévisions 2e trimestre 2024"), size = 2) +
+  geom_ribbon(data = data_prediction, aes(x = Date, ymin = Lower, ymax = Upper), alpha = 0.2, fill = "blue") +
+  labs(title = "Prévisions du PIB vs Valeurs Réelles avec Intervalles de Prédiction",
+       x = "Date",
+       y = "PIB",
+       color = "Légende") +
+  scale_x_date(date_labels = as.yearqtr) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  scale_color_manual(values = c("Valeurs Réelles" = "black", "Prévisions" = "pink","Prévisions 2e trimestre 2024"="red"))
+predictions_midas_zero_oos
+```
+
+On peut remarquer qu'il y a une difference notable entre les valeurs relles et les previsions pour la prevision OOS du modele MIDAS zero. Ce qui n'est pas satisfaisant.
+prediction = 28696.91  et intervalle de prediction = [16416.86,32324.22] (IP beaucoup plus grand que celui du modele bridge)
+
+### Modele midas non zero
+
+```{r}
+GDP <- ts(data_train$GDP,start=c(1993,1),frequency=4)
+model_midas_non_zero_oos <- midas_r(GDP ~ mls(TTLCONS, 0:11, 3), data = list(TTLCONS = construction_train$TTLCONS),start=list(TTLCONS = rep(1000, 12)))
+summary(model_midas_non_zero_oos)
+```
+
+IDEM que modele MIDAS Zero
+Cela signifie que  Les données utilisées pour le modèle peuvent être suffisamment informatives pour guider le modèle vers des coefficients similaires, quelle que soit la valeur initiale.
+
+```{r}
+future_ttlcons <- data.frame(
+  date = seq(split_date, by = "month", length.out = nrow(construction_test)),
+  TTLCONS = construction_test$TTLCONS  # Remplacer par vos données futures
+)
+future_TTLCONS_ts <- ts(future_ttlcons$TTLCONS, start = c(2017, 1), frequency = 12)
+
+# Prédictions pour les trimestres futurs avec intervalles de prédiction
+predictions_midas_non_zero_oos <- forecast(model_midas_non_zero_oos, newdata = list(TTLCONS = future_TTLCONS_ts), h = 1, level = 95, se=T) 
+```
+
+
+
+
+```{r}
+ggtsdisplay(residuals(predictions_midas_non_zero_oos))
+```
+
+Residus tjrs heteroscedasticiques et autocorreles.
+
+
+```{r}
+predicted_ts <- ts(predictions_midas_non_zero_oos$mean, start = c(2017, 1), frequency = 4)
+lower_ts <- ts(predictions_midas_non_zero_oos$lower, start = c(2017, 1), frequency = 4)
+upper_ts <- ts(predictions_midas_non_zero_oos$upper, start = c(2017, 1), frequency = 4)
+
+data_prediction <- data.frame(Date = c(data_test$observation_date,tail(quarterly_construction$observation_date,1)), 
+                          Predicted = predictions_midas_non_zero_oos$mean, 
+                          Lower = predictions_midas_non_zero_oos$lower, 
+                          Upper = predictions_midas_non_zero_oos$upper)
+
+# Combinez les ensembles d'entraînement et de test pour les valeurs réelles
+actual_data <- data.frame(
+  Date = data$observation_date,
+  Actual = data$GDP
+)
+
+#data_prediction$Date <- as.yearqtr(data_prediction$Date, format = "%Y-Q%q")
+#actual_data$Date <- as.yearqtr(actual_data$Date, format = "%Y-Q%q")
+
+
+# Étape 4 : Création du graphique avec ggplot2
+ggplot() +
+  geom_line(data = actual_data, aes(x = Date, y = Actual, color = "Valeurs Réelles"), size = 1) +
+  geom_line(data = data_prediction, aes(x = Date, y = Predicted, color = "Prévisions"), size = 1, linetype = "dashed") +
+  geom_point(data = data_prediction, aes(x = Date[30], y = Predicted[30], color = "Prévisions 2e trimestre 2024"), size = 2) +
+  geom_ribbon(data = data_prediction, aes(x = Date, ymin = Lower, ymax = Upper), alpha = 0.2, fill = "blue") +
+  labs(title = "Prévisions du PIB vs Valeurs Réelles avec Intervalles de Prédiction",
+       x = "Date",
+       y = "PIB",
+       color = "Légende") +
+  scale_x_date(date_labels = as.yearqtr) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  scale_color_manual(values = c("Valeurs Réelles" = "black", "Prévisions" = "pink","Prévisions 2e trimestre 2024"="red"))
+tail(predictions_bridge_oos,1)
+```
+
+
+METRIQUES
+
+```{r}
+rmse_midas <- sqrt(mean(model_midas$residuals^2))
+mae_midas <- mean(abs(model_midas$residuals))
+mae_midas_zero_oos <- mean(abs(data_test$GDP - predictions_midas_zero_oos$mean[1:nrow(data_test)]))
+rmse_midas_zero_oos <- sqrt(mean((data_test$GDP - predictions_midas_zero_oos$mean[1:nrow(data_test)])^2))
+
+rmse_midas_non_zero <- sqrt(mean(model_midas_non_zero$residuals^2))
+mae_midas_non_zero <- mean(abs(model_midas_non_zero$residuals))
+mae_midas_non_zero_oos <- mean(abs(data_test$GDP - predictions_midas_non_zero_oos$mean[1:nrow(data_test)]))
+rmse_midas_non_zero_oos <- sqrt(mean((data_test$GDP - predictions_midas_non_zero_oos$mean[1:nrow(data_test)])^2))
+
+rmse_bridge <- sqrt(mean(modele$residuals^2))
+mae_bridge <- mean(abs(modele$residuals))
+mae_bridge_oos <- mean(abs(data_test$GDP - predictions_bridge_oos[,"fit"][1:nrow(data_test)]))
+rmse_bridge_oos <- sqrt(mean((data_test$GDP - predictions_bridge_oos[,"fit"][1:nrow(data_test)])^2))
+
+
+resume <- data.frame(
+  Type = c(rep("Winthin Sample",3),rep("Out OF Sample",3)),
+  Modele = rep(c("Bridge", "Midas Zero", "Midas Non Zero"),2),
+  MAE = c(mae_bridge,mae_midas,mae_midas_non_zero,mae_bridge_oos,mae_midas_zero_oos,mae_midas_non_zero_oos),
+  RMSE= c(rmse_bridge,rmse_midas,rmse_midas_non_zero,rmse_bridge_oos,rmse_midas_zero_oos,rmse_midas_non_zero_oos)
+)
+
+resume
+```
+
+
+
+Meilleur modele est celui de bridge car meilleurs metriques, donc meilleure capacite predictive (pour prevision WS et OOS)
+En plus les hypotheses statistiques sur les residus sont bel et bien verifiees.
+
+Ecart-type GDP = 5623 milliards de dollars et RMSE modele de bridge = 252,87 (WS)
+Ecart-type GDP = 5623 milliards de dollars et RMSE modele de bridge = 496,57 (OOS) 

@@ -1,0 +1,514 @@
+---
+title: "Projet_analyse_reseaux"
+author: "Omar_Saip_SY Yann_KIBAMBA Walid_PARACHA"
+date: "2023-10-10"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+# Importation des librairies
+```{r, include=F}
+# install.packages("reactable")
+library(tidyverse)
+library(igraph)
+library(reactable)
+library(ggplot2)
+```
+
+# Introduction
+
+Pour ce projet d'analyse de réseaux sociaux, nous avons choisi de porter notre regard sur les relations existantes des passagers du Titanic. Autrement dit nous allons étudier les caractéristiques et interactions résidentes au sein de notre groupe d'individus.
+
+
+# Import de la base
+
+```{r,include=F}
+data <- read.csv("titanic_relationships.csv",sep=",")
+
+```
+
+
+**Dimension de la base de données**
+```{r}
+dim(data)
+
+```
+
+La base contient 1309 individus et 16 attributs les concernant tels que leurs noms, âges, classe de voyage ou encore les types de relations les liant.
+
+
+**Valeurs manquantes ?**
+```{r}
+sum(is.na(data))
+```
+
+Notre base contient 1763 valeurs manquantes que nous traiterons par la suite.
+
+
+**Résumé des données**
+```{r,echo=F}
+# Transformation des variables Sex, Pclass et Survived charactères numériques en factor
+data$Survived <- as.factor(data$Survived)
+data$Sex <- as.factor(data$Sex)
+data$Pclass <- as.factor(data$Pclass)
+
+summary(data)
+```
+
+A l'aide du résumé de nos données, on remarque que les indicateurs de centralité indique un âge moyen/médian légèrement en dessous de 30 ans pour les passagers. 
+Le passager le plus vieux avait 80 ans.
+Par ailleurs la classe la plus representée est la troisième qui compte plus du double de la première et de la seconde. 
+Nous avons également beaucoup plus d'hommes que de femmes à bord du bateau.
+
+
+# Statistiques descriptives
+
+Quelques graphiques afin d'illustrer le résumé des données.
+
+**Part Hommes / Femmes**
+On constate qu'il y a plus de passagers hommes que femmes dans le bateau.
+```{r,echo=F}
+ggplot(data, aes(x="", y="", fill=Sex)) +
+  geom_bar(stat="identity", width=1) +
+  coord_polar("y", start=0)
+```
+
+**Répartition des classes par Sex**
+On constate qu'en première et deuxième classe, les deux sexes sont en répartition presque égale. Toutefois, en troisième classe, il y a plus d'homme que de femmes.
+
+```{r,echo=F,warning=F}
+ggplot(data, aes(x = Pclass, fill = Sex)) +
+  geom_bar(position = "dodge")
+
+
+```
+
+
+**Histogramme âge**
+Le bateau transportait principalement des adultes agées de 20 à 40 ans. On constate tout de même la présence d'enfants et une minorité de personnes agées.
+
+```{r,echo=F,warning=F,message=F}
+ggplot(data, aes(x=Age)) +
+    geom_histogram( binwidth=3, fill="#69b3a2", color="#e9ecef", alpha=0.9) +
+    ggtitle("Bin size = 3") 
+```
+
+
+**Répartition survivant/ non survie par sexe**
+```{r,echo=F}
+data$Survived <- as.character(data$Survived)
+
+ggplot(data, aes(x = Pclass, fill = Survived)) +
+  geom_bar(position = "dodge")
+
+```
+
+Malgré que la troisième classe compte plus d'individu que les deux premières, en proportion c'est celle qui compte le plus de passager n'ayant pas survécu.
+
+
+# Analyse des réseaux sociaux
+
+Dans l'optique de conserver uniquement les valeurs cohérentes, on supprime les individus dont on ne dispose pas d'information sur leur âge et ceux qui n'ont de relation avec aucun autre passager (passager ayant voyager tout seul).
+
+
+```{r}
+data <- data[is.na(data$Age)==F,]
+
+data <- data[which(data$Siblings!="" | data$Parents!="" | !is.na(data$Spouse) | data$Children!=""),]
+
+```
+
+Disposant d'un nombre raisonnable d'individu, nous allons analyser la seconde classe.
+
+
+```{r}
+data_seconde <- data[data$Pclass==2,]
+
+```
+
+
+Pour la suite, nous verrons un cas approfondi avec les différentes mesures d'analyses de réseaux. Nous porterons un regard sur les femmes de deuxième ayant survécu ainsi que leurs proche qui ont survécu.
+
+Nous comparerons pour finir ce graphe avec la première classe et celui des hommes.
+
+A partir de la base de la seconde classe, nous allons créer une nouvelle qui associe à chaque ligne un passager à un autre passager pour lesquels un lien existe. Nous créerons une colonne type pour définir le type de relation qui les unis Spouse,Siblings,Parents ou Children.
+
+
+
+## Seconde classe
+```{r}
+union_characters <- data_seconde |> select(-c("Spouse","Siblings","Parents","Children"))
+
+```
+
+
+Pour chacune des relations possibles on crée une base avec l'identifiant du passager, son nom, l'identifiant du passager avec lequel il a un lien et le type de relation.
+L'objectif est de concaténer toutes ces bases pour obtenir la base finale centré sur les types de relation.
+
+```{r}
+
+union_target <- data_seconde |> separate_rows(Siblings,sep="/") |> select(c("PassengerId","Name","Siblings"))
+union_target <- union_target[which(union_target$Siblings != ""),]
+type <- rep("sibling",nrow(union_target))
+union_target <- cbind(union_target,type)
+colnames(union_target) <- c("id_Passenger","Name_passenger","Target","Type")
+
+
+relation_parent <- data_seconde |> separate_rows(Parents,sep="/") |> select(c("PassengerId","Name","Parents"))
+relation_parent <- relation_parent[which(relation_parent$Parents != ""),]
+type <- rep("parents",nrow(relation_parent))
+relation_parent <- cbind(relation_parent,type)
+colnames(relation_parent) <- c("id_Passenger","Name_passenger","Target","Type")
+
+
+relation_spouse <- data_seconde |> select(c("PassengerId","Name","Spouse"))
+relation_spouse <- relation_spouse[which(!is.na(relation_spouse$Spouse)),]
+type <- rep("spouse",nrow(relation_spouse))
+relation_spouse <- cbind(relation_spouse,type)
+colnames(relation_spouse) <- c("id_Passenger","Name_passenger","Target","Type")
+
+
+relation_child <- data_seconde |> separate_rows(Children,sep="/") |> select(c("PassengerId","Name","Children"))
+relation_child <- relation_child[which(relation_child$Children != ""),]
+type <- rep("children",nrow(relation_child))
+relation_child <- cbind(relation_child,type)
+colnames(relation_child) <- c("id_Passenger","Name_passenger","Target","Type")
+
+
+union_target <- rbind(union_target,relation_parent,relation_spouse,relation_child)
+union_target <- union_target |> arrange(union_target$Source)
+
+
+
+```
+
+
+Nous allons ajouter à notre table pour le passager et sa relation, les attributs de la classe, du sexe et l'information de survie.
+
+```{r}
+
+data_add_seconde <- data_seconde[c('PassengerId','Pclass','Sex', 'Survived')]
+union_target <- left_join(union_target,data_add_seconde ,by = c("id_Passenger" = "PassengerId"))
+
+# Changements des noms de colonnes
+colnames(union_target)[5] <- "Pclass_Passenger"
+colnames(union_target)[6] <- "Sex_Passenger"
+colnames(union_target)[7] <- "Survided_Passenger"
+```
+
+
+On procède de la même manière pour la cible
+
+```{r}
+data_add_target_seconde <- data_seconde[c('PassengerId','Pclass','Sex', 'Survived', 'Name')]
+data_add_target_seconde$PassengerId <- as.character(data_add_target_seconde$PassengerId)
+union_target <- left_join(union_target,data_add_target_seconde ,by = c("Target" = "PassengerId"))
+
+
+colnames(union_target)[8] <- "Pclass_Target"
+colnames(union_target)[9] <- "Sex_Target"
+colnames(union_target)[10] <- "Survided_Target"
+colnames(union_target)[11] <- "Name_Target"
+
+```
+
+
+On conserve les femmes qui ont survécu ainsi que leurs proches
+
+```{r,echo=F}
+female_survived <- na.omit(union_target[union_target$Sex_Passenger=="female" & union_target$Survided_Passenger==1 & union_target$Survided_Target==1,])
+female_name_survived <- female_survived[c("Name_passenger", "Name_Target")]
+
+```
+
+
+**Graphe**
+
+```{r}
+
+#  Tous les prénoms de la base
+id <- c(female_name_survived$Name_passenger,female_name_survived$Name_Target)
+
+# Prénoms uniques sans doublons
+id_unique <- unique(id)
+
+# Mapping entre les prénoms et les identifiants numériques uniques
+firstname_to_id <- as.numeric(factor(id, levels = id_unique))
+
+# Graphe avec les identifiants numériques uniques
+g <- make_empty_graph(n = length(id_unique), directed = TRUE)
+
+# Récupération des couples 
+liaison <- c()
+for (i in 1:nrow(female_name_survived)){
+  paire <- c(female_name_survived$Name_passenger[i],female_name_survived$Name_Target[i])
+  liaison <- c(liaison,paire)
+}
+
+edges <- match(liaison, id_unique)
+
+g <- add.edges(g, edges)
+plot(g)
+
+
+
+```
+
+**Table des individus et leur numéro factor**
+
+```{r,echo=F}
+passager_factor <- reactable(data.frame(passager = id,id = firstname_to_id))
+passager_factor
+
+
+```
+
+Parmi les résultats, on observe que la plupart des relations sont constitués de deux noeuds de 2 individus, seule une relation en compte 4. 
+Il s'agit de :
+
+Richards Mrs. Sidney (Emily Hocking)
+Richards Master. William Rowe
+Richards Master. George Sibley
+Hocking Mrs. Elizabeth (Eliza Needs)
+
+Qui représente une famille (2 parents et deux enfants)
+
+Ci-dessus, on peut observer les différentes relations pour les femmes rescapés et leurs proches rescapés.
+
+
+# Analyse du graphe
+
+
+**Degré du réseau**
+
+```{r}
+degree(g)
+```
+
+
+Pour les différents nœuds, les valeurs obtenues de degré sont 1,2 et 4. Cela signifie qu'il y a une, deux ou 4 arrêtes qui le relient un noeud à d'autres dans le graphe.
+Comme nous sommes dans un cas de relations entre des nœuds sont symétriques (relation familiale), un graphe non orienté est le plus adapté. 
+
+**Diamètre du graphe**
+
+```{r}
+diameter(g)
+```
+
+***Interprétation***
+
+Le diamètre représente la distance la plus longue entre sommets du graphe. Notre diamètre vaut 2, cela indique que la plupart des passagers sont connectés par des liens familiaux très proches. En d'autres termes, la plupart des passagers sont liés par des relations parent-enfant ou frère-sœur, ce qui reflète la structure de notre base.
+
+
+**Mise en évidence du diamètre du graphe**
+
+```{r}
+diameter.nodes <- get.diameter(g)
+V(g)[diameter.nodes]$color <- "red"
+E(g)$color<-"black"
+E(g, path=diameter.nodes)$color <- "red"
+plot(g)
+
+```
+
+
+**Densité du réseau**
+
+
+```{r}
+graph.density(g)
+
+```
+
+La densité d'un graphe mesure la proportion d'arêtes présentes par rapport au nombre maximum possible d'arêtes pour dans le graphe.
+
+La densité du graphe g de 0.02822581 signifie qu'environ 2,8 % des relations possibles entre les nœuds de votre graphe sont effectivement présentes.
+
+Cela traduit une faible connectivité entre les passagers, c'est à dire que la plupart des passagers n'avaient que quelques relations répertoriées à bord, ce qui est cohérent avec l'idée que de nombreuses personnes voyageaient seules ou en petits groupes.
+
+
+```{r}
+mean(degree(g, mode="all"))
+```
+
+
+Une moyenne des degrés de 1,75 indique en moyenne que chaque nœud est connecté à environ 1,75 autres nœuds dans le graphe. Cela suggère que, en général, les passagers du Titanic avaient un petit nombre de relations familiales (en moyenne, un passager est lié à moins de 2 autres passagers). La valeur de 1,75 peut être interprétée comme une connectivité relativement faible.
+
+```{r}
+median(degree(g, mode="all"))
+```
+
+
+La médiane des degrés de 2 signifie que la moitié des passagers dans le graphe ont au moins 2 relations familiales, tandis que l'autre moitié a moins de 2 relations.
+
+ces résultats suggèrent que la plupart des passagers avaient un nombre relativement limité de relations familiales, mais il y avait également des passagers qui avaient plus de relations.
+
+
+**Réciprocité du réseau**
+
+```{r}
+reciprocity(g)
+```
+
+La réciprocité mesure la proportion de relations mutuelles ou réciproques dans un graphe orienté. Une réciprocité d'environ 0,7857143 suggère que la plupart des relations les passagers étaient bidirectionnelle. Néamoins dans le cadre de relation de relation familiale la réciprocité devrait être équivalente à 1. Ce résultat est surement dû à un défaut de notre base.
+
+
+**Transitivité **
+
+```{r}
+transitivity(g)
+```
+La transitivité mesure la probabilité que, si un nœud A est connecté à un nœud B et que le nœud B est connecté à un nœud C, alors le nœud A soit également connecté au nœud C.
+La transitivité est nulle car il n'existe pas de relation indirectes dans les cercles familiaux de la base par rapport aux types de relation que nous avons dans la base.
+
+
+
+**Excentrivité du réseau **
+
+```{r}
+distances(g) #distance entre chaque sommet
+
+```
+
+
+La matrice des distances montre les distances entre chaque paire de nœuds (passagers) dans le graphe. Une valeur de "Inf" signifie qu'il n'y a pas de chemin direct entre les nœuds correspondants. Logique étant donné qu'il s'agit de cercle familiaux.
+
+
+```{r}
+rowSums(distances(g))
+```
+
+Les résultats montrent les excentricités (longueurs maximales des chemins les plus courts) de chaque nœud (passager). Les excentricités sont quasiment toutes "Inf", ce qui signifie que certains passagers ou groupes de passagers sont isolés,n'ont pas de lien familial direct avec d'autres passagers.
+
+
+```{r}
+mean_distance(g)
+```
+
+
+La distance moyenne du graphe est d'environ 1,067. Cela signifie que la longueur moyenne des chemins les plus courts entre tous les passagers est d'environ 1,067. 
+
+
+**La centralité de proximité **
+
+```{r}
+closeness(g)
+```
+Les valeurs 1.0000000 indiquent que certains passagers ont une centralité de proximité maximale, ce qui signifie qu'ils sont très proches d'autres passagers dans le graphe. Cependant, les valeurs "NaN" et proche de zéros indiquent que certains passagers sont isolés et ne sont pas connectés directement à d'autres passagers.
+
+```{r}
+1/rowSums(distances(g))
+```
+Le résultat démontre un manque de connectivité.
+
+
+
+**Centralité d’intermédiarité **
+
+```{r}
+betweenness(g)
+
+```
+
+Les valeurs nulles de betweenness centrality indiquent que la plupart des nœuds ne se trouvent pas fréquemment sur les chemins les plus courts entre les autres nœuds.
+
+
+```{r}
+mean(betweenness(g))
+```
+ La moyenne de betweenness d'environ 0.0625 vient confirmer le résultat obtenu précédemment. Le graphe n'a pas vraiment de nœuds centraux importants en termes d'intermédiarité.
+
+
+
+En somme, après analyse au travers de toutes ces mesures nous sommes dans des cas de cercle familiaux, c'est pourquoi les relations sont plutôt direct et comporte très peu de noeud.
+
+A titre de comparaison, ci- dessous le graphe des hommes.
+
+```{r,echo=F}
+male_survided <- na.omit(union_target[union_target$Sex_Passenger=="male" & union_target$Survided_Passenger==1 & union_target$Survided_Target==1,])
+male_survided_name <- male_survided[c("Name_passenger", "Name_Target","Survided_Passenger","Survided_Target")]
+
+```
+
+
+```{r}
+id2 <- c(male_survided_name$Name_passenger,male_survided_name$Name_Target)
+
+# Créer un dataframe de prénoms uniques
+id_unique2 <- unique(id2)
+
+# Créer un mapping entre les prénoms et les identifiants numériques uniques
+firstname_to_id2 <- as.numeric(factor(id2, levels = id_unique2))
+
+# Créer un graphe avec les identifiants numériques uniques
+g2 <- make_empty_graph(n = length(id_unique2), directed = TRUE)
+
+# Récupération des couples 
+liaison2 <- c()
+for (i in 1:nrow(male_survided_name)){
+  paire2 <- c(male_survided_name$Name_passenger[i],male_survided_name$Name_Target[i])
+  liaison2 <- c(liaison2,paire2)
+}
+
+edges2 <- match(liaison2, id_unique2)
+
+g2 <- add.edges(g2, edges2)
+
+plot(g2)
+
+
+```
+
+
+On remarque que pour les mêmes conditions, nous avons très peu d'hommes qui ont survécu.
+
+
+Pour finir regarderons les individus ayant surcécu peu importe leur sexe et verront si leurs proche ont survécu.
+
+```{r,echo=F}
+survided <- na.omit(union_target[union_target$Survided_Passenger==1,])
+survided_name <- survided[c("Name_passenger", "Name_Target","Survided_Passenger","Survided_Target")]
+
+
+```
+
+
+```{r}
+id_seconde_classe <- c(survided_name$Name_passenger,survided_name$Name_Target)
+
+# Créer un dataframe de prénoms uniques
+id_unique_seconde_classe <- unique(id_seconde_classe)
+
+# Créer un mapping entre les prénoms et les identifiants numériques uniques
+firstname_to_id_seconde_classe <- as.numeric(factor(id_seconde_classe, levels = id_unique_seconde_classe))
+
+# Créer un graphe avec les identifiants numériques uniques
+g_sc <- make_empty_graph(n = length(id_unique_seconde_classe), directed = TRUE)
+
+# Récupération des couples 
+liaison_seconde_classe <- c()
+for (i in 1:nrow(survided_name)){
+  paire_seconde_classe <- c(survided_name$Name_passenger[i],survided_name$Name_Target[i])
+  liaison_seconde_classe <- c(liaison_seconde_classe,paire_seconde_classe)
+}
+
+edges_seconde_classe <- match(liaison_seconde_classe, id_unique_seconde_classe)
+
+g_sc<- add.edges(g_sc, edges_seconde_classe)
+
+node_colors <- ifelse(survided_name$Survided_Target == 0, "green", "red")
+
+# Plot le graphe en utilisant les couleurs définies
+plot(g_sc, vertex.color = node_colors)
+
+
+
+
+```
+
+
+On remarque que très peu de cercle familiaux sont sortis indemne. La plupart possède au moins un non rescapé (en rouge)

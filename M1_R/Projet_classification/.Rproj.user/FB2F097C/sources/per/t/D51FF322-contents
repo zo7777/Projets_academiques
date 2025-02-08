@@ -1,0 +1,391 @@
+---
+title: "Projet_Econométrie"
+author: "KWEKEU_SY"
+date: "2022-12-03"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# **Sommaire**
+
+* **Introduction**
+* **I) Problématique**
+* **II) Collecte de données**
+* **III) Description du jeu de données**
+* **IV) Statistiques univariées  des variables**
+* **V) Nuages de points**
+* **VI) Etude des variables**
+* **VII) Justification de la spécification du modèle**
+* **Conclusion**
+
+
+
+# **Introduction**
+
+* Une étude statistique est plus adaptée pour les prédictions, l'explication d'une variable en fonction d'autres.
+* Notre projet est basé sur une étude statistique de notre choix.
+* Quelle est notre problématique? Comment pourront-on faire pour apporter une réponse à notre problématique?
+
+
+# **I) Problématique**
+
+* Le niveau de développement a-t-il un impact sur l'espérance de vie?
+* Pour traiter cette problématique nous tenterons d'estimer l'équation suivante:
+Espérance_total = beta0 + beta1 * Pib_hbt + beta2 * Chomage + beta3 * Nutrition + beta4 * ocde + epsilon
+
+
+```{r,echo=FALSE,include=FALSE}
+###library
+library(AER) # Functions, data sets, examples, demos, and vignettes for the book Christian Kleiber and Achim Zeileis (2008), Applied Econometrics with R, Springer-Verlag, New York
+library(car) #car: Companion to Applied Regression
+# Functions to Accompany J. Fox and S. Weisberg, An R Companion to Applied Regression, Third Edition, Sage, 2019.
+library(sandwich) # Robust Covariance Matrix Estimators
+library(lmtest) #Testing Linear Regression Models
+#A collection of tests, data sets, and examples for diagnostic checking in linear regression models. Furthermore, some generic tools for inference in parametric models are provided
+library(systemfit) #Estimating Systems of Simultaneous Equations
+library(ggplot2) #Create Elegant Data Visualisations Using the Grammar of Graphics
+library(corrplot) #Provides a visual exploratory tool on correlation matrix that supports automatic variable reordering to help detect hidden patterns among variables
+library(stargazer)
+library(cowplot)
+library(rstatix)
+library(ggpubr)
+library(EnvStats)
+
+### Working directory 
+getwd()
+setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
+```
+
+## **II) Collecte de données**
+
+Les données utilisées pour traiter notre problématique ont été extraites du site suivant: https://donnees.banquemondiale.org. 
+Nous avons sélectionner quatre fichiers:
+
+* un pour l'espérance de vie à la naissance total(en année)(c'est-à-dire le nombre d'années qu'un nouveau-né devrait vivre si les règles générales de mortalité au moment de sa naissance devaient rester les mêmes tout au long de sa vie) de chaque pays en 2020; 
+* un fichier pour le PIB(en $) pour ces mêmes pays en 2020;
+* un fichier pour le taux(en %)de chômage total par rapport à la population pour ces mêmes pays en 2020;
+* un fichier pour le pourcentage de la population sous-alimentée pour ces mêmes pays en 2020;
+
+Ces fichiers comportent chacun: 
+
+* une variable Country.name qui est le nom de chaque pays;
+* une variable contry.code qui est le code ou l'abréviation de chaque pays;
+* une variable indicator.name qui est: l'espérance de vie total(années) sur chaque ligne pour l'un des fichiers; Pib($US courant) sur chaque ligne pour l'autre fichier; le taux(en %) de chômage total par rapport à la population  et le pourcentage de la population en sous alimentation.
+* une variable indicator.code référant au code de l' indicator.name
+* une variable pour chaque année de 1960 a 2021 qui renvoie l'espérance de vie pour chaque pays sur chaque année; de même pour le PIB(en $), le pourcentage de chomage total par rapport à la population  et le pourcentage de la population en sous alimentation.
+
+Pour notre étude, nous garderons que les noms des pays, leurs codes, l'espérance de vie en 2020, le PIB/habitant(en $), le pourcentage de chômage total et le pourcentage de la population en sous-alimentation en 2020. Nous créerons une variable indicatrice ocde qui vaut 1 si le pays concerné est membre du ocde(ou est un territoire d'un pays membre du ocde) et 0 sinon.
+
+Certains pays ont des données manquantes. Pour que notre étude soit plus précise, nous supprimerons tout pays présentant au moins une donnée manquante.
+
+
+# **III) Description du jeu de données**
+
+```{r,echo=FALSE,comment=" ",warning=FALSE}
+membre_ocde=c('Allemagne', 'Autriche', 'Belgique', 'Canada', 'Danemark', 'Espagne',
+              'États-Unis', 'France', 'Grèce', 'Irlande', 'Islande', 'Luxembourg', 'Norvège',
+              'Pays-Bas', 'Portugal', 'Royaume-Uni', 'Suède', 'Suisse', 'Turquie',
+              'Chili', 'Estonie', 'Israël', 'Slovénie', 'Lettonie', 'Lituanie', 'Colombie',
+              'Italie', 'Japon', 'Finlande', 'Australie', 'Nouvelle-Zélande', 'Mexique',
+              'République tchèque','Corée', 'Hongrie', 'Pologne', 'République slovaque',
+              'Costa Rica', 'Anguilla', 'Antarctiques', 'Aruba', 'Bermudes', 'Géorgie',
+              'Gibraltar','Groenland','Guadeloupe','Guam','Guernesey','Guyane','Île Bouvet',
+              'Île de Man','Île de Noël','Île de Norfolk','Îles Caïmans','Îles Cocos',
+              'Îles Falkland','Îles Féroé','Îles Heard et McDonald','Îles Pitcairn',	
+'Îles Turks et Caïques','Îles Vierges américaines','Îles Vierges britanniques','Jersey',
+'Mariannes du Nord','Martinique','Mayotte',	'Montserrat','Nouvelle-Calédonie','Pays-Bas caribéens',
+'Polynésie française','Porto Rico','Réunion',	'Saint-Barthélemy','Saint-Martin','Saint-Pierre-et-Miquelon',
+'Sainte-Hélène','Samoa américaines','Sint Maarten','Svalbard et Jan Mayen','Territoire britannique',
+'Tokelau','Wallis-et-Futuna') #Pays membre de ocde et leurs territoires
+
+api <- read.table("API_ESP.csv",sep=",",header=T,skip=3) #importation des données d'espérance de vie
+api <- subset(api,select = -c(3:62,66:67))#suppression des données que l'on utilisera pas
+
+api2 <- read.table("API_PIB.csv",sep=",",header=T,skip=3)#importation des données de PIB/hbts
+api2 <- subset(api2,select = -c(3:62,66:67))#suppression des données que l'on utilisera pas
+
+api3 <- read.table("API_CHO.csv",sep=",",header=T,skip=3)#importation des données du taux de chômage total par rapport à la population
+api3 <- subset(api3,select = -c(3:62,66:67))#suppression des données que l'on utilisera pas
+
+api4 <- read.table("API_NUT.csv",sep=",",header=T,skip=3)#importation des données du pourcentage de la population en sous alimentation
+api4 <- subset(api4,select = -c(3:62,66:67))#suppression des données que l'on utilisera pas
+
+api_final<-data.frame(Pays=api$Country.Name,Code_Pays=api$Country.Code,
+                      Esperance_total2020=api$X2020,Pib_hbt2020=api2$X2020,
+                      Cho2020=api3$X2020,Nut2020=api4$X2020)#fusion des données d'espérance de vie, de PIB/hbts, de nbre de médécins et de nbre de lits d'hopital
+
+ocde <- rep("0",nrow(api))#variable indicatrice pour les pays membres de l'ocde
+ocde[which(api_final$Pays %in% membre_ocde)]="1"
+
+api_final <- cbind(api_final,ocde)
+
+tab <- na.omit(api_final)#suppression des pays avec des données manquantes
+tab <- cbind(tab,OCDE=as.numeric(tab$ocde)) 
+
+write.csv(tab,"tableau_de_donnees.csv",sep=";",row.names=T)
+
+stargazer(tab,type='text')
+```
+
+Notre jeu de données est composé de 204 observations (différents pays), après la suppression des données manquantes, et de 5 colonnes qui représentent:
+
+1. L'espérance de vie a la naissance total(en année)
+2. Le PIB/habitants en dollars
+3. Le taux(en %) de chômage total par rapport à la population
+4. Le pourcentage de la population sous-alimentée
+5. La variable indicatrice OCDE
+
+Pour chaque colonne, nous avons sa moyenne(mean), sa variance(St. Dev.), sa valeur minimale(Min) et sa valeur maximale(Max).
+
+
+# **IV) Statistiques univariées  des variables**
+
+### **Statistique univariée de l'espérance de vie en 2020**
+
+```{r,echo=FALSE,comment=" ",fig.width=10,message=FALSE}
+sp <- ggplot(data=tab,aes(Esperance_total2020))+geom_histogram()+ggtitle("histogramme de l espérance de vie en 2020")
+gp <- ggplot(data=tab,aes(Esperance_total2020))+geom_boxplot()+coord_flip()+ggtitle("histogramme de l espérance de vie en 2020")
+
+plot_grid(sp,gp,ncol=2,nrow=1)
+```
+
+* Nous remarquons sur l'histogramme que la majorité des pays ont des populations ayant une espérance de vie totale de 75 à 80 ans.
+Cependant, rares sont ceux ayant une population avec une espérance de vie totale entre 50 et 55 ans ou entre 85 et 90 ans.
+* Nous notons sur la boite à moustache de l'espérance de vie,  la médiane est de 74 ans. Cette valeur se confirme par le fait que la majorité des pays ont des populations ayant une espérance de vie totale de 75 à 80 ans. De plus, les pays ayant une population avec une espérance de vie total inferieure à 48 ans est très anormal.
+
+
+### **Statistique univariée du PIB/hbt en 2020**
+
+```{r,echo=FALSE,comment=" ",fig.width=10,message=FALSE}
+sp <- ggplot(data=tab,aes(Pib_hbt2020))+geom_histogram()+ggtitle("histogramme du PIB/hbts en 2020")
+gp <- ggplot(data=tab,aes(Pib_hbt2020))+geom_boxplot()+coord_flip()+ggtitle("boîte à moustache du PIB/hbts en 2020")
+
+plot_grid(sp,gp,ncol=2,nrow=1)
+```
+
+* Nous observons sur l'histogramme que la plupart des pays ont un PIB/habitants situé entre 0 et 10000 dollars. De plus, les pays ayant un PIB/habitants supérieur à 110000 dollars sont minoritaires sur cet échantillon.
+* La boite à moustache nous montre que les PIB/habitants supérieurs à 40000 dollars sont atypiques.
+
+### **Statistique univariée du taux de chômage total en 2020**
+
+```{r,echo=FALSE,comment=" ",fig.width=10,message=FALSE}
+sp <- ggplot(data=tab,aes(Cho2020))+geom_histogram()+ggtitle("histogramme du taux de chômage en 2020")
+gp <- ggplot(data=tab,aes(Cho2020))+geom_boxplot()+coord_flip()+ggtitle("boîte a moustache du taux de chômage en 2020")
+
+plot_grid(sp,gp,ncol=2,nrow=1)
+```
+
+* Nous observons sur l'histogramme que la plupart des pays ont un taux de chômage situé entre 5 et 10%. De plus, les pays ayant un taux de chomage supérieur à 25% sont rares sur cet échantillon.
+* La boîte à moustache nous montre que les pays ayant un taux de chômage supérieur à 18% ont un taux de chômage très anormal.
+
+
+
+### **Statistique univariée du taux de la population en sous-alimentation total en 2020**
+
+```{r,echo=FALSE,comment=" ",fig.width=10,message=FALSE}
+sp <- ggplot(data=tab,aes(Nut2020))+geom_histogram()+ggtitle("histogramme du taux de la pop sous-alimentée en 2020")
+gp <- ggplot(data=tab,aes(Nut2020))+geom_boxplot()+coord_flip()+ggtitle("boîte à moustache du taux de la pop sous-alimentée en 2020")
+
+plot_grid(sp,gp,ncol=2,nrow=1)
+```
+
+* Nous observons sur l'histogramme que la plupart des pays ont un taux de la population sous-alimentée situé entre 0 et 5%. Par opposition, les pays ayant un taux de de population sous-alimentée situé entre 40 et 45% sont minoritaires sur cet échantillon.
+* La boîte à moustache nous montre que les pays ayant un taux de population en sous-alimentation supérieur à 32% ont un taux aberrant.
+
+### **Statistique univariee de ocde**
+
+```{r,echo=FALSE,comment=" "}
+hist(tab$OCDE,main="fréquence des pays membres de l ocde")
+```
+
+Cet histogramme nous confirme que nous avons beaucoup plus de pays hors ocde, sur cet échantillon, que de pays ocde. 
+
+# **V) Nuages de points**
+
+
+```{r,echo=FALSE,comment=" ",fig.width=18,fig.height=5}
+sp <- ggplot(tab,aes(x=Pib_hbt2020,y=Esperance_total2020,col=ocde))+geom_point()+ggtitle("Espérance de vie en fonction du PIB/hbts en 2020")
+gp <- ggplot(tab,aes(x=Cho2020,y=Esperance_total2020,col=ocde),xlab="% chômage en 2020",ylab="Espérance de vie en 2020")+geom_point()+ggtitle("Espérance de vie en fonction du pourcentage de chômage en 2020")
+op <- ggplot(tab,aes(x=Nut2020,y=Esperance_total2020,col=ocde),xlab="% pop sous-alimentée en 2020",ylab="Espérance de vie en 2020")+geom_point()+ggtitle("Espérance de vie en fonction du pourcentage de la pop sous-alimentée en 2020")
+
+plot_grid(sp,gp,op,nrow=1,ncol=3)
+```
+
+* Espérance de vie en fonction du PIB/hbts: Le nuage de points de l'espérance de vie en fonction du PIB/habitant ne pourrait pas être représenté par une droite car elle a une allure logarithmique. De ce fait, une représentation par une droite causera une variance trop élevée ainsi qu' un écart-type élevé. Ce qui ne serait pas très pertinent. Ce qui nous pousse à penser que l'espérance de vie et le PIB/habitant sont très faiblement corrélés. De ce fait, nous tenterons de faire un modèle de régression ou la variable du PIB/habitant sera transformée en log. De plus, nous pouvons remarquer que les pays membres de l'OCDE ont un plus grand PIB/hbts par rapport à ceux hors OCDE.
+
+
+* Espérance de vie en fonction du taux de chômage: Le nuage de points de l'espérance de vie en fonction du pourcentage de chômage ne pourrait pas être représenté par une droite car elle a une allure aléatoire. De ce fait, une représentation par une droite causera une variance trop élevée ainsi qu' un écart-type élevé. Ce qui ne serait pas très pertinent pour notre etude. En outre, les pays membres de l'OCDE ont un taux de chômage plus faible que ceux hors OCDE.
+
+
+* Espérance de vie en fonction du taux de la population sous-alimentée: Le nuage de points de l'espérance de vie en fonction du taux de la population sous-alimentée(en %) ne pourrait pas être représentée par une droite car son allure ne s'apparente pas à une droite. De ce fait, une représentation par une droite causera une variance trop élevée ainsi qu'un écart-type élevé. Ce qui ne serait pas très pertinent. Ce qui nous pousse à penser que l'espérance de vie et le taux de la population sous-alimentée (en %) sont très faiblement corrélés. Par ailleurs, les pays membres de l'OCDE ont un pourcentage de population en sous-alimentation beaucoup plus faible que ceux des pays hors OCDE.
+
+# **VI) Etude des variables**
+
+### **Matrice variance-covariance des variables**
+
+```{r,echo=FALSE,comment=" "}
+#correlation
+myvars <- c("Esperance_total2020", "Cho2020","Pib_hbt2020","Nut2020")
+data_matcorr <- tab[myvars]
+mcor <- round(cor(data_matcorr),2)
+stargazer(mcor,type="text")
+```
+
+* La matrice variance-covariance des variables du modèle est différente de la matrice identité. Mais la diagonale de cette matrice est égale à 1. De ce fait, les variances sont égales à 1, d'où l'homoscédasticité des variables. Aussi, cette matrice n'a aucun coefficient qui est égal à 0; ce qui montre que les covariances entre les variables explicatives et les covariances entre les variables explicatives et celle à expliquer sont différentes de 0. D'où les variables sont autocorrélées (nous sommes dans un cas d'autocorrélation des variables). 
+* Nous procéderons au graphique des résidus par rapport à l'estimateur de l'espérance de vie, ce qui nous donnera un résultat plus précis.
+
+
+```{r,echo=FALSE,comment=" "}
+modele =lm(Esperance_total2020~ Pib_hbt2020 + Cho2020 + Nut2020 + OCDE, data=tab )
+
+residM = residuals(modele )
+residM2 = residM^2
+Fitted_Y = fitted(modele)
+
+par(mfrow=c(1,2))
+plot(residM~Fitted_Y, data=tab, main="résidus par rapport a Y_chap" )
+```
+
+Le graphique des résidus (du modèle niveau-niveau) par rapport à l'estimateur de l'espérance de vie en 2020 est un nuage de points aléatoire. Ce qui confirme notre cas d'homoscédasticité. 
+
+# **VII) Justification de la spécification du modèle**
+
+### **Choix du modele**
+
+Nous tenterons finalement d'estimer le modèle log-niveau (modèle 1) suivant:
+Esperance_total = beta0 + beta1 * log(Pib_hbt) + beta2 * Chomage + beta3 * Nutrition + beta4 * ocde + epsilon.
+En effet, nous avons choisi ce modèle car le nuage de points de l'espérance de vie total en 2020 en fonction du PIB/habitant en 2020 a une allure logarithmique.
+Puis nous le comparerons au modèle niveau-niveau (modèle 2) suivant:
+Esperance_total = beta0 + beta1 * Pib_hbt + beta2 * Chomage + beta3 * Nutrition + beta4 * ocde + epsilon.
+Enfin, nous choisirons le meilleur modèle parmi les deux pour poursuivre notre étude.
+
+
+```{r,echo=FALSE,comment=" ",warning=FALSE}
+modele_f <- lm(Esperance_total2020~ log(Pib_hbt2020) + Cho2020 + Nut2020 + OCDE, data=tab)
+stargazer(modele_f,type="text",title="resume du modèle 1")
+```
+
+* Modèle 1: Le modèle log-niveau que nous avons trouvé est le suivant:
+Esperance_total = 43,55 + 3,551 * log(Pib_hbt) - 0,039 * Chomage - 0,136 * Nutrition + 0,677 * OCDE. 
+* Ce qui signifie que si le PIB/hbts augmente de 1% alors l'espérance de vie augmente de 3,551 ans; et si le taux de chômage et de population en sous-alimentation augmentent de 1% chacun (car leur unité est en pourcentage) alors l'espérance de vie diminue respectivement de 0,039 et de 0,136 années; de plus si le pays concerné est un membre de l'ocde, alors l'espérance de vie à la naissance de ses habitants augmente de 0,677 ans.
+* Les variables log(Pib_hbt2020) et Nut2020 sont significatives; cependant les variables OCDE et Cho2020 ne le sont pas.
+* Le test de Fisher de ce modèle donne une p-value < 0,01, ce qui veut dire qu'il est globalement satisfaisant.
+* Ce modèle est bien ajusté car son R2 est de 0,74. De ce fait, les variables explicatives selectionnées permettent de bien expliquer ce modèle.
+* En conclusion, le niveau de développement d'un pays influe sur l'espérance de vie de ses habitants. En effet, plus un pays est développé, plus ses habitants ont une espérance de vie élevée.
+
+```{r,echo=FALSE,comment=" ",warning=FALSE}
+stargazer(modele,type="text",title="resume du modèle 2")
+```
+
+* Modèle 2: Le modèle log-niveau que nous avons trouvé est le suivant:
+Esperance_total = 73,982 + 0,0001 * Pib_hbt + 0,02 * Chomage - 0,349 * Nutrition + 1,898 * OCDE. 
+* Ce qui signifie que si le PIB/hbts augmente de 1$ alors l'espérance de vie augmente de 0,0001 ans; et si le taux de chômage et de population en sous-alimentation augmentent de 1% chacun (car leur unité est en pourcentage) alors l'espérance de vie respectivement augmente de 0,02 ans et diminue de 0,349 années; de plus si le pays concerne est un membre de l'ocde, alors l'espérance de vie à la naissance de ses habitants augmente de 1,898 ans.
+* Ce qui nous permet d'affirmer que le niveau de développement d'un pays influe sur l'espérance de vie de ses habitants.
+* Les variables Pib_hbt2020, Nut2020 et OCDE sont significatives; cependant la variable Cho2020 ne l'est pas.
+* Le test de Fisher de ce modèle donne une p-value < 0,01, ce qui veut dire qu'il est globalement satisfaisant.
+* Ce modèle est bien ajusté car son R2 est de 0,65. De ce fait, les variables explicatives selectionnées permettent de bien expliquer ce modèle.
+
+Le R2 du modèle 1 est de 0,735. Ce qui est supérieur à celui du modèle 2 qui est de 0,644. De ce fait, pour la suite de notre étude, nous choisirons le modèle 1 étant mieux ajusté.
+
+### **Recherche d'un eventuel problème d'hétéroscédasticité**
+
+```{r,echo=FALSE,comment=" "}
+residM_f = residuals(modele_f )
+residM2_f = residM_f^2
+Fitted_Y_f = fitted(modele_f)
+
+par(mfrow=c(1,2))
+plot(residM_f~Fitted_Y_f, data=tab, main="residus par rapport a Y_chap" )
+```
+
+
+Le graphe des résidus par rapport a l'espérance de vie estimée montre que nous sommes dans un cas d'homoscédasticité des résidus. De ce fait, il ne sera pas nécessaire de faire une correction de White.
+
+### **Test de Chow**
+
+```{r,echo=FALSE,comment=" ",warning=FALSE,include=FALSE}
+# Faire un test de chow pour tester si il y a une différence structurelle entre les pays de l’OCDE et les pays hors OCDE
+fichier1 = tab[tab$ocde == 1,]  ## sélectionne les pays OCDE
+
+EQ1_OECD = lm(Esperance_total2020~ log(Pib_hbt2020) + Cho2020 + Nut2020, data=fichier1)
+#stargazer(EQ1_OECD,type="text",title="modèle de regression linéaire des pays ocde")
+scr1 = sum(EQ1_OECD$residuals^2)
+#scr1
+
+fichier2 = tab[tab$ocde == 0,]  ## sélectionne les pays Non OCDE
+
+EQ1_NOECD = lm(Esperance_total2020~ log(Pib_hbt2020) + Cho2020 + Nut2020, data=fichier2)
+#stargazer(EQ1_NOECD,type="text",title="modèle de regression linéaire des pays  hors ocde")
+scr2 = sum(EQ1_NOECD$residuals^2)
+#scr2
+
+scrc = sum(modele_f$residuals^2)
+#scrc
+
+#dégrés de liberté
+ddl_n = (modele_f$df.residual - (EQ1_OECD$df.residual + EQ1_NOECD$df.residual))
+#ddl_n
+ddl_d = EQ1_OECD$df.residual + EQ1_NOECD$df.residual
+#ddl_d
+#F du test de Chow et p-value
+FChow = ((scrc-(scr1+scr2))/ddl_n)/((scr1+scr2)/ddl_d)
+#FChow
+pvalue = pf(FChow,ddl_n,ddl_d,lower.tail=FALSE)
+paste("La p-value du test de chow est de:",pvalue)
+```
+
+Le test de Chow renvoie une p-value=0,22 > 0.05, donc il n'y a pas de différence structurelle entre les pays OCDE et ceux hors OCDE. De ce fait, notre modèle de régression linéaire ne tiendra pas compte de la variable ocde et il ne sera pas nécessaire de créer la variable Pib * ocde.
+
+### **Test de normalité des résidus**
+
+```{r,comment=" ",echo=FALSE,warning=FALSE}
+ggqqplot(residM_f,title = "QQ-plot des résidus du modèle 1")
+```
+
+Le QQ-plot des résidus du modèle de notre choix nous permet d'affirmer que les résidus de ce modèle ne suivent pas une distribution normale.
+Nous essaieront de confirmer notre analyse par un test de Shapiro-Wilk.
+
+```{r,comment=" ",echo=FALSE}
+stargazer(shapiro_test(residM_f),summary=F,type="text",title = "test de shapiro des résidus du modèle 1")
+```
+
+Le test de shapiro des résidus du modèle confirme bel et bien notre affirmation précédente. De ce fait, les résidus ne suivent pas une distribution normale. Ce qui signifie que l'espérance de vie total, ou une des variables explicatives pourrait avoir une fonction de répartition érronée; ou des variables importantes peuvent être manquantes. De ce fait, nous ne pourrons faire ni un test de Fisher ni un test de Student des résidus car ces tests sont basés sur l'hypothèse de normalité.
+
+### **Test des outliers(donnees aberrantes)**
+
+```{r,echo=FALSE,comment=" ",include=FALSE}
+paste("Le nombre de outliers est de:",rosnerTest(residM_f,k=10)$n.outliers)
+```
+
+Le test de Rosner nous montre qu'il y a 1 outlier(valeur aberrante).
+Parmi les 204 différents résidus, il n'y a qu'un qui est atypique. Ce qui confirme bel et bien qu'ils ne suivent pas une distribution normale car il n'y aurait eu aucune valeur abérrante s'ils suivaient une loi normale.
+
+
+# **Conclusion**
+
+* Notre modèle de regression linéaire est globalement satisfaisant et est bien ajusté, malgré le fait que certaines variables explicatives ne soient pas significatives.
+* De plus, il n'y a pas de différence structurelle entre les pays  membre de l'OCDE et ceux non membre de l'OCDE sur ce modèle.
+* Malgré cette différence structurelle, le niveau de développement d'un pays influe sur l'espérance de vie à la naissance de sa population. 
+* Enfin, les résidus de notre modèle ne suivent pas une distribution normale, ce qui pourrait signifier que des variables importantes sont manquantes.
+* Quelles sont ces variables manquantes? Aurait-on pu mieux exprimer l'espérance de vie avec d'autres variables explicatives? Ou, ?aurait-on eu un meilleur modèle que le notre avec les données d'une année autre que 2020? 
+
+# **Partie: Econometrie Avancee**
+
+```{r}
+library(lmtest)
+library(ISLR)
+library(lattice)
+library(pls)
+```
+
+### **verification de la collinearite**
+
+```{r}
+vif(modele_f)
+```
+Tous les VIF sont inferieurs a 5; de ce fait nous n'avons pas de probleme de multicollinearite.
+Par consequent aucune correction ne sera necessaire pour ce modele
+

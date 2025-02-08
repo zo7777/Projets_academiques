@@ -1,0 +1,144 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[
+]{article}
+\usepackage{amsmath,amssymb}
+\usepackage{lmodern}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math}
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\usepackage[margin=1in]{geometry}
+\usepackage{graphicx}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+% Set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\ifLuaTeX
+  \usepackage{selnolig}  % disable illegal ligatures
+\fi
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same} % disable monospaced font for URLs
+\hypersetup{
+  pdftitle={NBA\_dashboard},
+  pdfauthor={YEHOUENOU\_KWEKEU\_SY},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+
+\title{NBA\_dashboard}
+\author{YEHOUENOU\_KWEKEU\_SY}
+\date{2023-03-18}
+
+\begin{document}
+\maketitle
+
+\hypertarget{i-intro}{%
+\section{\texorpdfstring{\textbf{I) Intro}}{I) Intro}}\label{i-intro}}
+
+\hypertarget{ii-contexte}{%
+\section{\texorpdfstring{\textbf{II)
+Contexte}}{II) Contexte}}\label{ii-contexte}}
+
+\hypertarget{iii-base-de-donnees}{%
+\section{\texorpdfstring{\textbf{III) Base de
+Donnees}}{III) Base de Donnees}}\label{iii-base-de-donnees}}
+
+Les donnees utilisees pour ce projet ont ete extraites du site:
+\url{https://www.kaggle.com/datasets/nathanlauga/nba-games}. Ce lien
+mets a notre disposition 5 tableaux de donnees en format csv nommes:
+
+\begin{itemize}
+\tightlist
+\item
+  games.csv: constitue de tous les matchs de la NBA de 2003 a Decembre
+  2022 et des performances des equipes lors de ces matchs;
+\item
+  games\_details.csv: constitue des performances des joueurs pendant de
+  chaque match de 2003 a Decembre 2022;
+\item
+  players.csv: constitue des informations des joueurs de la NBA de 2003
+  a Decembre 2022;
+\item
+  ranking.csv: constitue des rangs des equipes apres chaque match(separe
+  par conference Est et Ouest) de 2003 a Decembre 2022;
+\item
+  teams.csv: constitue des informations des equipes de la NBA.
+\end{itemize}
+
+Cependant, ces tableaux de donnees a l'etat brut ne pouvaient pas nous
+permettre de parvenir a notre objectif. Pour cette raison, des
+manipulations de ces tableaux de donnees etaient inevitables afin de
+creer les tableaux finaux dont nous avions besoin.
+
+\hypertarget{iv-traitement-de-donnees}{%
+\section{\texorpdfstring{\textbf{IV) Traitement de
+donnees}}{IV) Traitement de donnees}}\label{iv-traitement-de-donnees}}
+
+Le traitement de donnees s'est fait en 2 partie. La premiere partie
+concerne les joueurs de la NBA et la seconde concerne les equipes de la
+NBA. Ce travail de traitement etait entierement centre sur la creation
+de tableaux de donnees a partir de ceux importes.
+
+\hypertarget{nettoyage-de-players}{%
+\subsubsection{\texorpdfstring{\textbf{1) Nettoyage de
+``players''}}{1) Nettoyage de ``players''}}\label{nettoyage-de-players}}
+
+\hypertarget{traitement-de-donnees-concernant-les-equipes}{%
+\subsubsection{\texorpdfstring{\textbf{2) Traitement de donnees
+concernant les
+equipes}}{2) Traitement de donnees concernant les equipes}}\label{traitement-de-donnees-concernant-les-equipes}}
+
+Nous avons divise cette etape en 2 sous-etape selon nos besoins. En
+effet, l'une des etapes concerne les statistiques de chaque equipe a
+chaque saison; et l'autre concerne les rangs des equipes a la fin de
+chaque saison.
+
+\hypertarget{a-traitement-de-donnees-concernant-les-statisiques-des-equipes}{%
+\subparagraph{\texorpdfstring{\textbf{a) Traitement de donnees
+concernant les statisiques des
+equipes}}{a) Traitement de donnees concernant les statisiques des equipes}}\label{a-traitement-de-donnees-concernant-les-statisiques-des-equipes}}
+
+\hypertarget{difficultee-rencontrees-sur-la-visualisation-de-donnees}{%
+\subsubsection{\texorpdfstring{\textbf{Difficultee rencontrees sur la
+visualisation de
+donnees}}{Difficultee rencontrees sur la visualisation de donnees}}\label{difficultee-rencontrees-sur-la-visualisation-de-donnees}}
+
+\end{document}

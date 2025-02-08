@@ -1,0 +1,140 @@
+Table SAS,Variable SAS,Label variable SAS,Variable Modalité,Valeur Modalité,Label modalité
+CANCERO,BOR,Bordereau,,,
+CANCERO,AN,Année,,,
+CANCERO,FI,N° FINESS de l'entité interrogée,,,
+CANCERO,FI_EJ,N° FINESS de l'entité juridique,,,
+CANCERO,CANCERO_A1,Traitez-vous les affections cancéreuses par chimiothérapie ?,,,
+CANCERO,CANCERO_A2,Traitez-vous les affections cancéreuses par radiothérapie (dont curiethérapie) ?,,,
+CANCERO,CANCERO_A3,"Avez vous des unités d'hospitalisation complète ou ambulatoire spécifiquement consacrées au cancer, avec du personnel dédié (appelées ici «unités individualisées») ?",,,
+CANCERO,CANCERO_A4,Activité de traitement du cancer : nombre de séjours en MCO,,,
+CANCERO,CANCERO_B4,Activité de traitement du cancer : nombre de séjours en HAD,,,
+CANCERO,CANCERO_A5,Dont séjours de 0 jour en MCO,,,
+CANCERO,CANCERO_A6,Activité de traitement du cancer : nombre de journées en MCO,,,
+CANCERO,CANCERO_B6,Activité de traitement du cancer : nombre de séquences en HAD,,,
+CANCERO,CANCERO_A7,L'établissement a-t-il reçu une autorisation de traitement du cancer par chimiothérapie ?,,,
+CANCERO,CANCERO_A8,"Sinon, en tant qu'établissement associé, avec quel(s) établissement(s) autorisé(s), une convention a-t-elle été signée ?;FINESS ET1",,,
+CANCERO,CANCERO_B8,"Sinon, en tant qu'établissement associé, avec quel(s) établissement(s) autorisé(s), une convention a-t-elle été signée ?;FINESS ET2",,,
+CANCERO,CANCERO_C8,"Sinon, en tant qu'établissement associé, avec quel(s) établissement(s) autorisé(s), une convention a-t-elle été signée ?;FINESS ET3",,,
+CANCERO,CANCERO_A9,Nombre total de séjours avec traitement de chimiothérapie en MCO (réalisés pendant une hospitalisation complète ou en ambulatoire),,,
+CANCERO,CANCERO_B9,Nombre total de séjours avec traitement de chimiothérapie en HAD (Réalisés pendant une hospitalisation à domicile),,,
+CANCERO,CANCERO_C9,Nombre total de séjours pour chimiothérapie (GHM 17M05 et 17M06) (réalisés pendant une hospitalisation complète),,,
+CANCERO,CANCERO_A10,Nombre de séances de chimiothérapie en MCO réalisées en ambulatoire,,,
+CANCERO,CANCERO_B10,Nombre de séquences en HAD de chimiothérapie (Réalisées pendant une hospitalisation à domicile),,,
+CANCERO,CANCERO_A11,Nombre de patients adulte (âge > ou égal à 18 ans) atteints de cancer ayant eu un traitement par chimiothérapie dans l'année en MCO,,,
+CANCERO,CANCERO_B11,Nombre de patients adulte (âge > ou égal à 18 ans) atteints de cancer ayant eu un traitement par chimiothérapie dans l'année en HAD,,,
+CANCERO,CANCERO_C11,Nombre de patients de moins de 18 ans atteints de cancer ayant eu un traitement par chimiothérapie dans l'année en MCO,,,
+CANCERO,CANCERO_D11,Nombre de patients de moins de 18 ans atteints de cancer ayant eu un traitement par chimiothérapie dans l'année en HAD,,,
+CANCERO,CANCERO_A12,Nombre d'accélérateurs de radiothérapie,,,
+CANCERO,CANCERO_B12,Les accélérateurs de radiothérapie sont-ils accessibles à d'autres structures ?,,,
+CANCERO,CANCERO_A13,Nombre de lits protégés pour curiethérapie et/ou irathérapie,,,
+CANCERO,CANCERO_A14,"Nombre de résumés standardisés de préparation (RSP) à un traitement par radiothérapie externe, réalisées en ambulatoire ou en hospitalisation complète :",,,
+CANCERO,CANCERO_A15,Nombre de séances de traitement par radiothérapie externe réalisées en ambulatoire en MCO,,,
+CANCERO,CANCERO_B15,Nombre de séances de traitement par radiothérapie externe réalisées pendant une hospitalisation complète en MCO,,,
+CANCERO,CANCERO_A16,Nombre de séances de traitement par curiethérapie et/ou irathérapie réalisées en ambulatoire en MCO,,,
+CANCERO,CANCERO_B16,Nombre de séances de traitement par curiethérapie réalisées pendant une hospitalisation complète en MCO,,,
+CANCERO,CANCERO_A17,Nombre de patients adultes (âge > ou égal à 18 ans) atteints de cancer pris en charge en radiothérapie externe dans l'année,,,
+CANCERO,CANCERO_A18,Nombre de patients adultes (âge > ou égal à 18 ans) atteints de cancer pris en charge en curiethérapie et/ou irathérapie dans l'année,,,
+CANCERO,CANCERO_A19,Médecins radiothérapeutes (hors internes); Effectifs temps plein,,,
+CANCERO,CANCERO_A20,Radiophysiciens - Physiciens médicaux; Effectifs temps plein,,,
+CANCERO,CANCERO_A21,Manipulateurs d'électroradiologie; Effectifs temps plein,,,
+CANCERO,CANCERO_A22,Dosimétristes;Effectifs temps plein,,,
+CANCERO,CANCERO_A23,Autre personnel non médical de l'unité de radiothérapie; Effectifs temps plein,,,
+CANCERO,CANCERO_B17,Nombre de patients (âgés de moins de 18 ans) atteints de cancer pris en charge en radiothérapie externe dans l'année,,,
+CANCERO,CANCERO_B19,Médecins radiothérapeutes (hors internes);Effectifs temps partiel,,,
+CANCERO,CANCERO_B20,Radiophysiciens;Effectifs temps partiel,,,
+CANCERO,CANCERO_B21,Manipulateurs d'électroradiologie; Effectifs temps partiel,,,
+CANCERO,CANCERO_B22,Dosimétristes; Effectifs temps partiel,,,
+CANCERO,CANCERO_B23,Autre personnel non médical de l'unité de radiothérapie; Effectifs temps partiel,,,
+CANCERO,CANCERO_C19,Médecins radiothérapeutes (hors internes); ETP moyens annuels,,,
+CANCERO,CANCERO_C20,Radiophysiciens; ETP moyens annuels,,,
+CANCERO,CANCERO_C21,Manipulateurs d'électroradiologie; ETP moyens annuels,,,
+CANCERO,CANCERO_C22,Dosimétristes; ETP moyens annuels,,,
+CANCERO,CANCERO_C23,Autre personnel non médical de l'unité de radiothérapie; ETP moyens annuels,,,
+CANCERO,CANCERO_A24,"Nombre de lits/places en unité(s) médicale(s) de médecine en hospitalisation complète, dont hospitalisation de semaine (y compris curiethérapie)",,,
+CANCERO,CANCERO_A25,Nombre de lits/places en unité(s) médicale(s) de médecine en hospitalisation à temps partiel (notamment unités de chimiothérapie ambulatoire),,,
+CANCERO,CANCERO_A26,"Nombre de lits/places en unité(s) médicale(s) de chirurgie en hospitalisation complète, dont hospitalisation de semaine",,,
+CANCERO,CANCERO_A27,Nombre de lits/places en unité(s) médicale(s) de chirurgie en hospitalisation à temps partiel,,,
+CANCERO,CANCERO_B24,"Nombre de séjours effectués en unité(s) médicale(s) de médecine en hospitalisation complète, dont hospitalisation de semaine (y compris curiethérapie)",,,
+CANCERO,CANCERO_B25,Nombre de séjours effectués en unité(s) médicale(s) de médecine en hospitalisation à temps partiel (notamment unités de chimiothérapie ambulatoire);,,,
+CANCERO,CANCERO_B26,"Nombre de séjours effectués en unité(s) médicale(s) de chirurgie en hospitalisation complète, dont hospitalisation de semaine",,,
+CANCERO,CANCERO_B27,Nombre de séjours effectués en unité(s) médicale(s) de chirurgie en hospitalisation à temps partiel,,,
+CANCERO,CANCERO_C24,"Dont nombre de séjours d'enfant de moins de 18 ans effectués en unité(s) médicale(s) de médecine en hospitalisation complète, dont hospitalisation de semaine (y compris curiethérapie)",,,
+CANCERO,CANCERO_C25,Dont nombre de séjours d'enfant de moins de 18 ans effectués en unité(s) médicale(s) de médecine en hospitalisation à temps partiel (notamment unités de chimiothérapie ambulatoire);,,,
+CANCERO,CANCERO_C26,"Dont nombre de séjours d'enfant de moins de 18 ans effectués en unité(s) médicale(s) de chirurgie en hospitalisation complète, dont hospitalisation de semaine",,,
+CANCERO,CANCERO_C27,Dont nombre de séjours d'enfant de moins de 18 ans effectués en unité(s) médicale(s) de chirurgie en hospitalisation à temps partiel,,,
+CANCERO,CANCERO_D24,"Nombre total de journées réalisées en unité(s) médicale(s) de médecine en hospitalisation complète, dont hospitalisation de semaine (y compris curiethérapie)",,,
+CANCERO,CANCERO_D26,"Nombre total de journées réalisées en unité(s) médicale(s) de chirurgie en hospitalisation complète, dont hospitalisation de semaine",,,
+CANCERO,CANCERO_E24,"dont nombre de journées d'enfants de moins de 18 ans en unité(s) médicale(s) de médecine en hospitalisation complète, dont hospitalisation de semaine (y compris curiethérapie)",,,
+CANCERO,CANCERO_E26,"dont nombre de journées d'enfants de moins de 18 ans en unité(s) médicale(s) de chirurgie en hospitalisation complète, dont hospitalisation de semaine",,,
+CANCERO,CANCERO_A28,Médecins oncologues médicaux; Effectifs temps plein,,,
+CANCERO,CANCERO_A29,Autres médecins habilités en cancérologie; Effectifs temps plein,,,
+CANCERO,CANCERO_B28,Médecins oncologues médicaux; Effectifs temps partiel,,,
+CANCERO,CANCERO_B29,Autres médecins habilités en cancérologie; Effectifs temps partiel,,,
+CANCERO,CANCERO_C28,Médecins oncologues médicaux; ETP moyens annuels,,,
+CANCERO,CANCERO_C29,Autres médecins habilités en cancérologie; ETP moyens annuels,,,
+CANCERO,CANCERO_A30,Infirmiers DE avec ou sans spécialisation et personnels d'encadrement infirmiers; Effectifs temps plein,,,
+CANCERO,CANCERO_A31,Aides-soignants; Effectifs temps plein,,,
+CANCERO,CANCERO_A32,Psychologues; Effectifs temps plein,,,
+CANCERO,CANCERO_A33,Assistant(e)s de service social; Effectifs temps plein,,,
+CANCERO,CANCERO_A34,Autres personnels des services médicaux; Effectifs temps plein,,,
+CANCERO,CANCERO_B30,Infirmiers DE avec ou sans spécialisation et personnels d'encadrement infirmiers; Effectifs temps partiel,,,
+CANCERO,CANCERO_B31,Aides-soignants; Effectifs temps partiel,,,
+CANCERO,CANCERO_B32,Psychologues; Effectifs temps partiel,,,
+CANCERO,CANCERO_B33,Assistant(e)s de service social;Effectifs temps partiel,,,
+CANCERO,CANCERO_B34,Autres personnels des services médicaux; Effectifs temps partiel,,,
+CANCERO,CANCERO_C30,Infirmiers DE avec ou sans spécialisation et personnels d'encadrement infirmiers; ETP moyens annuels,,,
+CANCERO,CANCERO_C31,Aides-soignants; ETP moyens annuels,,,
+CANCERO,CANCERO_C32,Psychologues; ETP moyens annuels,,,
+CANCERO,CANCERO_C33,Assistant(e)s de service social; ETP moyens annuels,,,
+CANCERO,CANCERO_C34,Autres personnels des services médicaux; ETP moyens annuels,,,
+URGENCES,BOR,Bordereau,,,
+URGENCES,AN,Année,,,
+URGENCES,FI,N° FINESS de l'entité interrogée,,,
+URGENCES,FI_EJ,N° FINESS de l'entité juridique,,,
+URGENCES,AUTSU,"Sur le site géographique, disposez-vous d'une implantation d'une structure d'urgences autorisée ?",,,
+URGENCES,AUTGEN,S'agit -il d'une structure des urgences générales ?,,,
+URGENCES,AUTSAIS,Structure des urgences générales saisonnière,,,
+URGENCES,AUTPED,S'agit -il d'une structure des urgences pédiatriques ?,,,
+URGENCES,EMG,Une équipe mobile de gériatrie intervient-elle au SU ?,,,
+URGENCES2,BOR,Bordereau,,,
+URGENCES2,AN,Année,,,
+URGENCES2,FI,N° FINESS de l'entité interrogée,,,
+URGENCES2,FI_EJ,N° FINESS de l'entité juridique,,,
+URGENCES2,URG,Type de structure,,,
+URGENCES2,HMED,Nombre hebdomadaire moyen d'heures postées sur l'année; médecins :,URG,GEN,Urgences générales
+URGENCES2,HMED,Nombre hebdomadaire moyen d'heures postées sur l'année; médecins :,URG,PED,Urgences pédiatriques
+URGENCES2,HIDE,Nombre hebdomadaire moyen d'heures postées sur l'année; IDE (infirmier diplômé d'état) avec ou sans spécialisation :,URG,GEN,Urgences générales
+URGENCES2,HIDE,Nombre hebdomadaire moyen d'heures postées sur l'année; IDE (infirmier diplômé d'état) avec ou sans spécialisation :,URG,PED,Urgences pédiatriques
+URGENCES2,SAO,Existe-t-il un soignant d'accueil et d'orientation?,URG,GEN,Urgences générales
+URGENCES2,SAO,Existe-t-il un soignant d'accueil et d'orientation?,URG,PED,Urgences pédiatriques
+URGENCES2,ACC,"Si oui, l'accueil et l'orientation sont réalisés par :",URG,GEN,Urgences générales
+URGENCES2,ACC,"Si oui, l'accueil et l'orientation sont réalisés par :",URG,PED,Urgences pédiatriques
+URGENCES2,PASSU,Nombre total de passages aux urgences dans l'année,URG,GEN,Urgences générales
+URGENCES2,PASSU,Nombre total de passages aux urgences dans l'année,URG,PED,Urgences pédiatriques
+URGENCES2,dt80,dont nombre total de passages aux urgences dans l'année pour des patients de plus de 80 ans,URG,GEN,Urgences générales
+URGENCES2,dt18,dont nombre total de passages aux urgences dans l'année pour des patients de moins de 18 ans,URG,GEN,Urgences générales
+URGENCES2,dtMCO,Nombre total de passages aux urgences dans l'année; DONT hospitalisés en MCO dans la même entité juridique,URG,GEN,Urgences générales
+URGENCES2,dtMCO80,dont nombre total de passages aux urgences dans l'année pour des patients de plus de 80 ans; DONT hospitalisés en MCO dans la même entité juridique,URG,GEN,Urgences générales
+URGENCES2,dtMCO18,dont nombre total de passages aux urgences dans l'année pour des patients de moins de 18 ans; DONT hospitalisés en MCO dans la même entité juridique,URG,GEN,Urgences générales
+URGENCES2,dtLS,"Nombre total de passages aux urgences dans l'année; DONT hospitalisés en SSR, PSY, USLD dans la même entité juridique",URG,GEN,Urgences générales
+URGENCES2,dtLS80,"dont nombre total de passages aux urgences dans l'année pour des patients de plus de 80 ans; DONT hospitalisés en SSR, PSY, USLD dans la même entité juridique",URG,GEN,Urgences générales
+URGENCES2,dtLS18,"dont nombre total de passages aux urgences dans l'année pour des patients de moins de 18 ans; DONT hospitalisés en SSR, PSY, USLD dans la même entité juridique",URG,GEN,Urgences générales
+URGENCES2,dtHAD,Nombre total de passages aux urgences dans l'année; DONT hospitalisés en HAD dans la même entité juridique,URG,GEN,Urgences générales
+URGENCES2,dtHAD80,dont nombre total de passages aux urgences dans l'année pour des patients de plus de 80 ans; DONT hospitalisés en HAD dans la même entité juridique,URG,GEN,Urgences générales
+URGENCES2,dtHAD18,dont nombre total de passages aux urgences dans l'année pour des patients de moins de 18 ans; DONT hospitalisés en HAD dans la même entité juridique,URG,GEN,Urgences générales
+URGENCES2,dtEXT,Nombre total de passages aux urgences dans l'année; DONT hospitalisés dans une autre entité juridique,URG,GEN,Urgences générales
+URGENCES2,dtEXT80,dont nombre total de passages aux urgences dans l'année pour des patients de plus de 80 ans; DONT hospitalisés dans une autre entité juridique,URG,GEN,Urgences générales
+URGENCES2,dtEXT18,dont nombre total de passages aux urgences dans l'année pour des patients de moins de 18 ans; DONT hospitalisés dans une autre entité juridique,URG,GEN,Urgences générales
+URGENCES2,dtHOSP,Nombre total de passages aux urgences dans l'année; DONT hospitalisés,URG,PED,Urgences pédiatriques
+URGENCES2,LIT_UHCD,Nombre de lits installés au 31/12 en unité d'hospitalisation de courte durée (UHCD),URG,GEN,Urgences générales
+URGENCES2,LIT_UHCD,Nombre de lits installés au 31/12 en unité d'hospitalisation de courte durée (UHCD),URG,PED,Urgences pédiatriques
+URGENCES2,JLI_UHCD,Nombre de journées-lits exploitables en unité d'hospitalisation de courte durée (UHCD),URG,GEN,Urgences générales
+URGENCES2,JLI_UHCD,Nombre de journées-lits exploitables en unité d'hospitalisation de courte durée (UHCD),URG,PED,Urgences pédiatriques
+URGENCES2,SEJ_UHCD,Nombre de séjours en unité d'hospitalisation de courte durée (UHCD),URG,GEN,Urgences générales
+URGENCES2,SEJ_UHCD,Nombre de séjours en unité d'hospitalisation de courte durée (UHCD),URG,PED,Urgences pédiatriques
+URGENCES2,SEJ0_UHCD,dont nombre de séjours de 0 jour en unité d'hospitalisation de courte durée (UHCD),URG,GEN,Urgences générales
+URGENCES2,SEJ0_UHCD,dont nombre de séjours de 0 jour en unité d'hospitalisation de courte durée (UHCD),URG,PED,Urgences pédiatriques
+URGENCES2,JOU_UHCD,Nombre de journées en unité d'hospitalisation de courte durée (UHCD),URG,GEN,Urgences générales
+URGENCES2,JOU_UHCD,Nombre de journées en unité d'hospitalisation de courte durée (UHCD),URG,PED,Urgences pédiatriques
+URGENCES2,STAP,Existe-t-il un suivi des temps d’attente et de passage ?,URG,GEN,Urgences générales
+URGENCES2,RMM,Le service a-t-il mis en place une revue de mortalité et de morbidité (RMM) ?,URG,GEN,Urgences générales

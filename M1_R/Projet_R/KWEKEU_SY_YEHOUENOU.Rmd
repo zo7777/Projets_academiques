@@ -1,0 +1,256 @@
+---
+title: "Projet R"
+author: "Bill Yehouenou, Aymard Loic Kwekeu Kwekeu, Omar Saip Sy"
+date: "2022-10-30"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(ggplot2)
+library(cowplot)
+getwd()
+setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE, comment = "")
+```
+
+# Partie 1 : Prise en main des données
+## 1. Cancero
+```{r imoprtation "cancero"}
+cancero <- read.table("data/CANCERO_2019.csv", header=TRUE, sep=";", dec="." )
+
+nb_adultMCO <- sum(cancero$CANCERO_A11, na.rm = TRUE) #nombre adultes en MCO
+print(paste("Le nombre d'adultes ayant eu un traitement par chimiothérapie dans l'année en MCO", nb_adultMCO))
+```
+
+```{r comparaison des proportions}
+nb_adult_HAD_MCO <- nb_adultMCO + sum(cancero$CANCERO_B11, na.rm= TRUE)
+nb_enfant_HAD_MCO <- sum(cancero$CANCERO_C11,na.rm=TRUE) + sum(cancero$CANCERO_D11, na.rm=TRUE)
+prop_had_mco <- prop.table(cbind(nb_adult_HAD_MCO,nb_enfant_HAD_MCO)) #proportion d'adultes et d'enfants
+
+plus_grande_valeur <- function(x,y){
+  if(x > y){
+    return("Il y a plus de patiens adultes atteints de cancer ayant un traitement de cancer que de jeunes dans la même situation")
+  } else {
+    return("Il y a plus de patiens jeunes atteints de cancer ayant un traitement de cancer que d'adultes dans la même situation")
+  }
+}
+plus_grande_valeur(prop_had_mco[,1],prop_had_mco[,2])
+```
+
+Ce résultat est normal car les jeunes de moins de 18 ans développent moins de cancer que les adultes.
+
+```{r Représentation des patients}
+Patients <- cancero$CANCERO_A11+cancero$CANCERO_B11+cancero$CANCERO_C11+cancero$CANCERO_D11
+cancero <- cbind(cancero, Patients)
+
+plot(Patients, cancero$CANCERO_C28,ylab = "Médecins Oncologues")
+#Zoom sur un graphique
+plot(Patients, cancero$CANCERO_C28, xlim=c(0,2000),ylim=c(0,25), ylab="Médecins Oncologues" )
+```
+
+L'analyse de ce graphe montre une augmentation du __nombre de médecins oncologues__  avec la croissance du nombre de Patients atteints du cancer dans les hôpitaux. On remarque aussi une forte présence des hôpitaux avec moins de 20 oncologues. 
+
+## 2. Urgences
+```{r importation des données "Urgences"}
+urgences_2019 <- read.csv("data/URGENCES2_2019.csv", sep = ";")
+```
+
+```{r Comparaison entre +80ans et -18 ans}
+attach(urgences_2019)
+urgences_gen_80 <- urgences_2019[c(URG == "GEN"),"dt80"]
+urgences_gen_18 <- urgences_2019[c(URG == "GEN"),"dt18"]
+if (sum(na.omit(urgences_gen_80))>sum(urgences_gen_18, na.rm = TRUE)){
+  print("Les patients de +80 ans sont plus nombreux aux urgences générales que ceux de -18 ans en 2019")
+} else {
+  print("Les patients de -18 ans sont plus nombreux aux urgences générales que ceux de +80 ans en 2019")
+}
+
+#étude unité urgence générale -18 ans
+urgences_gen_18unit <- urgences_2019[c(URG == "GEN"),c("dtHAD18", "dtEXT18", "dtMCO18", "dtLS18")]
+somme_unit18 <- colSums(na.omit(urgences_gen_18unit))
+pie(somme_unit18, labels = c("HAD","EXT","MCO","LS"))
+```
+
+On remarque que l'unité d'urgence générale de "Médecine, chirurgie et obstétrique" reçoit beaucoup de patients en bas âge que toutes les autres unités spéciales d'urgences générales. Cela se traduit par une forte proportion de patients âgés de moins de 18 ans (environ __93.81%__).
+
+```{r Nombre unités génerales avec des rajouts de lits}
+urgences_2020 <- read.csv("data/URGENCES2_2019.csv", sep = ";")
+urgences_gen_lit19 <- urgences_2019[c(urgences_2019$URG == "GEN"),"LIT_UHCD"]
+urgences_gen_lit20 <- urgences_2020[c(urgences_2020$URG == "GEN"),"LIT_UHCD"]
+
+lit_rajoute = 0
+for (ligne in 1:nrow(urgences_2019)) {
+  if (is.na(urgences_gen_lit19[ligne]) && is.na(urgences_gen_lit20[ligne])){next} 
+  else if ((urgences_gen_lit19[ligne] < urgences_gen_lit20[ligne]) || (is.na(urgences_gen_lit19[ligne]) &&  !is.na(urgences_gen_lit20[ligne]))) {
+    lit_rajoute <- lit_rajoute + 1}
+}
+print(lit_rajoute)
+```
+
+Entre 2019 et 2020, le nombre de lits est resté identique dans toutes les unités d'urgences générales. Il n'y a pas eu d'agumentation.
+
+```{r Evolution des passagers entre 2017 et 2021, fig.width=8}
+#importation des autres données
+urgences_2017 <- read.csv("data/URGENCES2_2017.csv", sep = ";")
+urgences_2018 <- read.csv("data/URGENCES2_2018.csv", sep = ";")
+urgences_2021 <- read.csv("data/URGENCES2_2021.csv", sep = ";")
+#Extraction du nombre de passagers en urgences par année
+urgences_gen_passu17 <- na.omit(urgences_2017[c(urgences_2017$URG == "GEN"), "PASSU"])
+urgences_gen_passu18 <- na.omit(urgences_2018[c(urgences_2018$URG == "GEN"), "PASSU"])
+urgences_gen_passu19 <- na.omit(urgences_2019[c(urgences_2019$URG == "GEN"), "PASSU"])
+urgences_gen_passu20 <- na.omit(urgences_2020[c(urgences_2020$URG == "GEN"), "PASSU"])
+urgences_gen_passu21 <- na.omit(urgences_2021[c(urgences_2020$URG == "GEN"), "PASSU"])
+urgences_gen_passu <- cbind(urgences_gen_passu17,urgences_gen_passu18,urgences_gen_passu19,urgences_gen_passu20, urgences_gen_passu21)
+annee <- 2017:2021
+gen_passu <- data.frame(annee, passu = colMeans(urgences_gen_passu))
+#Représentation graphique
+ggplot(gen_passu, aes(x=annee, y=passu)) +
+  geom_point(shape=21, color="black", fill="#69b3a2", size=3) +
+  geom_line(color="grey") +
+  ylab("nombre de passage") +
+  ggtitle("Evolution du nombre moyen de passagers en urgences générales par année")
+```
+
+Après examen du graphe de l'évolution du _nombre moyen de passagers_ en urgences générales par année,  on constate une tendance haussière, entre 2017 et 2019, du nombre de passage. Après une période de stabilisation d'environ un an, on observe une __baisse drastique__ du nombre de passage en urgence générale en 2021 dépassant même l'effectif obtenu 5 ans auparavant. Une baisse due à la crise sanitaire et aux nombreux confinements.
+
+## 3. Q20
+```{r Importation et valeurs manquantes}
+q20 <- read.table("data/Q20_2019.csv", header = TRUE, sep = ";")
+nb_NA = c()
+for (colonne in 6:ncol(q20)){
+  somme = 0
+  for (ligne in 1:nrow(q20)){
+    if(is.na(q20[ligne,colonne])){
+      somme <- somme+1
+    }
+  }
+  nb_NA <- c(nb_NA, somme)
+}
+prop_NA <- data.frame(variables = variable.names(q20)[6:ncol(q20)],
+                           pourcentage_vide = (nb_NA/nrow(q20))*100)
+prop_NA #pourcentage de valeurs manquantes
+```
+
+Le tableau ci-dessus est un tableau de chaque variable et de son pourcentage de données manquantes. Nous observons que la variable avec le plus faible pourcentage de données manquantes est ETPSAL (ETP moyen annuel rémunéré total).
+La variable avec le plus fort pourcentage de données manquantes est ETP_HU (Etablissement public dont ETP des hospitaliers universitaires non titulaires).
+
+```{r Proportion hommes salariés}
+gp_H_par_spe <- aggregate(EFFSALPLH ~ PERSO, sum, data = q20)
+gp_F_par_spe <- aggregate(EFFSALPLF ~ PERSO, sum, data = q20)
+
+tab_hf <- data.frame(gp_F_par_spe$EFFSALPLF, gp_H_par_spe$EFFSALPLH)
+
+pourcentage_homme <- (gp_H_par_spe$EFFSALPLH / rowSums(tab_hf))*100
+prop_h_tp <- data.frame(id_spe = gp_H_par_spe$PERSO, pourcentage_homme)
+prop_h_tp #proprtion d'hommes salariés à temps plein
+```
+
+Le tableau ci-dessus est le tableau qui associé à chaque identifiant de spécialité le pourcentage d'homme qu'il y a parmi les salariés à temps plein. Nous pouvons observer que parmi tous les personnels salariés à  temps plein, il y a environ 50.8% d'hommes ; ce qui est proche de 50%. De ce fait, il y a autant d'hommes que de femmes faisant partie du personnel médical total. 
+La proportion d'hommes salarié à temps plein varie entre 28.3% et 89.7% en fonction des spécialités. En effet, ces faibles proportions s'expliquent par le fait que certaines spécialités de la médecine sont plus abordables par les femmes que par les hommes; nous avons l'exemple de la gynécologie et de l'obstétrique. Les fortes proportions se justifient du fait d'autres spécialistes de la médecine sont plus praticables par les hommes; nous avons l'exemple de l'urologie.
+
+```{r Comparaison des spécialités}
+desc_perso <- read.csv("data/Desc_Perso.csv",sep=",") #importation
+
+for(spe in gp_H_par_spe$PERSO){
+  for(specialite in desc_perso$Valeur.Modalité){
+    if(spe == specialite){
+      gp_H_par_spe$PERSO[which(gp_H_par_spe$PERSO == spe)] = desc_perso$Label.modalité[which(desc_perso$Valeur.Modalité == specialite)]
+      #affecter chaque id_spe au nom de la spécialité correspondante pour le tableau groupée des hommes
+      prop_h_tp$id_spe[which(prop_h_tp$id_spe == spe)] = desc_perso$Label.modalité[which(desc_perso$Valeur.Modalité == specialite)]
+      ##affecter chaque id_spe au nom de la spécialité correspondante pour la proportion des hommes
+      }
+  }
+}
+
+maxi = prop_h_tp[which.max(prop_h_tp$pourcentage_homme),1] #Spécilalité avec le plus d'hommes à temps plein
+mini = prop_h_tp[which.min(prop_h_tp$pourcentage_homme),1] #Spécilalité avec le moins d'hommes à temps plein
+
+comparaison= c ()
+for(pourcentage in prop_h_tp$pourcentage_homme){
+  comparaison=c(comparaison, abs(pourcentage-50)) #distance entre le pourcentage et 1/2
+}
+idx <- which.min(comparaison)
+proche <- prop_h_tp[idx,1]
+print(paste("La spécialité avec la plus grande proportion est :", maxi,
+            ",celle avec la plus petite proportion est :", mini,
+            "et celle avec la proportion la plus proche de 50% est :", proche))
+```
+
+
+```{r, fig.width=20, label ="Representation des ETP"}
+etp_pu <- aggregate(ETP_PU ~ PERSO, sum, data = q20)
+
+for (spe in etp_pu$PERSO){
+  for (specialite in desc_perso$Valeur.Modalité){
+    if (spe == specialite){
+      etp_pu$PERSO[which(etp_pu$PERSO==spe)] = desc_perso$Label.modalité[which(desc_perso$Valeur.Modalité == specialite)]
+    }
+  }
+}
+etp_pu_ordonne <- etp_pu[order(etp_pu$ETP_PU,decreasing = F),]
+etp_pu_ordonne[1:10,]
+#Diagramme en bâtons
+barplot(height = etp_pu_ordonne[1:5,2], axisnames = TRUE, names.arg = etp_pu_ordonne[1:5,1])
+```
+
+
+# Partie 2 : Description et analyse des données
+## Problématique
+__Existe-il une relation entre la présence d'équipement et le nombre de patients par année dans un hôpital ?__
+Notre étude a pour objectif de vérifier si un établissement de santé plus équipé attire plus de patients que ceux qui le sont moins. On a donc décider d'axer notre étude sur le département "Radiothérapie" dans la base Cancero. En effet, ce choix se justifie par le constat que les individus atteints de pathologie assez particulières, dont les soins requièrent des équipements de pointe, accordent plus d'importance au choix des établissements de santé.
+
+## Méthodologie utilisée
+Pour mener à bien notre étude, nous avons décider d'utiliser un modèle de __regression linéaire multiple__ par la méthode des moindres carrées ordinaires (MCO). Cette méthode sert modéliser la valeur d'une variable en fonction de la valeur d'une ou plusieurs autres variables. Notre __variable d'état__ ou __d'intérêt__ est "le nombre de patients". Celle-ci sera modélisée en fonction de plusieurs __variables explicatives__ :
+- _nombre d'appareils (ou de lits)_
+- _séances de traitement par radiothérapie externe_
+- _nombre de médecins radiothérapeutes (hors internes)_
+
+## Creation de la base de données
+```{r Creation de la base de données}
+nb_patients <- cancero$CANCERO_A17+cancero$CANCERO_B17
+nb_appareils <- cancero$CANCERO_A12
+traitement <- cancero$CANCERO_A15+cancero$CANCERO_B15
+radiotherap <- cancero$CANCERO_A19+cancero$CANCERO_B19
+
+cancero_radio<-data.frame(nb_patients, nb_appareils, traitement, radiotherap)
+```
+
+
+## Analyse descriptive
+```{r Analyse descriptive, fig.height=5}
+#Graphe de la variable 'nb_patients'
+ggplot(cancero_radio, aes(x=nb_patients)) + 
+  geom_histogram(fill="darkslategray", color = "#e9ecef") +
+    ggtitle("Graphe de la variable 'Patients'")
+# Graphe de la variable 'nb_appareils'
+graph_app <- ggplot(cancero_radio) +
+  geom_point(aes(x=nb_appareils,y=nb_patients)) +
+    ggtitle("Graphe de la variable 'Patients' en fonction de 'Nombre d'appareils'")
+# Graphe de la variable 'traitement'
+graph_trait <- ggplot(cancero_radio) +
+  geom_point(aes(x=traitement,y=nb_patients)) +
+    ggtitle("Graphe de la variable 'Patients' en fonction de 'Traitement'")
+# Graphe de la variable 'radiotherap'
+graph_radthp <- ggplot(cancero_radio) +
+  geom_point(aes(x=radiotherap,y=nb_patients)) +
+    ggtitle("Graphe de la variable 'Patients' en fonction de 'Radiotherapeutes'")
+
+plot_grid(graph_app,graph_trait,graph_radthp ,nrow = 3) #tous les graphes dans une meme grille (library_cowplot)
+```
+
+## Mise en oeuvre de la méthode
+```{r Mise en oeuvre de la méthode}
+reg<-lm(nb_patients~nb_appareils+traitement+radiotherap,data=cancero_radio)
+summary(reg)
+```
+
+### __Commentaires de chacun des modèles__
+- Qualité d’ajustement du modèle
+$ R^2_a = 0.9347 $, donc 93,47 % de la variance du nombre de patients est expliquée par _nombre d'appareils (ou de lits)_, _séances de traitement par radiothérapie externe_, _nombre de médecins radiothérapeutes (hors internes)_. 
+
+- Test de Fisher global (test de significativité globale du modèle)
+Le modèle est __globalement satisfaisant__ car F-statistic est < 5%
+
+- Les coefficients de toutes les variables sont significatifs au seuil de 5% car leurs _p-values_ respectives sont inférieures à 5%.
+
+Ainsi, si on rajoute un appareil en plus, le nombre de patients devrait augmenter de 125 personnes. De plus, si le nombre de séances de traitement par radiothérapie externe de 100  alors on gagne environ 4 patients en plus. Enfin, si on engage un radiothérapeute en plus, le nombre de patients pourrait augmenter de 20 personnes.

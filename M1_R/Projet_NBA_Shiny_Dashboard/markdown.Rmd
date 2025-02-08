@@ -1,0 +1,65 @@
+---
+title: "NBA_dashboard"
+author: "YEHOUENOU_KWEKEU_SY"
+date: "2023-03-18"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+# **I) Intro**
+
+# **II) Contexte**
+
+# **III) Base de Données**
+
+Les données utilisées pour ce projet ont été extraites du site: https://www.kaggle.com/datasets/nathanlauga/nba-games.
+Ce lien met à notre disposition 5 tableaux de données en format csv nommés:
+
+ * games.csv: constitué de tous les matchs de la NBA de 2003 à Décembre 2022 et des performances des équipes lors de ces matchs;
+ * games_details.csv: constitué des performances des joueurs pendant chaque match de 2003 à Décembre 2022;
+ * players.csv: constitué des informations des joueurs de la NBA de 2003 à Décembre 2022;
+ * ranking.csv: constitué du classement des équipes apres chaque match(séparé par conference Est et Ouest) de 2003 à Décembre 2022;
+ * teams.csv: constitué des informations des équipes de la NBA.
+ 
+Cependant, ces tableaux de données à l'état brut ne pouvaient pas nous permettre de parvenir à notre objectif. Pour cette raison, des manipulations de ces tableaux de données étaient inévitables afin de créer les tableaux finaux dont nous avions besoin.
+
+
+# **IV) Traitement de données**
+
+Le traitement de données s'est fait en 2 partie. La première partie concerne les joueurs de la NBA et la seconde concerne les equipes de la NBA. Ce travail de traitement était entièrement centré sur la création de tableaux de données a partir de ceux importés.
+
+###     **1) Traitement de données concernant les joueurs**
+
+| L'objectif de cette étape était de disposer d'un tableau de données contenant les statistiques de chaque joueur, par saison, ainsi que l'équipe à laquelle il jouait pendant cette saison.
+| Pour ce faire, nous avons d'abord regroupé les lignes de games_details.csv par joueur (colonne PLAYER_NAME), par saison (colonne SEASON), puis par équipe (colonne TEAM_ID) au cas où le joueur a changé d'équipe pendant une saison. Appelons ce tableau tab_joueurs.
+| Puis nous avons fait une jointure gauche entre tab_joueurs et teams afin d'avoir le nom de son équipe au lieu d'un ID. 
+| Enfin, nous avons supprimé les colonnes inutiles afin d'aérer le tableau(Appelons ce tableau obtenu "final") et nous l'avons exporté dans le fichier contenant les tableaux de données sous le nom de "final_players.csv". 
+
+###     **2) Traitement de données concernant les équipes**
+
+Nous avons divisé cette étape en 2 sous-étapes selon nos besoins. En effet, l'une des étapes concerne les statistiques de chaque équipe à chaque saison; et l'autre concerne les rangs des équipes à la fin de chaque saison.
+
+####         **a) Traitement de données concernant les statisiques des équipes**
+
+| Tout d'abord, nous commençons cette phase en regroupant les lignes de games_details.csv par match(colonne GAME_ID), par saison(colonne SEASON) et par équipe(colonne TEAM_ID); ceci afin de sommer les performances de chaque joueur lors du match pour avoir les performances de l'équipe lors de ce match (nous avons préférer utiliser games_details.csv plutot que d'utiliser games.csv). 
+| Ainsi, nous avons pu obtenir le tableau de données contenant les performances de chaque équipe après chaque match de 2003 à Décembre 2022(nous appelerons ce tableau tab_team sur le rapport).
+| Ensuite, à partir de tab_team, nous avons regroupé les lignes par equipe(colonne TEAM_ID) et par saison(colonne SEASON); ceci dans l'optique d'obtenir la moyenne des statistiques (de chaque équipe) par saison. Nous avons ainsi obtenu un tableau de données constitué des statistiques moyennes, par saison, de chaque équipe(nous appelerons ce tableau final_team).
+| Puis, nous avons fait une jointure gauche de final_team et teams.csv et avons enlevé les colonnes inutiles, afin d'avoir un tableau un peu plus clair et lisible.
+| Enfin, nous avons exporté ce tableau dans le fichier contenant les tableaux de données sous le nom de "final_team.csv".
+
+####         **b) Traitement de données concernant les rangs des équipes**
+
+| Ce traitement a été plus aisé que le précédent. En effet, nous avons juste eu à manipuler ranking.csv.
+| En effet, nous avons d'abord sélectionné le rang au 22 Décembre 2022 (sachant que c'est la date la plus récente du tableau de données). Nous l'appelerons rank22.
+| Puis nous n'avons sélectionné que les rangs au 1er Mai(sachant qu'à cette date la saison NBA est fini). Ce qui fait que nous avons un tableau de classement de chaque équipe au 1er Mai de chaque année (de 2003 à Décembre 2022). Nous appelerons ce tableau rank. Cependant, le classement au 1er 2022 correspond à celui de la saison 2021-2022, mais nous le considérerons comme la saison 2021 sur notre projet.
+| Ensuite nous avons fusionné verticalement (rbind) rank22 et rank afin d'avoir le classement de la NBA de 2003 à 2022.
+| Enfin, nous avons enlevé les colonnes inutiles, pour rendre le tableau lisible et nous l'avons exporté dans le fichier contenant les tableaux de données sous le nom de "rank.csv". 
+
+
+# **V) Difficultee rencontrees sur la visualisation de donnees** (cette partie c'est pas la peine je ne vois pas de difficulte de v. de donnees)
+
+

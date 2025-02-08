@@ -1,0 +1,899 @@
+Table,Variable,Label variable ,Variable Modalité,Valeur Modalité,Label modalité
+Q20,BOR,Bordereau,,,
+Q20,AN,Année,,,
+Q20,FI,N° FINESS de l'entité interrogée,,,
+Q20,FI_EJ,N° FINESS de l'entité juridique,,,
+Q20,PERSO,Catégorie de Personnel,,,
+Q20,EFFSALPLH,Effectif des salariés temps plein Hommes,PERSO,M1010,"Médecine générale (hors DES urgentistes, hors gériatrie)"
+Q20,EFFSALPLH,Effectif des salariés temps plein Hommes,PERSO,M1020,Anatomie et cytologie pathologiques
+Q20,EFFSALPLH,Effectif des salariés temps plein Hommes,PERSO,M1030,Anesthésie - Réanimation
+Q20,EFFSALPLH,Effectif des salariés temps plein Hommes,PERSO,M1031,Réanimation médicale
+Q20,EFFSALPLH,Effectif des salariés temps plein Hommes,PERSO,M1040,Cardiologie et maladies vasculaires
+Q20,EFFSALPLH,Effectif des salariés temps plein Hommes,PERSO,M1050,Dermatologie - Vénérologie - Allergologie
+Q20,EFFSALPLH,Effectif des salariés temps plein Hommes,PERSO,M1070,Endocrinologie et maladies métaboliques
+Q20,EFFSALPLH,Effectif des salariés temps plein Hommes,PERSO,M1090,Gastro entérologie et hépatologie
+Q20,EFFSALPLH,Effectif des salariés temps plein Hommes,PERSO,M1100,Médecine interne et immunologie clinique
+Q20,EFFSALPLH,Effectif des salariés temps plein Hommes,PERSO,M1110,Néphrologie
+Q20,EFFSALPLH,Effectif des salariés temps plein Hommes,PERSO,M1120,Neurologie
+Q20,EFFSALPLH,Effectif des salariés temps plein Hommes,PERSO,M1130,Oncologie médicale
+Q20,EFFSALPLH,Effectif des salariés temps plein Hommes,PERSO,M1140,Pédiatrie
+Q20,EFFSALPLH,Effectif des salariés temps plein Hommes,PERSO,M1150,Pneumologie
+Q20,EFFSALPLH,Effectif des salariés temps plein Hommes,PERSO,M1160,Radiologie
+Q20,EFFSALPLH,Effectif des salariés temps plein Hommes,PERSO,M1170,Oncologie radiothérapique
+Q20,EFFSALPLH,Effectif des salariés temps plein Hommes,PERSO,M1180,Médecine physique et de réadaptation
+Q20,EFFSALPLH,Effectif des salariés temps plein Hommes,PERSO,M1190,Rhumatologie
+Q20,EFFSALPLH,Effectif des salariés temps plein Hommes,PERSO,M1200,Autres spécialités médicales
+Q20,EFFSALPLH,Effectif des salariés temps plein Hommes,PERSO,M1210,Médecine nucléaire
+Q20,EFFSALPLH,Effectif des salariés temps plein Hommes,PERSO,M1310,Génétique
+Q20,EFFSALPLH,Effectif des salariés temps plein Hommes,PERSO,M1320,Gériatrie
+Q20,EFFSALPLH,Effectif des salariés temps plein Hommes,PERSO,M1330,Hématologie
+Q20,EFFSALPLH,Effectif des salariés temps plein Hommes,PERSO,M1340,Médecine d'urgence
+Q20,EFFSALPLH,Effectif des salariés temps plein Hommes,PERSO,M2010,Chirurgie générale
+Q20,EFFSALPLH,Effectif des salariés temps plein Hommes,PERSO,M2020,Chirurgie maxillo-faciale  - Stomatologie - Chirurgie orale
+Q20,EFFSALPLH,Effectif des salariés temps plein Hommes,PERSO,M2030,Chirurgie orthopédique et traumatologique
+Q20,EFFSALPLH,Effectif des salariés temps plein Hommes,PERSO,M2040,"Chirurgie plastique, reconstructrice et esthétique"
+Q20,EFFSALPLH,Effectif des salariés temps plein Hommes,PERSO,M2050,Gynécologie - Obstétrique
+Q20,EFFSALPLH,Effectif des salariés temps plein Hommes,PERSO,M2060,Neuro-chirurgie
+Q20,EFFSALPLH,Effectif des salariés temps plein Hommes,PERSO,M2070,Ophtalmologie
+Q20,EFFSALPLH,Effectif des salariés temps plein Hommes,PERSO,M2080,Oto-Rhino-laryngologie
+Q20,EFFSALPLH,Effectif des salariés temps plein Hommes,PERSO,M2100,Chirurgie urologique
+Q20,EFFSALPLH,Effectif des salariés temps plein Hommes,PERSO,M2110,Autres spécialités chirurgicales
+Q20,EFFSALPLH,Effectif des salariés temps plein Hommes,PERSO,M2120,Chirurgie digestive
+Q20,EFFSALPLH,Effectif des salariés temps plein Hommes,PERSO,M2130,Chirurgie vasculaire
+Q20,EFFSALPLH,Effectif des salariés temps plein Hommes,PERSO,M2140,Chirurgie thoracique et cardiaque
+Q20,EFFSALPLH,Effectif des salariés temps plein Hommes,PERSO,M2150,Chirurgie infantile
+Q20,EFFSALPLH,Effectif des salariés temps plein Hommes,PERSO,M3011,Médecins spécialisés en biologie médicale
+Q20,EFFSALPLH,Effectif des salariés temps plein Hommes,PERSO,M3012,Pharmaciens spécialisés en biologie médicale
+Q20,EFFSALPLH,Effectif des salariés temps plein Hommes,PERSO,M3020,Psychiatrie
+Q20,EFFSALPLH,Effectif des salariés temps plein Hommes,PERSO,M3030,Odontologie
+Q20,EFFSALPLH,Effectif des salariés temps plein Hommes,PERSO,M3040,Santé publique (y compris DIM)
+Q20,EFFSALPLH,Effectif des salariés temps plein Hommes,PERSO,M3050,Pharmaciens (hors biologie médicale)
+Q20,EFFSALPLH,Effectif des salariés temps plein Hommes,PERSO,M3060,Médecins du travail
+Q20,EFFSALPLH,Effectif des salariés temps plein Hommes,PERSO,M3070,Autres
+Q20,EFFSALPLH,Effectif des salariés temps plein Hommes,PERSO,M9999,TOTAL PERSONNEL MEDICAL
+Q20,EFFSALPLF,Effectif des salariés temps plein Femmes,PERSO,M1010,"Médecine générale (hors DES urgentistes, hors gériatrie)"
+Q20,EFFSALPLF,Effectif des salariés temps plein Femmes,PERSO,M1020,Anatomie et cytologie pathologiques
+Q20,EFFSALPLF,Effectif des salariés temps plein Femmes,PERSO,M1030,Anesthésie - Réanimation
+Q20,EFFSALPLF,Effectif des salariés temps plein Femmes,PERSO,M1031,Réanimation médicale
+Q20,EFFSALPLF,Effectif des salariés temps plein Femmes,PERSO,M1040,Cardiologie et maladies vasculaires
+Q20,EFFSALPLF,Effectif des salariés temps plein Femmes,PERSO,M1050,Dermatologie - Vénérologie - Allergologie
+Q20,EFFSALPLF,Effectif des salariés temps plein Femmes,PERSO,M1070,Endocrinologie et maladies métaboliques
+Q20,EFFSALPLF,Effectif des salariés temps plein Femmes,PERSO,M1090,Gastro entérologie et hépatologie
+Q20,EFFSALPLF,Effectif des salariés temps plein Femmes,PERSO,M1100,Médecine interne et immunologie clinique
+Q20,EFFSALPLF,Effectif des salariés temps plein Femmes,PERSO,M1110,Néphrologie
+Q20,EFFSALPLF,Effectif des salariés temps plein Femmes,PERSO,M1120,Neurologie
+Q20,EFFSALPLF,Effectif des salariés temps plein Femmes,PERSO,M1130,Oncologie médicale
+Q20,EFFSALPLF,Effectif des salariés temps plein Femmes,PERSO,M1140,Pédiatrie
+Q20,EFFSALPLF,Effectif des salariés temps plein Femmes,PERSO,M1150,Pneumologie
+Q20,EFFSALPLF,Effectif des salariés temps plein Femmes,PERSO,M1160,Radiologie
+Q20,EFFSALPLF,Effectif des salariés temps plein Femmes,PERSO,M1170,Oncologie radiothérapique
+Q20,EFFSALPLF,Effectif des salariés temps plein Femmes,PERSO,M1180,Médecine physique et de réadaptation
+Q20,EFFSALPLF,Effectif des salariés temps plein Femmes,PERSO,M1190,Rhumatologie
+Q20,EFFSALPLF,Effectif des salariés temps plein Femmes,PERSO,M1200,Autres spécialités médicales
+Q20,EFFSALPLF,Effectif des salariés temps plein Femmes,PERSO,M1210,Médecine nucléaire
+Q20,EFFSALPLF,Effectif des salariés temps plein Femmes,PERSO,M1310,Génétique
+Q20,EFFSALPLF,Effectif des salariés temps plein Femmes,PERSO,M1320,Gériatrie
+Q20,EFFSALPLF,Effectif des salariés temps plein Femmes,PERSO,M1330,Hématologie
+Q20,EFFSALPLF,Effectif des salariés temps plein Femmes,PERSO,M1340,Médecine d'urgence
+Q20,EFFSALPLF,Effectif des salariés temps plein Femmes,PERSO,M2010,Chirurgie générale
+Q20,EFFSALPLF,Effectif des salariés temps plein Femmes,PERSO,M2020,Chirurgie maxillo-faciale  - Stomatologie - Chirurgie orale
+Q20,EFFSALPLF,Effectif des salariés temps plein Femmes,PERSO,M2030,Chirurgie orthopédique et traumatologique
+Q20,EFFSALPLF,Effectif des salariés temps plein Femmes,PERSO,M2040,"Chirurgie plastique, reconstructrice et esthétique"
+Q20,EFFSALPLF,Effectif des salariés temps plein Femmes,PERSO,M2050,Gynécologie - Obstétrique
+Q20,EFFSALPLF,Effectif des salariés temps plein Femmes,PERSO,M2060,Neuro-chirurgie
+Q20,EFFSALPLF,Effectif des salariés temps plein Femmes,PERSO,M2070,Ophtalmologie
+Q20,EFFSALPLF,Effectif des salariés temps plein Femmes,PERSO,M2080,Oto-Rhino-laryngologie
+Q20,EFFSALPLF,Effectif des salariés temps plein Femmes,PERSO,M2100,Chirurgie urologique
+Q20,EFFSALPLF,Effectif des salariés temps plein Femmes,PERSO,M2110,Autres spécialités chirurgicales
+Q20,EFFSALPLF,Effectif des salariés temps plein Femmes,PERSO,M2120,Chirurgie digestive
+Q20,EFFSALPLF,Effectif des salariés temps plein Femmes,PERSO,M2130,Chirurgie vasculaire
+Q20,EFFSALPLF,Effectif des salariés temps plein Femmes,PERSO,M2140,Chirurgie thoracique et cardiaque
+Q20,EFFSALPLF,Effectif des salariés temps plein Femmes,PERSO,M2150,Chirurgie infantile
+Q20,EFFSALPLF,Effectif des salariés temps plein Femmes,PERSO,M3011,Médecins spécialisés en biologie médicale
+Q20,EFFSALPLF,Effectif des salariés temps plein Femmes,PERSO,M3012,Pharmaciens spécialisés en biologie médicale
+Q20,EFFSALPLF,Effectif des salariés temps plein Femmes,PERSO,M3020,Psychiatrie
+Q20,EFFSALPLF,Effectif des salariés temps plein Femmes,PERSO,M3030,Odontologie
+Q20,EFFSALPLF,Effectif des salariés temps plein Femmes,PERSO,M3040,Santé publique (y compris DIM)
+Q20,EFFSALPLF,Effectif des salariés temps plein Femmes,PERSO,M3050,Pharmaciens (hors biologie médicale)
+Q20,EFFSALPLF,Effectif des salariés temps plein Femmes,PERSO,M3060,Médecins du travail
+Q20,EFFSALPLF,Effectif des salariés temps plein Femmes,PERSO,M3070,Autres
+Q20,EFFSALPLF,Effectif des salariés temps plein Femmes,PERSO,M9999,TOTAL PERSONNEL MEDICAL
+Q20,EFFSALPAH,Effectif des salariés temps partiel Hommes,PERSO,M1010,"Médecine générale (hors DES urgentistes, hors gériatrie)"
+Q20,EFFSALPAH,Effectif des salariés temps partiel Hommes,PERSO,M1020,Anatomie et cytologie pathologiques
+Q20,EFFSALPAH,Effectif des salariés temps partiel Hommes,PERSO,M1030,Anesthésie - Réanimation
+Q20,EFFSALPAH,Effectif des salariés temps partiel Hommes,PERSO,M1031,Réanimation médicale
+Q20,EFFSALPAH,Effectif des salariés temps partiel Hommes,PERSO,M1040,Cardiologie et maladies vasculaires
+Q20,EFFSALPAH,Effectif des salariés temps partiel Hommes,PERSO,M1050,Dermatologie - Vénérologie - Allergologie
+Q20,EFFSALPAH,Effectif des salariés temps partiel Hommes,PERSO,M1070,Endocrinologie et maladies métaboliques
+Q20,EFFSALPAH,Effectif des salariés temps partiel Hommes,PERSO,M1090,Gastro entérologie et hépatologie
+Q20,EFFSALPAH,Effectif des salariés temps partiel Hommes,PERSO,M1100,Médecine interne et immunologie clinique
+Q20,EFFSALPAH,Effectif des salariés temps partiel Hommes,PERSO,M1110,Néphrologie
+Q20,EFFSALPAH,Effectif des salariés temps partiel Hommes,PERSO,M1120,Neurologie
+Q20,EFFSALPAH,Effectif des salariés temps partiel Hommes,PERSO,M1130,Oncologie médicale
+Q20,EFFSALPAH,Effectif des salariés temps partiel Hommes,PERSO,M1140,Pédiatrie
+Q20,EFFSALPAH,Effectif des salariés temps partiel Hommes,PERSO,M1150,Pneumologie
+Q20,EFFSALPAH,Effectif des salariés temps partiel Hommes,PERSO,M1160,Radiologie
+Q20,EFFSALPAH,Effectif des salariés temps partiel Hommes,PERSO,M1170,Oncologie radiothérapique
+Q20,EFFSALPAH,Effectif des salariés temps partiel Hommes,PERSO,M1180,Médecine physique et de réadaptation
+Q20,EFFSALPAH,Effectif des salariés temps partiel Hommes,PERSO,M1190,Rhumatologie
+Q20,EFFSALPAH,Effectif des salariés temps partiel Hommes,PERSO,M1200,Autres spécialités médicales
+Q20,EFFSALPAH,Effectif des salariés temps partiel Hommes,PERSO,M1210,Médecine nucléaire
+Q20,EFFSALPAH,Effectif des salariés temps partiel Hommes,PERSO,M1310,Génétique
+Q20,EFFSALPAH,Effectif des salariés temps partiel Hommes,PERSO,M1320,Gériatrie
+Q20,EFFSALPAH,Effectif des salariés temps partiel Hommes,PERSO,M1330,Hématologie
+Q20,EFFSALPAH,Effectif des salariés temps partiel Hommes,PERSO,M1340,Médecine d'urgence
+Q20,EFFSALPAH,Effectif des salariés temps partiel Hommes,PERSO,M2010,Chirurgie générale
+Q20,EFFSALPAH,Effectif des salariés temps partiel Hommes,PERSO,M2020,Chirurgie maxillo-faciale  - Stomatologie - Chirurgie orale
+Q20,EFFSALPAH,Effectif des salariés temps partiel Hommes,PERSO,M2030,Chirurgie orthopédique et traumatologique
+Q20,EFFSALPAH,Effectif des salariés temps partiel Hommes,PERSO,M2040,"Chirurgie plastique, reconstructrice et esthétique"
+Q20,EFFSALPAH,Effectif des salariés temps partiel Hommes,PERSO,M2050,Gynécologie - Obstétrique
+Q20,EFFSALPAH,Effectif des salariés temps partiel Hommes,PERSO,M2060,Neuro-chirurgie
+Q20,EFFSALPAH,Effectif des salariés temps partiel Hommes,PERSO,M2070,Ophtalmologie
+Q20,EFFSALPAH,Effectif des salariés temps partiel Hommes,PERSO,M2080,Oto-Rhino-laryngologie
+Q20,EFFSALPAH,Effectif des salariés temps partiel Hommes,PERSO,M2100,Chirurgie urologique
+Q20,EFFSALPAH,Effectif des salariés temps partiel Hommes,PERSO,M2110,Autres spécialités chirurgicales
+Q20,EFFSALPAH,Effectif des salariés temps partiel Hommes,PERSO,M2120,Chirurgie digestive
+Q20,EFFSALPAH,Effectif des salariés temps partiel Hommes,PERSO,M2130,Chirurgie vasculaire
+Q20,EFFSALPAH,Effectif des salariés temps partiel Hommes,PERSO,M2140,Chirurgie thoracique et cardiaque
+Q20,EFFSALPAH,Effectif des salariés temps partiel Hommes,PERSO,M2150,Chirurgie infantile
+Q20,EFFSALPAH,Effectif des salariés temps partiel Hommes,PERSO,M3011,Médecins spécialisés en biologie médicale
+Q20,EFFSALPAH,Effectif des salariés temps partiel Hommes,PERSO,M3012,Pharmaciens spécialisés en biologie médicale
+Q20,EFFSALPAH,Effectif des salariés temps partiel Hommes,PERSO,M3020,Psychiatrie
+Q20,EFFSALPAH,Effectif des salariés temps partiel Hommes,PERSO,M3030,Odontologie
+Q20,EFFSALPAH,Effectif des salariés temps partiel Hommes,PERSO,M3040,Santé publique (y compris DIM)
+Q20,EFFSALPAH,Effectif des salariés temps partiel Hommes,PERSO,M3050,Pharmaciens (hors biologie médicale)
+Q20,EFFSALPAH,Effectif des salariés temps partiel Hommes,PERSO,M3060,Médecins du travail
+Q20,EFFSALPAH,Effectif des salariés temps partiel Hommes,PERSO,M3070,Autres
+Q20,EFFSALPAH,Effectif des salariés temps partiel Hommes,PERSO,M9999,TOTAL PERSONNEL MEDICAL
+Q20,EFFSALPAF,Effectif des salariés temps partiel Femmes,PERSO,M1010,"Médecine générale (hors DES urgentistes, hors gériatrie)"
+Q20,EFFSALPAF,Effectif des salariés temps partiel Femmes,PERSO,M1020,Anatomie et cytologie pathologiques
+Q20,EFFSALPAF,Effectif des salariés temps partiel Femmes,PERSO,M1030,Anesthésie - Réanimation
+Q20,EFFSALPAF,Effectif des salariés temps partiel Femmes,PERSO,M1031,Réanimation médicale
+Q20,EFFSALPAF,Effectif des salariés temps partiel Femmes,PERSO,M1040,Cardiologie et maladies vasculaires
+Q20,EFFSALPAF,Effectif des salariés temps partiel Femmes,PERSO,M1050,Dermatologie - Vénérologie - Allergologie
+Q20,EFFSALPAF,Effectif des salariés temps partiel Femmes,PERSO,M1070,Endocrinologie et maladies métaboliques
+Q20,EFFSALPAF,Effectif des salariés temps partiel Femmes,PERSO,M1090,Gastro entérologie et hépatologie
+Q20,EFFSALPAF,Effectif des salariés temps partiel Femmes,PERSO,M1100,Médecine interne et immunologie clinique
+Q20,EFFSALPAF,Effectif des salariés temps partiel Femmes,PERSO,M1110,Néphrologie
+Q20,EFFSALPAF,Effectif des salariés temps partiel Femmes,PERSO,M1120,Neurologie
+Q20,EFFSALPAF,Effectif des salariés temps partiel Femmes,PERSO,M1130,Oncologie médicale
+Q20,EFFSALPAF,Effectif des salariés temps partiel Femmes,PERSO,M1140,Pédiatrie
+Q20,EFFSALPAF,Effectif des salariés temps partiel Femmes,PERSO,M1150,Pneumologie
+Q20,EFFSALPAF,Effectif des salariés temps partiel Femmes,PERSO,M1160,Radiologie
+Q20,EFFSALPAF,Effectif des salariés temps partiel Femmes,PERSO,M1170,Oncologie radiothérapique
+Q20,EFFSALPAF,Effectif des salariés temps partiel Femmes,PERSO,M1180,Médecine physique et de réadaptation
+Q20,EFFSALPAF,Effectif des salariés temps partiel Femmes,PERSO,M1190,Rhumatologie
+Q20,EFFSALPAF,Effectif des salariés temps partiel Femmes,PERSO,M1200,Autres spécialités médicales
+Q20,EFFSALPAF,Effectif des salariés temps partiel Femmes,PERSO,M1210,Médecine nucléaire
+Q20,EFFSALPAF,Effectif des salariés temps partiel Femmes,PERSO,M1310,Génétique
+Q20,EFFSALPAF,Effectif des salariés temps partiel Femmes,PERSO,M1320,Gériatrie
+Q20,EFFSALPAF,Effectif des salariés temps partiel Femmes,PERSO,M1330,Hématologie
+Q20,EFFSALPAF,Effectif des salariés temps partiel Femmes,PERSO,M1340,Médecine d'urgence
+Q20,EFFSALPAF,Effectif des salariés temps partiel Femmes,PERSO,M2010,Chirurgie générale
+Q20,EFFSALPAF,Effectif des salariés temps partiel Femmes,PERSO,M2020,Chirurgie maxillo-faciale  - Stomatologie - Chirurgie orale
+Q20,EFFSALPAF,Effectif des salariés temps partiel Femmes,PERSO,M2030,Chirurgie orthopédique et traumatologique
+Q20,EFFSALPAF,Effectif des salariés temps partiel Femmes,PERSO,M2040,"Chirurgie plastique, reconstructrice et esthétique"
+Q20,EFFSALPAF,Effectif des salariés temps partiel Femmes,PERSO,M2050,Gynécologie - Obstétrique
+Q20,EFFSALPAF,Effectif des salariés temps partiel Femmes,PERSO,M2060,Neuro-chirurgie
+Q20,EFFSALPAF,Effectif des salariés temps partiel Femmes,PERSO,M2070,Ophtalmologie
+Q20,EFFSALPAF,Effectif des salariés temps partiel Femmes,PERSO,M2080,Oto-Rhino-laryngologie
+Q20,EFFSALPAF,Effectif des salariés temps partiel Femmes,PERSO,M2100,Chirurgie urologique
+Q20,EFFSALPAF,Effectif des salariés temps partiel Femmes,PERSO,M2110,Autres spécialités chirurgicales
+Q20,EFFSALPAF,Effectif des salariés temps partiel Femmes,PERSO,M2120,Chirurgie digestive
+Q20,EFFSALPAF,Effectif des salariés temps partiel Femmes,PERSO,M2130,Chirurgie vasculaire
+Q20,EFFSALPAF,Effectif des salariés temps partiel Femmes,PERSO,M2140,Chirurgie thoracique et cardiaque
+Q20,EFFSALPAF,Effectif des salariés temps partiel Femmes,PERSO,M2150,Chirurgie infantile
+Q20,EFFSALPAF,Effectif des salariés temps partiel Femmes,PERSO,M3011,Médecins spécialisés en biologie médicale
+Q20,EFFSALPAF,Effectif des salariés temps partiel Femmes,PERSO,M3012,Pharmaciens spécialisés en biologie médicale
+Q20,EFFSALPAF,Effectif des salariés temps partiel Femmes,PERSO,M3020,Psychiatrie
+Q20,EFFSALPAF,Effectif des salariés temps partiel Femmes,PERSO,M3030,Odontologie
+Q20,EFFSALPAF,Effectif des salariés temps partiel Femmes,PERSO,M3040,Santé publique (y compris DIM)
+Q20,EFFSALPAF,Effectif des salariés temps partiel Femmes,PERSO,M3050,Pharmaciens (hors biologie médicale)
+Q20,EFFSALPAF,Effectif des salariés temps partiel Femmes,PERSO,M3060,Médecins du travail
+Q20,EFFSALPAF,Effectif des salariés temps partiel Femmes,PERSO,M3070,Autres
+Q20,EFFSALPAF,Effectif des salariés temps partiel Femmes,PERSO,M9999,TOTAL PERSONNEL MEDICAL
+Q20,EFFLIBPLH,Effectif des libéraux temps plein Hommes,PERSO,M1010,"Médecine générale (hors DES urgentistes, hors gériatrie)"
+Q20,EFFLIBPLH,Effectif des libéraux temps plein Hommes,PERSO,M1020,Anatomie et cytologie pathologiques
+Q20,EFFLIBPLH,Effectif des libéraux temps plein Hommes,PERSO,M1030,Anesthésie - Réanimation
+Q20,EFFLIBPLH,Effectif des libéraux temps plein Hommes,PERSO,M1031,Réanimation médicale
+Q20,EFFLIBPLH,Effectif des libéraux temps plein Hommes,PERSO,M1040,Cardiologie et maladies vasculaires
+Q20,EFFLIBPLH,Effectif des libéraux temps plein Hommes,PERSO,M1050,Dermatologie - Vénérologie - Allergologie
+Q20,EFFLIBPLH,Effectif des libéraux temps plein Hommes,PERSO,M1070,Endocrinologie et maladies métaboliques
+Q20,EFFLIBPLH,Effectif des libéraux temps plein Hommes,PERSO,M1090,Gastro entérologie et hépatologie
+Q20,EFFLIBPLH,Effectif des libéraux temps plein Hommes,PERSO,M1100,Médecine interne et immunologie clinique
+Q20,EFFLIBPLH,Effectif des libéraux temps plein Hommes,PERSO,M1110,Néphrologie
+Q20,EFFLIBPLH,Effectif des libéraux temps plein Hommes,PERSO,M1120,Neurologie
+Q20,EFFLIBPLH,Effectif des libéraux temps plein Hommes,PERSO,M1130,Oncologie médicale
+Q20,EFFLIBPLH,Effectif des libéraux temps plein Hommes,PERSO,M1140,Pédiatrie
+Q20,EFFLIBPLH,Effectif des libéraux temps plein Hommes,PERSO,M1150,Pneumologie
+Q20,EFFLIBPLH,Effectif des libéraux temps plein Hommes,PERSO,M1160,Radiologie
+Q20,EFFLIBPLH,Effectif des libéraux temps plein Hommes,PERSO,M1170,Oncologie radiothérapique
+Q20,EFFLIBPLH,Effectif des libéraux temps plein Hommes,PERSO,M1180,Médecine physique et de réadaptation
+Q20,EFFLIBPLH,Effectif des libéraux temps plein Hommes,PERSO,M1190,Rhumatologie
+Q20,EFFLIBPLH,Effectif des libéraux temps plein Hommes,PERSO,M1200,Autres spécialités médicales
+Q20,EFFLIBPLH,Effectif des libéraux temps plein Hommes,PERSO,M1210,Médecine nucléaire
+Q20,EFFLIBPLH,Effectif des libéraux temps plein Hommes,PERSO,M1310,Génétique
+Q20,EFFLIBPLH,Effectif des libéraux temps plein Hommes,PERSO,M1320,Gériatrie
+Q20,EFFLIBPLH,Effectif des libéraux temps plein Hommes,PERSO,M1330,Hématologie
+Q20,EFFLIBPLH,Effectif des libéraux temps plein Hommes,PERSO,M1340,Médecine d'urgence
+Q20,EFFLIBPLH,Effectif des libéraux temps plein Hommes,PERSO,M2010,Chirurgie générale
+Q20,EFFLIBPLH,Effectif des libéraux temps plein Hommes,PERSO,M2020,Chirurgie maxillo-faciale  - Stomatologie - Chirurgie orale
+Q20,EFFLIBPLH,Effectif des libéraux temps plein Hommes,PERSO,M2030,Chirurgie orthopédique et traumatologique
+Q20,EFFLIBPLH,Effectif des libéraux temps plein Hommes,PERSO,M2040,"Chirurgie plastique, reconstructrice et esthétique"
+Q20,EFFLIBPLH,Effectif des libéraux temps plein Hommes,PERSO,M2050,Gynécologie - Obstétrique
+Q20,EFFLIBPLH,Effectif des libéraux temps plein Hommes,PERSO,M2060,Neuro-chirurgie
+Q20,EFFLIBPLH,Effectif des libéraux temps plein Hommes,PERSO,M2070,Ophtalmologie
+Q20,EFFLIBPLH,Effectif des libéraux temps plein Hommes,PERSO,M2080,Oto-Rhino-laryngologie
+Q20,EFFLIBPLH,Effectif des libéraux temps plein Hommes,PERSO,M2100,Chirurgie urologique
+Q20,EFFLIBPLH,Effectif des libéraux temps plein Hommes,PERSO,M2110,Autres spécialités chirurgicales
+Q20,EFFLIBPLH,Effectif des libéraux temps plein Hommes,PERSO,M2120,Chirurgie digestive
+Q20,EFFLIBPLH,Effectif des libéraux temps plein Hommes,PERSO,M2130,Chirurgie vasculaire
+Q20,EFFLIBPLH,Effectif des libéraux temps plein Hommes,PERSO,M2140,Chirurgie thoracique et cardiaque
+Q20,EFFLIBPLH,Effectif des libéraux temps plein Hommes,PERSO,M2150,Chirurgie infantile
+Q20,EFFLIBPLH,Effectif des libéraux temps plein Hommes,PERSO,M3011,Médecins spécialisés en biologie médicale
+Q20,EFFLIBPLH,Effectif des libéraux temps plein Hommes,PERSO,M3012,Pharmaciens spécialisés en biologie médicale
+Q20,EFFLIBPLH,Effectif des libéraux temps plein Hommes,PERSO,M3020,Psychiatrie
+Q20,EFFLIBPLH,Effectif des libéraux temps plein Hommes,PERSO,M3030,Odontologie
+Q20,EFFLIBPLH,Effectif des libéraux temps plein Hommes,PERSO,M3040,Santé publique (y compris DIM)
+Q20,EFFLIBPLH,Effectif des libéraux temps plein Hommes,PERSO,M3050,Pharmaciens (hors biologie médicale)
+Q20,EFFLIBPLH,Effectif des libéraux temps plein Hommes,PERSO,M3060,Médecins du travail
+Q20,EFFLIBPLH,Effectif des libéraux temps plein Hommes,PERSO,M3070,Autres
+Q20,EFFLIBPLH,Effectif des libéraux temps plein Hommes,PERSO,M9999,TOTAL PERSONNEL MEDICAL
+Q20,EFFLIBPLF,Effectif des libéraux temps plein Femmes,PERSO,M1010,"Médecine générale (hors DES urgentistes, hors gériatrie)"
+Q20,EFFLIBPLF,Effectif des libéraux temps plein Femmes,PERSO,M1020,Anatomie et cytologie pathologiques
+Q20,EFFLIBPLF,Effectif des libéraux temps plein Femmes,PERSO,M1030,Anesthésie - Réanimation
+Q20,EFFLIBPLF,Effectif des libéraux temps plein Femmes,PERSO,M1031,Réanimation médicale
+Q20,EFFLIBPLF,Effectif des libéraux temps plein Femmes,PERSO,M1040,Cardiologie et maladies vasculaires
+Q20,EFFLIBPLF,Effectif des libéraux temps plein Femmes,PERSO,M1050,Dermatologie - Vénérologie - Allergologie
+Q20,EFFLIBPLF,Effectif des libéraux temps plein Femmes,PERSO,M1070,Endocrinologie et maladies métaboliques
+Q20,EFFLIBPLF,Effectif des libéraux temps plein Femmes,PERSO,M1090,Gastro entérologie et hépatologie
+Q20,EFFLIBPLF,Effectif des libéraux temps plein Femmes,PERSO,M1100,Médecine interne et immunologie clinique
+Q20,EFFLIBPLF,Effectif des libéraux temps plein Femmes,PERSO,M1110,Néphrologie
+Q20,EFFLIBPLF,Effectif des libéraux temps plein Femmes,PERSO,M1120,Neurologie
+Q20,EFFLIBPLF,Effectif des libéraux temps plein Femmes,PERSO,M1130,Oncologie médicale
+Q20,EFFLIBPLF,Effectif des libéraux temps plein Femmes,PERSO,M1140,Pédiatrie
+Q20,EFFLIBPLF,Effectif des libéraux temps plein Femmes,PERSO,M1150,Pneumologie
+Q20,EFFLIBPLF,Effectif des libéraux temps plein Femmes,PERSO,M1160,Radiologie
+Q20,EFFLIBPLF,Effectif des libéraux temps plein Femmes,PERSO,M1170,Oncologie radiothérapique
+Q20,EFFLIBPLF,Effectif des libéraux temps plein Femmes,PERSO,M1180,Médecine physique et de réadaptation
+Q20,EFFLIBPLF,Effectif des libéraux temps plein Femmes,PERSO,M1190,Rhumatologie
+Q20,EFFLIBPLF,Effectif des libéraux temps plein Femmes,PERSO,M1200,Autres spécialités médicales
+Q20,EFFLIBPLF,Effectif des libéraux temps plein Femmes,PERSO,M1210,Médecine nucléaire
+Q20,EFFLIBPLF,Effectif des libéraux temps plein Femmes,PERSO,M1310,Génétique
+Q20,EFFLIBPLF,Effectif des libéraux temps plein Femmes,PERSO,M1320,Gériatrie
+Q20,EFFLIBPLF,Effectif des libéraux temps plein Femmes,PERSO,M1330,Hématologie
+Q20,EFFLIBPLF,Effectif des libéraux temps plein Femmes,PERSO,M1340,Médecine d'urgence
+Q20,EFFLIBPLF,Effectif des libéraux temps plein Femmes,PERSO,M2010,Chirurgie générale
+Q20,EFFLIBPLF,Effectif des libéraux temps plein Femmes,PERSO,M2020,Chirurgie maxillo-faciale  - Stomatologie - Chirurgie orale
+Q20,EFFLIBPLF,Effectif des libéraux temps plein Femmes,PERSO,M2030,Chirurgie orthopédique et traumatologique
+Q20,EFFLIBPLF,Effectif des libéraux temps plein Femmes,PERSO,M2040,"Chirurgie plastique, reconstructrice et esthétique"
+Q20,EFFLIBPLF,Effectif des libéraux temps plein Femmes,PERSO,M2050,Gynécologie - Obstétrique
+Q20,EFFLIBPLF,Effectif des libéraux temps plein Femmes,PERSO,M2060,Neuro-chirurgie
+Q20,EFFLIBPLF,Effectif des libéraux temps plein Femmes,PERSO,M2070,Ophtalmologie
+Q20,EFFLIBPLF,Effectif des libéraux temps plein Femmes,PERSO,M2080,Oto-Rhino-laryngologie
+Q20,EFFLIBPLF,Effectif des libéraux temps plein Femmes,PERSO,M2100,Chirurgie urologique
+Q20,EFFLIBPLF,Effectif des libéraux temps plein Femmes,PERSO,M2110,Autres spécialités chirurgicales
+Q20,EFFLIBPLF,Effectif des libéraux temps plein Femmes,PERSO,M2120,Chirurgie digestive
+Q20,EFFLIBPLF,Effectif des libéraux temps plein Femmes,PERSO,M2130,Chirurgie vasculaire
+Q20,EFFLIBPLF,Effectif des libéraux temps plein Femmes,PERSO,M2140,Chirurgie thoracique et cardiaque
+Q20,EFFLIBPLF,Effectif des libéraux temps plein Femmes,PERSO,M2150,Chirurgie infantile
+Q20,EFFLIBPLF,Effectif des libéraux temps plein Femmes,PERSO,M3011,Médecins spécialisés en biologie médicale
+Q20,EFFLIBPLF,Effectif des libéraux temps plein Femmes,PERSO,M3012,Pharmaciens spécialisés en biologie médicale
+Q20,EFFLIBPLF,Effectif des libéraux temps plein Femmes,PERSO,M3020,Psychiatrie
+Q20,EFFLIBPLF,Effectif des libéraux temps plein Femmes,PERSO,M3030,Odontologie
+Q20,EFFLIBPLF,Effectif des libéraux temps plein Femmes,PERSO,M3040,Santé publique (y compris DIM)
+Q20,EFFLIBPLF,Effectif des libéraux temps plein Femmes,PERSO,M3050,Pharmaciens (hors biologie médicale)
+Q20,EFFLIBPLF,Effectif des libéraux temps plein Femmes,PERSO,M3060,Médecins du travail
+Q20,EFFLIBPLF,Effectif des libéraux temps plein Femmes,PERSO,M3070,Autres
+Q20,EFFLIBPLF,Effectif des libéraux temps plein Femmes,PERSO,M9999,TOTAL PERSONNEL MEDICAL
+Q20,EFFLIBPAH,Effectif des libéraux temps partiel Hommes,PERSO,M1010,"Médecine générale (hors DES urgentistes, hors gériatrie)"
+Q20,EFFLIBPAH,Effectif des libéraux temps partiel Hommes,PERSO,M1020,Anatomie et cytologie pathologiques
+Q20,EFFLIBPAH,Effectif des libéraux temps partiel Hommes,PERSO,M1030,Anesthésie - Réanimation
+Q20,EFFLIBPAH,Effectif des libéraux temps partiel Hommes,PERSO,M1031,Réanimation médicale
+Q20,EFFLIBPAH,Effectif des libéraux temps partiel Hommes,PERSO,M1040,Cardiologie et maladies vasculaires
+Q20,EFFLIBPAH,Effectif des libéraux temps partiel Hommes,PERSO,M1050,Dermatologie - Vénérologie - Allergologie
+Q20,EFFLIBPAH,Effectif des libéraux temps partiel Hommes,PERSO,M1070,Endocrinologie et maladies métaboliques
+Q20,EFFLIBPAH,Effectif des libéraux temps partiel Hommes,PERSO,M1090,Gastro entérologie et hépatologie
+Q20,EFFLIBPAH,Effectif des libéraux temps partiel Hommes,PERSO,M1100,Médecine interne et immunologie clinique
+Q20,EFFLIBPAH,Effectif des libéraux temps partiel Hommes,PERSO,M1110,Néphrologie
+Q20,EFFLIBPAH,Effectif des libéraux temps partiel Hommes,PERSO,M1120,Neurologie
+Q20,EFFLIBPAH,Effectif des libéraux temps partiel Hommes,PERSO,M1130,Oncologie médicale
+Q20,EFFLIBPAH,Effectif des libéraux temps partiel Hommes,PERSO,M1140,Pédiatrie
+Q20,EFFLIBPAH,Effectif des libéraux temps partiel Hommes,PERSO,M1150,Pneumologie
+Q20,EFFLIBPAH,Effectif des libéraux temps partiel Hommes,PERSO,M1160,Radiologie
+Q20,EFFLIBPAH,Effectif des libéraux temps partiel Hommes,PERSO,M1170,Oncologie radiothérapique
+Q20,EFFLIBPAH,Effectif des libéraux temps partiel Hommes,PERSO,M1180,Médecine physique et de réadaptation
+Q20,EFFLIBPAH,Effectif des libéraux temps partiel Hommes,PERSO,M1190,Rhumatologie
+Q20,EFFLIBPAH,Effectif des libéraux temps partiel Hommes,PERSO,M1200,Autres spécialités médicales
+Q20,EFFLIBPAH,Effectif des libéraux temps partiel Hommes,PERSO,M1210,Médecine nucléaire
+Q20,EFFLIBPAH,Effectif des libéraux temps partiel Hommes,PERSO,M1310,Génétique
+Q20,EFFLIBPAH,Effectif des libéraux temps partiel Hommes,PERSO,M1320,Gériatrie
+Q20,EFFLIBPAH,Effectif des libéraux temps partiel Hommes,PERSO,M1330,Hématologie
+Q20,EFFLIBPAH,Effectif des libéraux temps partiel Hommes,PERSO,M1340,Médecine d'urgence
+Q20,EFFLIBPAH,Effectif des libéraux temps partiel Hommes,PERSO,M2010,Chirurgie générale
+Q20,EFFLIBPAH,Effectif des libéraux temps partiel Hommes,PERSO,M2020,Chirurgie maxillo-faciale  - Stomatologie - Chirurgie orale
+Q20,EFFLIBPAH,Effectif des libéraux temps partiel Hommes,PERSO,M2030,Chirurgie orthopédique et traumatologique
+Q20,EFFLIBPAH,Effectif des libéraux temps partiel Hommes,PERSO,M2040,"Chirurgie plastique, reconstructrice et esthétique"
+Q20,EFFLIBPAH,Effectif des libéraux temps partiel Hommes,PERSO,M2050,Gynécologie - Obstétrique
+Q20,EFFLIBPAH,Effectif des libéraux temps partiel Hommes,PERSO,M2060,Neuro-chirurgie
+Q20,EFFLIBPAH,Effectif des libéraux temps partiel Hommes,PERSO,M2070,Ophtalmologie
+Q20,EFFLIBPAH,Effectif des libéraux temps partiel Hommes,PERSO,M2080,Oto-Rhino-laryngologie
+Q20,EFFLIBPAH,Effectif des libéraux temps partiel Hommes,PERSO,M2100,Chirurgie urologique
+Q20,EFFLIBPAH,Effectif des libéraux temps partiel Hommes,PERSO,M2110,Autres spécialités chirurgicales
+Q20,EFFLIBPAH,Effectif des libéraux temps partiel Hommes,PERSO,M2120,Chirurgie digestive
+Q20,EFFLIBPAH,Effectif des libéraux temps partiel Hommes,PERSO,M2130,Chirurgie vasculaire
+Q20,EFFLIBPAH,Effectif des libéraux temps partiel Hommes,PERSO,M2140,Chirurgie thoracique et cardiaque
+Q20,EFFLIBPAH,Effectif des libéraux temps partiel Hommes,PERSO,M2150,Chirurgie infantile
+Q20,EFFLIBPAH,Effectif des libéraux temps partiel Hommes,PERSO,M3011,Médecins spécialisés en biologie médicale
+Q20,EFFLIBPAH,Effectif des libéraux temps partiel Hommes,PERSO,M3012,Pharmaciens spécialisés en biologie médicale
+Q20,EFFLIBPAH,Effectif des libéraux temps partiel Hommes,PERSO,M3020,Psychiatrie
+Q20,EFFLIBPAH,Effectif des libéraux temps partiel Hommes,PERSO,M3030,Odontologie
+Q20,EFFLIBPAH,Effectif des libéraux temps partiel Hommes,PERSO,M3040,Santé publique (y compris DIM)
+Q20,EFFLIBPAH,Effectif des libéraux temps partiel Hommes,PERSO,M3050,Pharmaciens (hors biologie médicale)
+Q20,EFFLIBPAH,Effectif des libéraux temps partiel Hommes,PERSO,M3060,Médecins du travail
+Q20,EFFLIBPAH,Effectif des libéraux temps partiel Hommes,PERSO,M3070,Autres
+Q20,EFFLIBPAH,Effectif des libéraux temps partiel Hommes,PERSO,M9999,TOTAL PERSONNEL MEDICAL
+Q20,EFFLIBPAF,Effectif des libéraux temps partiel Femmes,PERSO,M1010,"Médecine générale (hors DES urgentistes, hors gériatrie)"
+Q20,EFFLIBPAF,Effectif des libéraux temps partiel Femmes,PERSO,M1020,Anatomie et cytologie pathologiques
+Q20,EFFLIBPAF,Effectif des libéraux temps partiel Femmes,PERSO,M1030,Anesthésie - Réanimation
+Q20,EFFLIBPAF,Effectif des libéraux temps partiel Femmes,PERSO,M1031,Réanimation médicale
+Q20,EFFLIBPAF,Effectif des libéraux temps partiel Femmes,PERSO,M1040,Cardiologie et maladies vasculaires
+Q20,EFFLIBPAF,Effectif des libéraux temps partiel Femmes,PERSO,M1050,Dermatologie - Vénérologie - Allergologie
+Q20,EFFLIBPAF,Effectif des libéraux temps partiel Femmes,PERSO,M1070,Endocrinologie et maladies métaboliques
+Q20,EFFLIBPAF,Effectif des libéraux temps partiel Femmes,PERSO,M1090,Gastro entérologie et hépatologie
+Q20,EFFLIBPAF,Effectif des libéraux temps partiel Femmes,PERSO,M1100,Médecine interne et immunologie clinique
+Q20,EFFLIBPAF,Effectif des libéraux temps partiel Femmes,PERSO,M1110,Néphrologie
+Q20,EFFLIBPAF,Effectif des libéraux temps partiel Femmes,PERSO,M1120,Neurologie
+Q20,EFFLIBPAF,Effectif des libéraux temps partiel Femmes,PERSO,M1130,Oncologie médicale
+Q20,EFFLIBPAF,Effectif des libéraux temps partiel Femmes,PERSO,M1140,Pédiatrie
+Q20,EFFLIBPAF,Effectif des libéraux temps partiel Femmes,PERSO,M1150,Pneumologie
+Q20,EFFLIBPAF,Effectif des libéraux temps partiel Femmes,PERSO,M1160,Radiologie
+Q20,EFFLIBPAF,Effectif des libéraux temps partiel Femmes,PERSO,M1170,Oncologie radiothérapique
+Q20,EFFLIBPAF,Effectif des libéraux temps partiel Femmes,PERSO,M1180,Médecine physique et de réadaptation
+Q20,EFFLIBPAF,Effectif des libéraux temps partiel Femmes,PERSO,M1190,Rhumatologie
+Q20,EFFLIBPAF,Effectif des libéraux temps partiel Femmes,PERSO,M1200,Autres spécialités médicales
+Q20,EFFLIBPAF,Effectif des libéraux temps partiel Femmes,PERSO,M1210,Médecine nucléaire
+Q20,EFFLIBPAF,Effectif des libéraux temps partiel Femmes,PERSO,M1310,Génétique
+Q20,EFFLIBPAF,Effectif des libéraux temps partiel Femmes,PERSO,M1320,Gériatrie
+Q20,EFFLIBPAF,Effectif des libéraux temps partiel Femmes,PERSO,M1330,Hématologie
+Q20,EFFLIBPAF,Effectif des libéraux temps partiel Femmes,PERSO,M1340,Médecine d'urgence
+Q20,EFFLIBPAF,Effectif des libéraux temps partiel Femmes,PERSO,M2010,Chirurgie générale
+Q20,EFFLIBPAF,Effectif des libéraux temps partiel Femmes,PERSO,M2020,Chirurgie maxillo-faciale  - Stomatologie - Chirurgie orale
+Q20,EFFLIBPAF,Effectif des libéraux temps partiel Femmes,PERSO,M2030,Chirurgie orthopédique et traumatologique
+Q20,EFFLIBPAF,Effectif des libéraux temps partiel Femmes,PERSO,M2040,"Chirurgie plastique, reconstructrice et esthétique"
+Q20,EFFLIBPAF,Effectif des libéraux temps partiel Femmes,PERSO,M2050,Gynécologie - Obstétrique
+Q20,EFFLIBPAF,Effectif des libéraux temps partiel Femmes,PERSO,M2060,Neuro-chirurgie
+Q20,EFFLIBPAF,Effectif des libéraux temps partiel Femmes,PERSO,M2070,Ophtalmologie
+Q20,EFFLIBPAF,Effectif des libéraux temps partiel Femmes,PERSO,M2080,Oto-Rhino-laryngologie
+Q20,EFFLIBPAF,Effectif des libéraux temps partiel Femmes,PERSO,M2100,Chirurgie urologique
+Q20,EFFLIBPAF,Effectif des libéraux temps partiel Femmes,PERSO,M2110,Autres spécialités chirurgicales
+Q20,EFFLIBPAF,Effectif des libéraux temps partiel Femmes,PERSO,M2120,Chirurgie digestive
+Q20,EFFLIBPAF,Effectif des libéraux temps partiel Femmes,PERSO,M2130,Chirurgie vasculaire
+Q20,EFFLIBPAF,Effectif des libéraux temps partiel Femmes,PERSO,M2140,Chirurgie thoracique et cardiaque
+Q20,EFFLIBPAF,Effectif des libéraux temps partiel Femmes,PERSO,M2150,Chirurgie infantile
+Q20,EFFLIBPAF,Effectif des libéraux temps partiel Femmes,PERSO,M3011,Médecins spécialisés en biologie médicale
+Q20,EFFLIBPAF,Effectif des libéraux temps partiel Femmes,PERSO,M3012,Pharmaciens spécialisés en biologie médicale
+Q20,EFFLIBPAF,Effectif des libéraux temps partiel Femmes,PERSO,M3020,Psychiatrie
+Q20,EFFLIBPAF,Effectif des libéraux temps partiel Femmes,PERSO,M3030,Odontologie
+Q20,EFFLIBPAF,Effectif des libéraux temps partiel Femmes,PERSO,M3040,Santé publique (y compris DIM)
+Q20,EFFLIBPAF,Effectif des libéraux temps partiel Femmes,PERSO,M3050,Pharmaciens (hors biologie médicale)
+Q20,EFFLIBPAF,Effectif des libéraux temps partiel Femmes,PERSO,M3060,Médecins du travail
+Q20,EFFLIBPAF,Effectif des libéraux temps partiel Femmes,PERSO,M3070,Autres
+Q20,EFFLIBPAF,Effectif des libéraux temps partiel Femmes,PERSO,M9999,TOTAL PERSONNEL MEDICAL
+Q20,ETPSALH,ETP moyen annuel rémunéré des salariés Hommes,PERSO,M1010,"Médecine générale (hors DES urgentistes, hors gériatrie)"
+Q20,ETPSALH,ETP moyen annuel rémunéré des salariés Hommes,PERSO,M1020,Anatomie et cytologie pathologiques
+Q20,ETPSALH,ETP moyen annuel rémunéré des salariés Hommes,PERSO,M1030,Anesthésie - Réanimation
+Q20,ETPSALH,ETP moyen annuel rémunéré des salariés Hommes,PERSO,M1031,Réanimation médicale
+Q20,ETPSALH,ETP moyen annuel rémunéré des salariés Hommes,PERSO,M1040,Cardiologie et maladies vasculaires
+Q20,ETPSALH,ETP moyen annuel rémunéré des salariés Hommes,PERSO,M1050,Dermatologie - Vénérologie - Allergologie
+Q20,ETPSALH,ETP moyen annuel rémunéré des salariés Hommes,PERSO,M1070,Endocrinologie et maladies métaboliques
+Q20,ETPSALH,ETP moyen annuel rémunéré des salariés Hommes,PERSO,M1090,Gastro entérologie et hépatologie
+Q20,ETPSALH,ETP moyen annuel rémunéré des salariés Hommes,PERSO,M1100,Médecine interne et immunologie clinique
+Q20,ETPSALH,ETP moyen annuel rémunéré des salariés Hommes,PERSO,M1110,Néphrologie
+Q20,ETPSALH,ETP moyen annuel rémunéré des salariés Hommes,PERSO,M1120,Neurologie
+Q20,ETPSALH,ETP moyen annuel rémunéré des salariés Hommes,PERSO,M1130,Oncologie médicale
+Q20,ETPSALH,ETP moyen annuel rémunéré des salariés Hommes,PERSO,M1140,Pédiatrie
+Q20,ETPSALH,ETP moyen annuel rémunéré des salariés Hommes,PERSO,M1150,Pneumologie
+Q20,ETPSALH,ETP moyen annuel rémunéré des salariés Hommes,PERSO,M1160,Radiologie
+Q20,ETPSALH,ETP moyen annuel rémunéré des salariés Hommes,PERSO,M1170,Oncologie radiothérapique
+Q20,ETPSALH,ETP moyen annuel rémunéré des salariés Hommes,PERSO,M1180,Médecine physique et de réadaptation
+Q20,ETPSALH,ETP moyen annuel rémunéré des salariés Hommes,PERSO,M1190,Rhumatologie
+Q20,ETPSALH,ETP moyen annuel rémunéré des salariés Hommes,PERSO,M1200,Autres spécialités médicales
+Q20,ETPSALH,ETP moyen annuel rémunéré des salariés Hommes,PERSO,M1210,Médecine nucléaire
+Q20,ETPSALH,ETP moyen annuel rémunéré des salariés Hommes,PERSO,M1310,Génétique
+Q20,ETPSALH,ETP moyen annuel rémunéré des salariés Hommes,PERSO,M1320,Gériatrie
+Q20,ETPSALH,ETP moyen annuel rémunéré des salariés Hommes,PERSO,M1330,Hématologie
+Q20,ETPSALH,ETP moyen annuel rémunéré des salariés Hommes,PERSO,M1340,Médecine d'urgence
+Q20,ETPSALH,ETP moyen annuel rémunéré des salariés Hommes,PERSO,M2010,Chirurgie générale
+Q20,ETPSALH,ETP moyen annuel rémunéré des salariés Hommes,PERSO,M2020,Chirurgie maxillo-faciale  - Stomatologie - Chirurgie orale
+Q20,ETPSALH,ETP moyen annuel rémunéré des salariés Hommes,PERSO,M2030,Chirurgie orthopédique et traumatologique
+Q20,ETPSALH,ETP moyen annuel rémunéré des salariés Hommes,PERSO,M2040,"Chirurgie plastique, reconstructrice et esthétique"
+Q20,ETPSALH,ETP moyen annuel rémunéré des salariés Hommes,PERSO,M2050,Gynécologie - Obstétrique
+Q20,ETPSALH,ETP moyen annuel rémunéré des salariés Hommes,PERSO,M2060,Neuro-chirurgie
+Q20,ETPSALH,ETP moyen annuel rémunéré des salariés Hommes,PERSO,M2070,Ophtalmologie
+Q20,ETPSALH,ETP moyen annuel rémunéré des salariés Hommes,PERSO,M2080,Oto-Rhino-laryngologie
+Q20,ETPSALH,ETP moyen annuel rémunéré des salariés Hommes,PERSO,M2100,Chirurgie urologique
+Q20,ETPSALH,ETP moyen annuel rémunéré des salariés Hommes,PERSO,M2110,Autres spécialités chirurgicales
+Q20,ETPSALH,ETP moyen annuel rémunéré des salariés Hommes,PERSO,M2120,Chirurgie digestive
+Q20,ETPSALH,ETP moyen annuel rémunéré des salariés Hommes,PERSO,M2130,Chirurgie vasculaire
+Q20,ETPSALH,ETP moyen annuel rémunéré des salariés Hommes,PERSO,M2140,Chirurgie thoracique et cardiaque
+Q20,ETPSALH,ETP moyen annuel rémunéré des salariés Hommes,PERSO,M2150,Chirurgie infantile
+Q20,ETPSALH,ETP moyen annuel rémunéré des salariés Hommes,PERSO,M3011,Médecins spécialisés en biologie médicale
+Q20,ETPSALH,ETP moyen annuel rémunéré des salariés Hommes,PERSO,M3012,Pharmaciens spécialisés en biologie médicale
+Q20,ETPSALH,ETP moyen annuel rémunéré des salariés Hommes,PERSO,M3020,Psychiatrie
+Q20,ETPSALH,ETP moyen annuel rémunéré des salariés Hommes,PERSO,M3030,Odontologie
+Q20,ETPSALH,ETP moyen annuel rémunéré des salariés Hommes,PERSO,M3040,Santé publique (y compris DIM)
+Q20,ETPSALH,ETP moyen annuel rémunéré des salariés Hommes,PERSO,M3050,Pharmaciens (hors biologie médicale)
+Q20,ETPSALH,ETP moyen annuel rémunéré des salariés Hommes,PERSO,M3060,Médecins du travail
+Q20,ETPSALH,ETP moyen annuel rémunéré des salariés Hommes,PERSO,M3070,Autres
+Q20,ETPSALH,ETP moyen annuel rémunéré des salariés Hommes,PERSO,M9999,TOTAL PERSONNEL MEDICAL
+Q20,ETPSALF,ETP moyen annuel rémunéré des salariés Femmes,PERSO,M1010,"Médecine générale (hors DES urgentistes, hors gériatrie)"
+Q20,ETPSALF,ETP moyen annuel rémunéré des salariés Femmes,PERSO,M1020,Anatomie et cytologie pathologiques
+Q20,ETPSALF,ETP moyen annuel rémunéré des salariés Femmes,PERSO,M1030,Anesthésie - Réanimation
+Q20,ETPSALF,ETP moyen annuel rémunéré des salariés Femmes,PERSO,M1031,Réanimation médicale
+Q20,ETPSALF,ETP moyen annuel rémunéré des salariés Femmes,PERSO,M1040,Cardiologie et maladies vasculaires
+Q20,ETPSALF,ETP moyen annuel rémunéré des salariés Femmes,PERSO,M1050,Dermatologie - Vénérologie - Allergologie
+Q20,ETPSALF,ETP moyen annuel rémunéré des salariés Femmes,PERSO,M1070,Endocrinologie et maladies métaboliques
+Q20,ETPSALF,ETP moyen annuel rémunéré des salariés Femmes,PERSO,M1090,Gastro entérologie et hépatologie
+Q20,ETPSALF,ETP moyen annuel rémunéré des salariés Femmes,PERSO,M1100,Médecine interne et immunologie clinique
+Q20,ETPSALF,ETP moyen annuel rémunéré des salariés Femmes,PERSO,M1110,Néphrologie
+Q20,ETPSALF,ETP moyen annuel rémunéré des salariés Femmes,PERSO,M1120,Neurologie
+Q20,ETPSALF,ETP moyen annuel rémunéré des salariés Femmes,PERSO,M1130,Oncologie médicale
+Q20,ETPSALF,ETP moyen annuel rémunéré des salariés Femmes,PERSO,M1140,Pédiatrie
+Q20,ETPSALF,ETP moyen annuel rémunéré des salariés Femmes,PERSO,M1150,Pneumologie
+Q20,ETPSALF,ETP moyen annuel rémunéré des salariés Femmes,PERSO,M1160,Radiologie
+Q20,ETPSALF,ETP moyen annuel rémunéré des salariés Femmes,PERSO,M1170,Oncologie radiothérapique
+Q20,ETPSALF,ETP moyen annuel rémunéré des salariés Femmes,PERSO,M1180,Médecine physique et de réadaptation
+Q20,ETPSALF,ETP moyen annuel rémunéré des salariés Femmes,PERSO,M1190,Rhumatologie
+Q20,ETPSALF,ETP moyen annuel rémunéré des salariés Femmes,PERSO,M1200,Autres spécialités médicales
+Q20,ETPSALF,ETP moyen annuel rémunéré des salariés Femmes,PERSO,M1210,Médecine nucléaire
+Q20,ETPSALF,ETP moyen annuel rémunéré des salariés Femmes,PERSO,M1310,Génétique
+Q20,ETPSALF,ETP moyen annuel rémunéré des salariés Femmes,PERSO,M1320,Gériatrie
+Q20,ETPSALF,ETP moyen annuel rémunéré des salariés Femmes,PERSO,M1330,Hématologie
+Q20,ETPSALF,ETP moyen annuel rémunéré des salariés Femmes,PERSO,M1340,Médecine d'urgence
+Q20,ETPSALF,ETP moyen annuel rémunéré des salariés Femmes,PERSO,M2010,Chirurgie générale
+Q20,ETPSALF,ETP moyen annuel rémunéré des salariés Femmes,PERSO,M2020,Chirurgie maxillo-faciale  - Stomatologie - Chirurgie orale
+Q20,ETPSALF,ETP moyen annuel rémunéré des salariés Femmes,PERSO,M2030,Chirurgie orthopédique et traumatologique
+Q20,ETPSALF,ETP moyen annuel rémunéré des salariés Femmes,PERSO,M2040,"Chirurgie plastique, reconstructrice et esthétique"
+Q20,ETPSALF,ETP moyen annuel rémunéré des salariés Femmes,PERSO,M2050,Gynécologie - Obstétrique
+Q20,ETPSALF,ETP moyen annuel rémunéré des salariés Femmes,PERSO,M2060,Neuro-chirurgie
+Q20,ETPSALF,ETP moyen annuel rémunéré des salariés Femmes,PERSO,M2070,Ophtalmologie
+Q20,ETPSALF,ETP moyen annuel rémunéré des salariés Femmes,PERSO,M2080,Oto-Rhino-laryngologie
+Q20,ETPSALF,ETP moyen annuel rémunéré des salariés Femmes,PERSO,M2100,Chirurgie urologique
+Q20,ETPSALF,ETP moyen annuel rémunéré des salariés Femmes,PERSO,M2110,Autres spécialités chirurgicales
+Q20,ETPSALF,ETP moyen annuel rémunéré des salariés Femmes,PERSO,M2120,Chirurgie digestive
+Q20,ETPSALF,ETP moyen annuel rémunéré des salariés Femmes,PERSO,M2130,Chirurgie vasculaire
+Q20,ETPSALF,ETP moyen annuel rémunéré des salariés Femmes,PERSO,M2140,Chirurgie thoracique et cardiaque
+Q20,ETPSALF,ETP moyen annuel rémunéré des salariés Femmes,PERSO,M2150,Chirurgie infantile
+Q20,ETPSALF,ETP moyen annuel rémunéré des salariés Femmes,PERSO,M3011,Médecins spécialisés en biologie médicale
+Q20,ETPSALF,ETP moyen annuel rémunéré des salariés Femmes,PERSO,M3012,Pharmaciens spécialisés en biologie médicale
+Q20,ETPSALF,ETP moyen annuel rémunéré des salariés Femmes,PERSO,M3020,Psychiatrie
+Q20,ETPSALF,ETP moyen annuel rémunéré des salariés Femmes,PERSO,M3030,Odontologie
+Q20,ETPSALF,ETP moyen annuel rémunéré des salariés Femmes,PERSO,M3040,Santé publique (y compris DIM)
+Q20,ETPSALF,ETP moyen annuel rémunéré des salariés Femmes,PERSO,M3050,Pharmaciens (hors biologie médicale)
+Q20,ETPSALF,ETP moyen annuel rémunéré des salariés Femmes,PERSO,M3060,Médecins du travail
+Q20,ETPSALF,ETP moyen annuel rémunéré des salariés Femmes,PERSO,M3070,Autres
+Q20,ETPSALF,ETP moyen annuel rémunéré des salariés Femmes,PERSO,M9999,TOTAL PERSONNEL MEDICAL
+Q20,ETP_PU,dont ETP des hospitaliers universitaires titulaires,PERSO,M1010,"Médecine générale (hors DES urgentistes, hors gériatrie)"
+Q20,ETP_PU,dont ETP des hospitaliers universitaires titulaires,PERSO,M1020,Anatomie et cytologie pathologiques
+Q20,ETP_PU,dont ETP des hospitaliers universitaires titulaires,PERSO,M1030,Anesthésie - Réanimation
+Q20,ETP_PU,dont ETP des hospitaliers universitaires titulaires,PERSO,M1031,Réanimation médicale
+Q20,ETP_PU,dont ETP des hospitaliers universitaires titulaires,PERSO,M1040,Cardiologie et maladies vasculaires
+Q20,ETP_PU,dont ETP des hospitaliers universitaires titulaires,PERSO,M1050,Dermatologie - Vénérologie - Allergologie
+Q20,ETP_PU,dont ETP des hospitaliers universitaires titulaires,PERSO,M1070,Endocrinologie et maladies métaboliques
+Q20,ETP_PU,dont ETP des hospitaliers universitaires titulaires,PERSO,M1090,Gastro entérologie et hépatologie
+Q20,ETP_PU,dont ETP des hospitaliers universitaires titulaires,PERSO,M1100,Médecine interne et immunologie clinique
+Q20,ETP_PU,dont ETP des hospitaliers universitaires titulaires,PERSO,M1110,Néphrologie
+Q20,ETP_PU,dont ETP des hospitaliers universitaires titulaires,PERSO,M1120,Neurologie
+Q20,ETP_PU,dont ETP des hospitaliers universitaires titulaires,PERSO,M1130,Oncologie médicale
+Q20,ETP_PU,dont ETP des hospitaliers universitaires titulaires,PERSO,M1140,Pédiatrie
+Q20,ETP_PU,dont ETP des hospitaliers universitaires titulaires,PERSO,M1150,Pneumologie
+Q20,ETP_PU,dont ETP des hospitaliers universitaires titulaires,PERSO,M1160,Radiologie
+Q20,ETP_PU,dont ETP des hospitaliers universitaires titulaires,PERSO,M1170,Oncologie radiothérapique
+Q20,ETP_PU,dont ETP des hospitaliers universitaires titulaires,PERSO,M1180,Médecine physique et de réadaptation
+Q20,ETP_PU,dont ETP des hospitaliers universitaires titulaires,PERSO,M1190,Rhumatologie
+Q20,ETP_PU,dont ETP des hospitaliers universitaires titulaires,PERSO,M1200,Autres spécialités médicales
+Q20,ETP_PU,dont ETP des hospitaliers universitaires titulaires,PERSO,M1210,Médecine nucléaire
+Q20,ETP_PU,dont ETP des hospitaliers universitaires titulaires,PERSO,M1310,Génétique
+Q20,ETP_PU,dont ETP des hospitaliers universitaires titulaires,PERSO,M1320,Gériatrie
+Q20,ETP_PU,dont ETP des hospitaliers universitaires titulaires,PERSO,M1330,Hématologie
+Q20,ETP_PU,dont ETP des hospitaliers universitaires titulaires,PERSO,M1340,Médecine d'urgence
+Q20,ETP_PU,dont ETP des hospitaliers universitaires titulaires,PERSO,M2010,Chirurgie générale
+Q20,ETP_PU,dont ETP des hospitaliers universitaires titulaires,PERSO,M2020,Chirurgie maxillo-faciale  - Stomatologie - Chirurgie orale
+Q20,ETP_PU,dont ETP des hospitaliers universitaires titulaires,PERSO,M2030,Chirurgie orthopédique et traumatologique
+Q20,ETP_PU,dont ETP des hospitaliers universitaires titulaires,PERSO,M2040,"Chirurgie plastique, reconstructrice et esthétique"
+Q20,ETP_PU,dont ETP des hospitaliers universitaires titulaires,PERSO,M2050,Gynécologie - Obstétrique
+Q20,ETP_PU,dont ETP des hospitaliers universitaires titulaires,PERSO,M2060,Neuro-chirurgie
+Q20,ETP_PU,dont ETP des hospitaliers universitaires titulaires,PERSO,M2070,Ophtalmologie
+Q20,ETP_PU,dont ETP des hospitaliers universitaires titulaires,PERSO,M2080,Oto-Rhino-laryngologie
+Q20,ETP_PU,dont ETP des hospitaliers universitaires titulaires,PERSO,M2100,Chirurgie urologique
+Q20,ETP_PU,dont ETP des hospitaliers universitaires titulaires,PERSO,M2110,Autres spécialités chirurgicales
+Q20,ETP_PU,dont ETP des hospitaliers universitaires titulaires,PERSO,M2120,Chirurgie digestive
+Q20,ETP_PU,dont ETP des hospitaliers universitaires titulaires,PERSO,M2130,Chirurgie vasculaire
+Q20,ETP_PU,dont ETP des hospitaliers universitaires titulaires,PERSO,M2140,Chirurgie thoracique et cardiaque
+Q20,ETP_PU,dont ETP des hospitaliers universitaires titulaires,PERSO,M2150,Chirurgie infantile
+Q20,ETP_PU,dont ETP des hospitaliers universitaires titulaires,PERSO,M3011,Médecins spécialisés en biologie médicale
+Q20,ETP_PU,dont ETP des hospitaliers universitaires titulaires,PERSO,M3012,Pharmaciens spécialisés en biologie médicale
+Q20,ETP_PU,dont ETP des hospitaliers universitaires titulaires,PERSO,M3020,Psychiatrie
+Q20,ETP_PU,dont ETP des hospitaliers universitaires titulaires,PERSO,M3030,Odontologie
+Q20,ETP_PU,dont ETP des hospitaliers universitaires titulaires,PERSO,M3040,Santé publique (y compris DIM)
+Q20,ETP_PU,dont ETP des hospitaliers universitaires titulaires,PERSO,M3050,Pharmaciens (hors biologie médicale)
+Q20,ETP_PU,dont ETP des hospitaliers universitaires titulaires,PERSO,M3060,Médecins du travail
+Q20,ETP_PU,dont ETP des hospitaliers universitaires titulaires,PERSO,M3070,Autres
+Q20,ETP_PU,dont ETP des hospitaliers universitaires titulaires,PERSO,M9999,TOTAL PERSONNEL MEDICAL
+Q20,ETP_PH,dont ETP des praticiens hospitaliers titulaires,PERSO,M1010,"Médecine générale (hors DES urgentistes, hors gériatrie)"
+Q20,ETP_PH,dont ETP des praticiens hospitaliers titulaires,PERSO,M1020,Anatomie et cytologie pathologiques
+Q20,ETP_PH,dont ETP des praticiens hospitaliers titulaires,PERSO,M1030,Anesthésie - Réanimation
+Q20,ETP_PH,dont ETP des praticiens hospitaliers titulaires,PERSO,M1031,Réanimation médicale
+Q20,ETP_PH,dont ETP des praticiens hospitaliers titulaires,PERSO,M1040,Cardiologie et maladies vasculaires
+Q20,ETP_PH,dont ETP des praticiens hospitaliers titulaires,PERSO,M1050,Dermatologie - Vénérologie - Allergologie
+Q20,ETP_PH,dont ETP des praticiens hospitaliers titulaires,PERSO,M1070,Endocrinologie et maladies métaboliques
+Q20,ETP_PH,dont ETP des praticiens hospitaliers titulaires,PERSO,M1090,Gastro entérologie et hépatologie
+Q20,ETP_PH,dont ETP des praticiens hospitaliers titulaires,PERSO,M1100,Médecine interne et immunologie clinique
+Q20,ETP_PH,dont ETP des praticiens hospitaliers titulaires,PERSO,M1110,Néphrologie
+Q20,ETP_PH,dont ETP des praticiens hospitaliers titulaires,PERSO,M1120,Neurologie
+Q20,ETP_PH,dont ETP des praticiens hospitaliers titulaires,PERSO,M1130,Oncologie médicale
+Q20,ETP_PH,dont ETP des praticiens hospitaliers titulaires,PERSO,M1140,Pédiatrie
+Q20,ETP_PH,dont ETP des praticiens hospitaliers titulaires,PERSO,M1150,Pneumologie
+Q20,ETP_PH,dont ETP des praticiens hospitaliers titulaires,PERSO,M1160,Radiologie
+Q20,ETP_PH,dont ETP des praticiens hospitaliers titulaires,PERSO,M1170,Oncologie radiothérapique
+Q20,ETP_PH,dont ETP des praticiens hospitaliers titulaires,PERSO,M1180,Médecine physique et de réadaptation
+Q20,ETP_PH,dont ETP des praticiens hospitaliers titulaires,PERSO,M1190,Rhumatologie
+Q20,ETP_PH,dont ETP des praticiens hospitaliers titulaires,PERSO,M1200,Autres spécialités médicales
+Q20,ETP_PH,dont ETP des praticiens hospitaliers titulaires,PERSO,M1210,Médecine nucléaire
+Q20,ETP_PH,dont ETP des praticiens hospitaliers titulaires,PERSO,M1310,Génétique
+Q20,ETP_PH,dont ETP des praticiens hospitaliers titulaires,PERSO,M1320,Gériatrie
+Q20,ETP_PH,dont ETP des praticiens hospitaliers titulaires,PERSO,M1330,Hématologie
+Q20,ETP_PH,dont ETP des praticiens hospitaliers titulaires,PERSO,M1340,Médecine d'urgence
+Q20,ETP_PH,dont ETP des praticiens hospitaliers titulaires,PERSO,M2010,Chirurgie générale
+Q20,ETP_PH,dont ETP des praticiens hospitaliers titulaires,PERSO,M2020,Chirurgie maxillo-faciale  - Stomatologie - Chirurgie orale
+Q20,ETP_PH,dont ETP des praticiens hospitaliers titulaires,PERSO,M2030,Chirurgie orthopédique et traumatologique
+Q20,ETP_PH,dont ETP des praticiens hospitaliers titulaires,PERSO,M2040,"Chirurgie plastique, reconstructrice et esthétique"
+Q20,ETP_PH,dont ETP des praticiens hospitaliers titulaires,PERSO,M2050,Gynécologie - Obstétrique
+Q20,ETP_PH,dont ETP des praticiens hospitaliers titulaires,PERSO,M2060,Neuro-chirurgie
+Q20,ETP_PH,dont ETP des praticiens hospitaliers titulaires,PERSO,M2070,Ophtalmologie
+Q20,ETP_PH,dont ETP des praticiens hospitaliers titulaires,PERSO,M2080,Oto-Rhino-laryngologie
+Q20,ETP_PH,dont ETP des praticiens hospitaliers titulaires,PERSO,M2100,Chirurgie urologique
+Q20,ETP_PH,dont ETP des praticiens hospitaliers titulaires,PERSO,M2110,Autres spécialités chirurgicales
+Q20,ETP_PH,dont ETP des praticiens hospitaliers titulaires,PERSO,M2120,Chirurgie digestive
+Q20,ETP_PH,dont ETP des praticiens hospitaliers titulaires,PERSO,M2130,Chirurgie vasculaire
+Q20,ETP_PH,dont ETP des praticiens hospitaliers titulaires,PERSO,M2140,Chirurgie thoracique et cardiaque
+Q20,ETP_PH,dont ETP des praticiens hospitaliers titulaires,PERSO,M2150,Chirurgie infantile
+Q20,ETP_PH,dont ETP des praticiens hospitaliers titulaires,PERSO,M3011,Médecins spécialisés en biologie médicale
+Q20,ETP_PH,dont ETP des praticiens hospitaliers titulaires,PERSO,M3012,Pharmaciens spécialisés en biologie médicale
+Q20,ETP_PH,dont ETP des praticiens hospitaliers titulaires,PERSO,M3020,Psychiatrie
+Q20,ETP_PH,dont ETP des praticiens hospitaliers titulaires,PERSO,M3030,Odontologie
+Q20,ETP_PH,dont ETP des praticiens hospitaliers titulaires,PERSO,M3040,Santé publique (y compris DIM)
+Q20,ETP_PH,dont ETP des praticiens hospitaliers titulaires,PERSO,M3050,Pharmaciens (hors biologie médicale)
+Q20,ETP_PH,dont ETP des praticiens hospitaliers titulaires,PERSO,M3060,Médecins du travail
+Q20,ETP_PH,dont ETP des praticiens hospitaliers titulaires,PERSO,M3070,Autres
+Q20,ETP_PH,dont ETP des praticiens hospitaliers titulaires,PERSO,M9999,TOTAL PERSONNEL MEDICAL
+Q20,ETP_AS,dont ETP des assistants,PERSO,M1010,"Médecine générale (hors DES urgentistes, hors gériatrie)"
+Q20,ETP_AS,dont ETP des assistants,PERSO,M1020,Anatomie et cytologie pathologiques
+Q20,ETP_AS,dont ETP des assistants,PERSO,M1030,Anesthésie - Réanimation
+Q20,ETP_AS,dont ETP des assistants,PERSO,M1031,Réanimation médicale
+Q20,ETP_AS,dont ETP des assistants,PERSO,M1040,Cardiologie et maladies vasculaires
+Q20,ETP_AS,dont ETP des assistants,PERSO,M1050,Dermatologie - Vénérologie - Allergologie
+Q20,ETP_AS,dont ETP des assistants,PERSO,M1070,Endocrinologie et maladies métaboliques
+Q20,ETP_AS,dont ETP des assistants,PERSO,M1090,Gastro entérologie et hépatologie
+Q20,ETP_AS,dont ETP des assistants,PERSO,M1100,Médecine interne et immunologie clinique
+Q20,ETP_AS,dont ETP des assistants,PERSO,M1110,Néphrologie
+Q20,ETP_AS,dont ETP des assistants,PERSO,M1120,Neurologie
+Q20,ETP_AS,dont ETP des assistants,PERSO,M1130,Oncologie médicale
+Q20,ETP_AS,dont ETP des assistants,PERSO,M1140,Pédiatrie
+Q20,ETP_AS,dont ETP des assistants,PERSO,M1150,Pneumologie
+Q20,ETP_AS,dont ETP des assistants,PERSO,M1160,Radiologie
+Q20,ETP_AS,dont ETP des assistants,PERSO,M1170,Oncologie radiothérapique
+Q20,ETP_AS,dont ETP des assistants,PERSO,M1180,Médecine physique et de réadaptation
+Q20,ETP_AS,dont ETP des assistants,PERSO,M1190,Rhumatologie
+Q20,ETP_AS,dont ETP des assistants,PERSO,M1200,Autres spécialités médicales
+Q20,ETP_AS,dont ETP des assistants,PERSO,M1210,Médecine nucléaire
+Q20,ETP_AS,dont ETP des assistants,PERSO,M1310,Génétique
+Q20,ETP_AS,dont ETP des assistants,PERSO,M1320,Gériatrie
+Q20,ETP_AS,dont ETP des assistants,PERSO,M1330,Hématologie
+Q20,ETP_AS,dont ETP des assistants,PERSO,M1340,Médecine d'urgence
+Q20,ETP_AS,dont ETP des assistants,PERSO,M2010,Chirurgie générale
+Q20,ETP_AS,dont ETP des assistants,PERSO,M2020,Chirurgie maxillo-faciale  - Stomatologie - Chirurgie orale
+Q20,ETP_AS,dont ETP des assistants,PERSO,M2030,Chirurgie orthopédique et traumatologique
+Q20,ETP_AS,dont ETP des assistants,PERSO,M2040,"Chirurgie plastique, reconstructrice et esthétique"
+Q20,ETP_AS,dont ETP des assistants,PERSO,M2050,Gynécologie - Obstétrique
+Q20,ETP_AS,dont ETP des assistants,PERSO,M2060,Neuro-chirurgie
+Q20,ETP_AS,dont ETP des assistants,PERSO,M2070,Ophtalmologie
+Q20,ETP_AS,dont ETP des assistants,PERSO,M2080,Oto-Rhino-laryngologie
+Q20,ETP_AS,dont ETP des assistants,PERSO,M2100,Chirurgie urologique
+Q20,ETP_AS,dont ETP des assistants,PERSO,M2110,Autres spécialités chirurgicales
+Q20,ETP_AS,dont ETP des assistants,PERSO,M2120,Chirurgie digestive
+Q20,ETP_AS,dont ETP des assistants,PERSO,M2130,Chirurgie vasculaire
+Q20,ETP_AS,dont ETP des assistants,PERSO,M2140,Chirurgie thoracique et cardiaque
+Q20,ETP_AS,dont ETP des assistants,PERSO,M2150,Chirurgie infantile
+Q20,ETP_AS,dont ETP des assistants,PERSO,M3011,Médecins spécialisés en biologie médicale
+Q20,ETP_AS,dont ETP des assistants,PERSO,M3012,Pharmaciens spécialisés en biologie médicale
+Q20,ETP_AS,dont ETP des assistants,PERSO,M3020,Psychiatrie
+Q20,ETP_AS,dont ETP des assistants,PERSO,M3030,Odontologie
+Q20,ETP_AS,dont ETP des assistants,PERSO,M3040,Santé publique (y compris DIM)
+Q20,ETP_AS,dont ETP des assistants,PERSO,M3050,Pharmaciens (hors biologie médicale)
+Q20,ETP_AS,dont ETP des assistants,PERSO,M3060,Médecins du travail
+Q20,ETP_AS,dont ETP des assistants,PERSO,M3070,Autres
+Q20,ETP_AS,dont ETP des assistants,PERSO,M9999,TOTAL PERSONNEL MEDICAL
+Q20,ETP_HU,dont ETP des hospitaliers universitaires non titulaires,PERSO,M1010,"Médecine générale (hors DES urgentistes, hors gériatrie)"
+Q20,ETP_HU,dont ETP des hospitaliers universitaires non titulaires,PERSO,M1020,Anatomie et cytologie pathologiques
+Q20,ETP_HU,dont ETP des hospitaliers universitaires non titulaires,PERSO,M1030,Anesthésie - Réanimation
+Q20,ETP_HU,dont ETP des hospitaliers universitaires non titulaires,PERSO,M1031,Réanimation médicale
+Q20,ETP_HU,dont ETP des hospitaliers universitaires non titulaires,PERSO,M1040,Cardiologie et maladies vasculaires
+Q20,ETP_HU,dont ETP des hospitaliers universitaires non titulaires,PERSO,M1050,Dermatologie - Vénérologie - Allergologie
+Q20,ETP_HU,dont ETP des hospitaliers universitaires non titulaires,PERSO,M1070,Endocrinologie et maladies métaboliques
+Q20,ETP_HU,dont ETP des hospitaliers universitaires non titulaires,PERSO,M1090,Gastro entérologie et hépatologie
+Q20,ETP_HU,dont ETP des hospitaliers universitaires non titulaires,PERSO,M1100,Médecine interne et immunologie clinique
+Q20,ETP_HU,dont ETP des hospitaliers universitaires non titulaires,PERSO,M1110,Néphrologie
+Q20,ETP_HU,dont ETP des hospitaliers universitaires non titulaires,PERSO,M1120,Neurologie
+Q20,ETP_HU,dont ETP des hospitaliers universitaires non titulaires,PERSO,M1130,Oncologie médicale
+Q20,ETP_HU,dont ETP des hospitaliers universitaires non titulaires,PERSO,M1140,Pédiatrie
+Q20,ETP_HU,dont ETP des hospitaliers universitaires non titulaires,PERSO,M1150,Pneumologie
+Q20,ETP_HU,dont ETP des hospitaliers universitaires non titulaires,PERSO,M1160,Radiologie
+Q20,ETP_HU,dont ETP des hospitaliers universitaires non titulaires,PERSO,M1170,Oncologie radiothérapique
+Q20,ETP_HU,dont ETP des hospitaliers universitaires non titulaires,PERSO,M1180,Médecine physique et de réadaptation
+Q20,ETP_HU,dont ETP des hospitaliers universitaires non titulaires,PERSO,M1190,Rhumatologie
+Q20,ETP_HU,dont ETP des hospitaliers universitaires non titulaires,PERSO,M1200,Autres spécialités médicales
+Q20,ETP_HU,dont ETP des hospitaliers universitaires non titulaires,PERSO,M1210,Médecine nucléaire
+Q20,ETP_HU,dont ETP des hospitaliers universitaires non titulaires,PERSO,M1310,Génétique
+Q20,ETP_HU,dont ETP des hospitaliers universitaires non titulaires,PERSO,M1320,Gériatrie
+Q20,ETP_HU,dont ETP des hospitaliers universitaires non titulaires,PERSO,M1330,Hématologie
+Q20,ETP_HU,dont ETP des hospitaliers universitaires non titulaires,PERSO,M1340,Médecine d'urgence
+Q20,ETP_HU,dont ETP des hospitaliers universitaires non titulaires,PERSO,M2010,Chirurgie générale
+Q20,ETP_HU,dont ETP des hospitaliers universitaires non titulaires,PERSO,M2020,Chirurgie maxillo-faciale  - Stomatologie - Chirurgie orale
+Q20,ETP_HU,dont ETP des hospitaliers universitaires non titulaires,PERSO,M2030,Chirurgie orthopédique et traumatologique
+Q20,ETP_HU,dont ETP des hospitaliers universitaires non titulaires,PERSO,M2040,"Chirurgie plastique, reconstructrice et esthétique"
+Q20,ETP_HU,dont ETP des hospitaliers universitaires non titulaires,PERSO,M2050,Gynécologie - Obstétrique
+Q20,ETP_HU,dont ETP des hospitaliers universitaires non titulaires,PERSO,M2060,Neuro-chirurgie
+Q20,ETP_HU,dont ETP des hospitaliers universitaires non titulaires,PERSO,M2070,Ophtalmologie
+Q20,ETP_HU,dont ETP des hospitaliers universitaires non titulaires,PERSO,M2080,Oto-Rhino-laryngologie
+Q20,ETP_HU,dont ETP des hospitaliers universitaires non titulaires,PERSO,M2100,Chirurgie urologique
+Q20,ETP_HU,dont ETP des hospitaliers universitaires non titulaires,PERSO,M2110,Autres spécialités chirurgicales
+Q20,ETP_HU,dont ETP des hospitaliers universitaires non titulaires,PERSO,M2120,Chirurgie digestive
+Q20,ETP_HU,dont ETP des hospitaliers universitaires non titulaires,PERSO,M2130,Chirurgie vasculaire
+Q20,ETP_HU,dont ETP des hospitaliers universitaires non titulaires,PERSO,M2140,Chirurgie thoracique et cardiaque
+Q20,ETP_HU,dont ETP des hospitaliers universitaires non titulaires,PERSO,M2150,Chirurgie infantile
+Q20,ETP_HU,dont ETP des hospitaliers universitaires non titulaires,PERSO,M3011,Médecins spécialisés en biologie médicale
+Q20,ETP_HU,dont ETP des hospitaliers universitaires non titulaires,PERSO,M3012,Pharmaciens spécialisés en biologie médicale
+Q20,ETP_HU,dont ETP des hospitaliers universitaires non titulaires,PERSO,M3020,Psychiatrie
+Q20,ETP_HU,dont ETP des hospitaliers universitaires non titulaires,PERSO,M3030,Odontologie
+Q20,ETP_HU,dont ETP des hospitaliers universitaires non titulaires,PERSO,M3040,Santé publique (y compris DIM)
+Q20,ETP_HU,dont ETP des hospitaliers universitaires non titulaires,PERSO,M3050,Pharmaciens (hors biologie médicale)
+Q20,ETP_HU,dont ETP des hospitaliers universitaires non titulaires,PERSO,M3060,Médecins du travail
+Q20,ETP_HU,dont ETP des hospitaliers universitaires non titulaires,PERSO,M3070,Autres
+Q20,ETP_HU,dont ETP des hospitaliers universitaires non titulaires,PERSO,M9999,TOTAL PERSONNEL MEDICAL
+Q20,ETP_AT,dont ETP des attachés,PERSO,M1010,"Médecine générale (hors DES urgentistes, hors gériatrie)"
+Q20,ETP_AT,dont ETP des attachés,PERSO,M1020,Anatomie et cytologie pathologiques
+Q20,ETP_AT,dont ETP des attachés,PERSO,M1030,Anesthésie - Réanimation
+Q20,ETP_AT,dont ETP des attachés,PERSO,M1031,Réanimation médicale
+Q20,ETP_AT,dont ETP des attachés,PERSO,M1040,Cardiologie et maladies vasculaires
+Q20,ETP_AT,dont ETP des attachés,PERSO,M1050,Dermatologie - Vénérologie - Allergologie
+Q20,ETP_AT,dont ETP des attachés,PERSO,M1070,Endocrinologie et maladies métaboliques
+Q20,ETP_AT,dont ETP des attachés,PERSO,M1090,Gastro entérologie et hépatologie
+Q20,ETP_AT,dont ETP des attachés,PERSO,M1100,Médecine interne et immunologie clinique
+Q20,ETP_AT,dont ETP des attachés,PERSO,M1110,Néphrologie
+Q20,ETP_AT,dont ETP des attachés,PERSO,M1120,Neurologie
+Q20,ETP_AT,dont ETP des attachés,PERSO,M1130,Oncologie médicale
+Q20,ETP_AT,dont ETP des attachés,PERSO,M1140,Pédiatrie
+Q20,ETP_AT,dont ETP des attachés,PERSO,M1150,Pneumologie
+Q20,ETP_AT,dont ETP des attachés,PERSO,M1160,Radiologie
+Q20,ETP_AT,dont ETP des attachés,PERSO,M1170,Oncologie radiothérapique
+Q20,ETP_AT,dont ETP des attachés,PERSO,M1180,Médecine physique et de réadaptation
+Q20,ETP_AT,dont ETP des attachés,PERSO,M1190,Rhumatologie
+Q20,ETP_AT,dont ETP des attachés,PERSO,M1200,Autres spécialités médicales
+Q20,ETP_AT,dont ETP des attachés,PERSO,M1210,Médecine nucléaire
+Q20,ETP_AT,dont ETP des attachés,PERSO,M1310,Génétique
+Q20,ETP_AT,dont ETP des attachés,PERSO,M1320,Gériatrie
+Q20,ETP_AT,dont ETP des attachés,PERSO,M1330,Hématologie
+Q20,ETP_AT,dont ETP des attachés,PERSO,M1340,Médecine d'urgence
+Q20,ETP_AT,dont ETP des attachés,PERSO,M2010,Chirurgie générale
+Q20,ETP_AT,dont ETP des attachés,PERSO,M2020,Chirurgie maxillo-faciale  - Stomatologie - Chirurgie orale
+Q20,ETP_AT,dont ETP des attachés,PERSO,M2030,Chirurgie orthopédique et traumatologique
+Q20,ETP_AT,dont ETP des attachés,PERSO,M2040,"Chirurgie plastique, reconstructrice et esthétique"
+Q20,ETP_AT,dont ETP des attachés,PERSO,M2050,Gynécologie - Obstétrique
+Q20,ETP_AT,dont ETP des attachés,PERSO,M2060,Neuro-chirurgie
+Q20,ETP_AT,dont ETP des attachés,PERSO,M2070,Ophtalmologie
+Q20,ETP_AT,dont ETP des attachés,PERSO,M2080,Oto-Rhino-laryngologie
+Q20,ETP_AT,dont ETP des attachés,PERSO,M2100,Chirurgie urologique
+Q20,ETP_AT,dont ETP des attachés,PERSO,M2110,Autres spécialités chirurgicales
+Q20,ETP_AT,dont ETP des attachés,PERSO,M2120,Chirurgie digestive
+Q20,ETP_AT,dont ETP des attachés,PERSO,M2130,Chirurgie vasculaire
+Q20,ETP_AT,dont ETP des attachés,PERSO,M2140,Chirurgie thoracique et cardiaque
+Q20,ETP_AT,dont ETP des attachés,PERSO,M2150,Chirurgie infantile
+Q20,ETP_AT,dont ETP des attachés,PERSO,M3011,Médecins spécialisés en biologie médicale
+Q20,ETP_AT,dont ETP des attachés,PERSO,M3012,Pharmaciens spécialisés en biologie médicale
+Q20,ETP_AT,dont ETP des attachés,PERSO,M3020,Psychiatrie
+Q20,ETP_AT,dont ETP des attachés,PERSO,M3030,Odontologie
+Q20,ETP_AT,dont ETP des attachés,PERSO,M3040,Santé publique (y compris DIM)
+Q20,ETP_AT,dont ETP des attachés,PERSO,M3050,Pharmaciens (hors biologie médicale)
+Q20,ETP_AT,dont ETP des attachés,PERSO,M3060,Médecins du travail
+Q20,ETP_AT,dont ETP des attachés,PERSO,M3070,Autres
+Q20,ETP_AT,dont ETP des attachés,PERSO,M9999,TOTAL PERSONNEL MEDICAL
+Q20,ETP_AU,dont ETP des autres salariés (y compris ne relevant pas d'un statut),PERSO,M1010,"Médecine générale (hors DES urgentistes, hors gériatrie)"
+Q20,ETP_AU,dont ETP des autres salariés (y compris ne relevant pas d'un statut),PERSO,M1020,Anatomie et cytologie pathologiques
+Q20,ETP_AU,dont ETP des autres salariés (y compris ne relevant pas d'un statut),PERSO,M1030,Anesthésie - Réanimation
+Q20,ETP_AU,dont ETP des autres salariés (y compris ne relevant pas d'un statut),PERSO,M1031,Réanimation médicale
+Q20,ETP_AU,dont ETP des autres salariés (y compris ne relevant pas d'un statut),PERSO,M1040,Cardiologie et maladies vasculaires
+Q20,ETP_AU,dont ETP des autres salariés (y compris ne relevant pas d'un statut),PERSO,M1050,Dermatologie - Vénérologie - Allergologie
+Q20,ETP_AU,dont ETP des autres salariés (y compris ne relevant pas d'un statut),PERSO,M1070,Endocrinologie et maladies métaboliques
+Q20,ETP_AU,dont ETP des autres salariés (y compris ne relevant pas d'un statut),PERSO,M1090,Gastro entérologie et hépatologie
+Q20,ETP_AU,dont ETP des autres salariés (y compris ne relevant pas d'un statut),PERSO,M1100,Médecine interne et immunologie clinique
+Q20,ETP_AU,dont ETP des autres salariés (y compris ne relevant pas d'un statut),PERSO,M1110,Néphrologie
+Q20,ETP_AU,dont ETP des autres salariés (y compris ne relevant pas d'un statut),PERSO,M1120,Neurologie
+Q20,ETP_AU,dont ETP des autres salariés (y compris ne relevant pas d'un statut),PERSO,M1130,Oncologie médicale
+Q20,ETP_AU,dont ETP des autres salariés (y compris ne relevant pas d'un statut),PERSO,M1140,Pédiatrie
+Q20,ETP_AU,dont ETP des autres salariés (y compris ne relevant pas d'un statut),PERSO,M1150,Pneumologie
+Q20,ETP_AU,dont ETP des autres salariés (y compris ne relevant pas d'un statut),PERSO,M1160,Radiologie
+Q20,ETP_AU,dont ETP des autres salariés (y compris ne relevant pas d'un statut),PERSO,M1170,Oncologie radiothérapique
+Q20,ETP_AU,dont ETP des autres salariés (y compris ne relevant pas d'un statut),PERSO,M1180,Médecine physique et de réadaptation
+Q20,ETP_AU,dont ETP des autres salariés (y compris ne relevant pas d'un statut),PERSO,M1190,Rhumatologie
+Q20,ETP_AU,dont ETP des autres salariés (y compris ne relevant pas d'un statut),PERSO,M1200,Autres spécialités médicales
+Q20,ETP_AU,dont ETP des autres salariés (y compris ne relevant pas d'un statut),PERSO,M1210,Médecine nucléaire
+Q20,ETP_AU,dont ETP des autres salariés (y compris ne relevant pas d'un statut),PERSO,M1310,Génétique
+Q20,ETP_AU,dont ETP des autres salariés (y compris ne relevant pas d'un statut),PERSO,M1320,Gériatrie
+Q20,ETP_AU,dont ETP des autres salariés (y compris ne relevant pas d'un statut),PERSO,M1330,Hématologie
+Q20,ETP_AU,dont ETP des autres salariés (y compris ne relevant pas d'un statut),PERSO,M1340,Médecine d'urgence
+Q20,ETP_AU,dont ETP des autres salariés (y compris ne relevant pas d'un statut),PERSO,M2010,Chirurgie générale
+Q20,ETP_AU,dont ETP des autres salariés (y compris ne relevant pas d'un statut),PERSO,M2020,Chirurgie maxillo-faciale  - Stomatologie - Chirurgie orale
+Q20,ETP_AU,dont ETP des autres salariés (y compris ne relevant pas d'un statut),PERSO,M2030,Chirurgie orthopédique et traumatologique
+Q20,ETP_AU,dont ETP des autres salariés (y compris ne relevant pas d'un statut),PERSO,M2040,"Chirurgie plastique, reconstructrice et esthétique"
+Q20,ETP_AU,dont ETP des autres salariés (y compris ne relevant pas d'un statut),PERSO,M2050,Gynécologie - Obstétrique
+Q20,ETP_AU,dont ETP des autres salariés (y compris ne relevant pas d'un statut),PERSO,M2060,Neuro-chirurgie
+Q20,ETP_AU,dont ETP des autres salariés (y compris ne relevant pas d'un statut),PERSO,M2070,Ophtalmologie
+Q20,ETP_AU,dont ETP des autres salariés (y compris ne relevant pas d'un statut),PERSO,M2080,Oto-Rhino-laryngologie
+Q20,ETP_AU,dont ETP des autres salariés (y compris ne relevant pas d'un statut),PERSO,M2100,Chirurgie urologique
+Q20,ETP_AU,dont ETP des autres salariés (y compris ne relevant pas d'un statut),PERSO,M2110,Autres spécialités chirurgicales
+Q20,ETP_AU,dont ETP des autres salariés (y compris ne relevant pas d'un statut),PERSO,M2120,Chirurgie digestive
+Q20,ETP_AU,dont ETP des autres salariés (y compris ne relevant pas d'un statut),PERSO,M2130,Chirurgie vasculaire
+Q20,ETP_AU,dont ETP des autres salariés (y compris ne relevant pas d'un statut),PERSO,M2140,Chirurgie thoracique et cardiaque
+Q20,ETP_AU,dont ETP des autres salariés (y compris ne relevant pas d'un statut),PERSO,M2150,Chirurgie infantile
+Q20,ETP_AU,dont ETP des autres salariés (y compris ne relevant pas d'un statut),PERSO,M3011,Médecins spécialisés en biologie médicale
+Q20,ETP_AU,dont ETP des autres salariés (y compris ne relevant pas d'un statut),PERSO,M3012,Pharmaciens spécialisés en biologie médicale
+Q20,ETP_AU,dont ETP des autres salariés (y compris ne relevant pas d'un statut),PERSO,M3020,Psychiatrie
+Q20,ETP_AU,dont ETP des autres salariés (y compris ne relevant pas d'un statut),PERSO,M3030,Odontologie
+Q20,ETP_AU,dont ETP des autres salariés (y compris ne relevant pas d'un statut),PERSO,M3040,Santé publique (y compris DIM)
+Q20,ETP_AU,dont ETP des autres salariés (y compris ne relevant pas d'un statut),PERSO,M3050,Pharmaciens (hors biologie médicale)
+Q20,ETP_AU,dont ETP des autres salariés (y compris ne relevant pas d'un statut),PERSO,M3060,Médecins du travail
+Q20,ETP_AU,dont ETP des autres salariés (y compris ne relevant pas d'un statut),PERSO,M3070,Autres
+Q20,ETP_AU,dont ETP des autres salariés (y compris ne relevant pas d'un statut),PERSO,M9999,TOTAL PERSONNEL MEDICAL
+Q20,EFFSAL,Effectif des salariés,PERSO,M1010,"Médecine générale (hors DES urgentistes, hors gériatrie)"
+Q20,EFFSAL,Effectif des salariés,PERSO,M1020,Anatomie et cytologie pathologiques
+Q20,EFFSAL,Effectif des salariés,PERSO,M1030,Anesthésie - Réanimation
+Q20,EFFSAL,Effectif des salariés,PERSO,M1031,Réanimation médicale
+Q20,EFFSAL,Effectif des salariés,PERSO,M1040,Cardiologie et maladies vasculaires
+Q20,EFFSAL,Effectif des salariés,PERSO,M1050,Dermatologie - Vénérologie - Allergologie
+Q20,EFFSAL,Effectif des salariés,PERSO,M1070,Endocrinologie et maladies métaboliques
+Q20,EFFSAL,Effectif des salariés,PERSO,M1090,Gastro entérologie et hépatologie
+Q20,EFFSAL,Effectif des salariés,PERSO,M1100,Médecine interne et immunologie clinique
+Q20,EFFSAL,Effectif des salariés,PERSO,M1110,Néphrologie
+Q20,EFFSAL,Effectif des salariés,PERSO,M1120,Neurologie
+Q20,EFFSAL,Effectif des salariés,PERSO,M1130,Oncologie médicale
+Q20,EFFSAL,Effectif des salariés,PERSO,M1140,Pédiatrie
+Q20,EFFSAL,Effectif des salariés,PERSO,M1150,Pneumologie
+Q20,EFFSAL,Effectif des salariés,PERSO,M1160,Radiologie
+Q20,EFFSAL,Effectif des salariés,PERSO,M1170,Oncologie radiothérapique
+Q20,EFFSAL,Effectif des salariés,PERSO,M1180,Médecine physique et de réadaptation
+Q20,EFFSAL,Effectif des salariés,PERSO,M1190,Rhumatologie
+Q20,EFFSAL,Effectif des salariés,PERSO,M1200,Autres spécialités médicales
+Q20,EFFSAL,Effectif des salariés,PERSO,M1210,Médecine nucléaire
+Q20,EFFSAL,Effectif des salariés,PERSO,M1310,Génétique
+Q20,EFFSAL,Effectif des salariés,PERSO,M1320,Gériatrie
+Q20,EFFSAL,Effectif des salariés,PERSO,M1330,Hématologie
+Q20,EFFSAL,Effectif des salariés,PERSO,M1340,Médecine d'urgence
+Q20,EFFSAL,Effectif des salariés,PERSO,M2010,Chirurgie générale
+Q20,EFFSAL,Effectif des salariés,PERSO,M2020,Chirurgie maxillo-faciale  - Stomatologie - Chirurgie orale
+Q20,EFFSAL,Effectif des salariés,PERSO,M2030,Chirurgie orthopédique et traumatologique
+Q20,EFFSAL,Effectif des salariés,PERSO,M2040,"Chirurgie plastique, reconstructrice et esthétique"
+Q20,EFFSAL,Effectif des salariés,PERSO,M2050,Gynécologie - Obstétrique
+Q20,EFFSAL,Effectif des salariés,PERSO,M2060,Neuro-chirurgie
+Q20,EFFSAL,Effectif des salariés,PERSO,M2070,Ophtalmologie
+Q20,EFFSAL,Effectif des salariés,PERSO,M2080,Oto-Rhino-laryngologie
+Q20,EFFSAL,Effectif des salariés,PERSO,M2100,Chirurgie urologique
+Q20,EFFSAL,Effectif des salariés,PERSO,M2110,Autres spécialités chirurgicales
+Q20,EFFSAL,Effectif des salariés,PERSO,M2120,Chirurgie digestive
+Q20,EFFSAL,Effectif des salariés,PERSO,M2130,Chirurgie vasculaire
+Q20,EFFSAL,Effectif des salariés,PERSO,M2140,Chirurgie thoracique et cardiaque
+Q20,EFFSAL,Effectif des salariés,PERSO,M2150,Chirurgie infantile
+Q20,EFFSAL,Effectif des salariés,PERSO,M3011,Médecins spécialisés en biologie médicale
+Q20,EFFSAL,Effectif des salariés,PERSO,M3012,Pharmaciens spécialisés en biologie médicale
+Q20,EFFSAL,Effectif des salariés,PERSO,M3020,Psychiatrie
+Q20,EFFSAL,Effectif des salariés,PERSO,M3030,Odontologie
+Q20,EFFSAL,Effectif des salariés,PERSO,M3040,Santé publique (y compris DIM)
+Q20,EFFSAL,Effectif des salariés,PERSO,M3050,Pharmaciens (hors biologie médicale)
+Q20,EFFSAL,Effectif des salariés,PERSO,M3060,Médecins du travail
+Q20,EFFSAL,Effectif des salariés,PERSO,M3070,Autres
+Q20,EFFSAL,Effectif des salariés,PERSO,M9999,TOTAL PERSONNEL MEDICAL
+Q20,ETPSAL,ETP moyen annuel rémunéré des salariés,PERSO,M1010,"Médecine générale (hors DES urgentistes, hors gériatrie)"
+Q20,ETPSAL,ETP moyen annuel rémunéré des salariés,PERSO,M1020,Anatomie et cytologie pathologiques
+Q20,ETPSAL,ETP moyen annuel rémunéré des salariés,PERSO,M1030,Anesthésie - Réanimation
+Q20,ETPSAL,ETP moyen annuel rémunéré des salariés,PERSO,M1031,Réanimation médicale
+Q20,ETPSAL,ETP moyen annuel rémunéré des salariés,PERSO,M1040,Cardiologie et maladies vasculaires
+Q20,ETPSAL,ETP moyen annuel rémunéré des salariés,PERSO,M1050,Dermatologie - Vénérologie - Allergologie
+Q20,ETPSAL,ETP moyen annuel rémunéré des salariés,PERSO,M1070,Endocrinologie et maladies métaboliques
+Q20,ETPSAL,ETP moyen annuel rémunéré des salariés,PERSO,M1090,Gastro entérologie et hépatologie
+Q20,ETPSAL,ETP moyen annuel rémunéré des salariés,PERSO,M1100,Médecine interne et immunologie clinique
+Q20,ETPSAL,ETP moyen annuel rémunéré des salariés,PERSO,M1110,Néphrologie
+Q20,ETPSAL,ETP moyen annuel rémunéré des salariés,PERSO,M1120,Neurologie
+Q20,ETPSAL,ETP moyen annuel rémunéré des salariés,PERSO,M1130,Oncologie médicale
+Q20,ETPSAL,ETP moyen annuel rémunéré des salariés,PERSO,M1140,Pédiatrie
+Q20,ETPSAL,ETP moyen annuel rémunéré des salariés,PERSO,M1150,Pneumologie
+Q20,ETPSAL,ETP moyen annuel rémunéré des salariés,PERSO,M1160,Radiologie
+Q20,ETPSAL,ETP moyen annuel rémunéré des salariés,PERSO,M1170,Oncologie radiothérapique
+Q20,ETPSAL,ETP moyen annuel rémunéré des salariés,PERSO,M1180,Médecine physique et de réadaptation
+Q20,ETPSAL,ETP moyen annuel rémunéré des salariés,PERSO,M1190,Rhumatologie
+Q20,ETPSAL,ETP moyen annuel rémunéré des salariés,PERSO,M1200,Autres spécialités médicales
+Q20,ETPSAL,ETP moyen annuel rémunéré des salariés,PERSO,M1210,Médecine nucléaire
+Q20,ETPSAL,ETP moyen annuel rémunéré des salariés,PERSO,M1310,Génétique
+Q20,ETPSAL,ETP moyen annuel rémunéré des salariés,PERSO,M1320,Gériatrie
+Q20,ETPSAL,ETP moyen annuel rémunéré des salariés,PERSO,M1330,Hématologie
+Q20,ETPSAL,ETP moyen annuel rémunéré des salariés,PERSO,M1340,Médecine d'urgence
+Q20,ETPSAL,ETP moyen annuel rémunéré des salariés,PERSO,M2010,Chirurgie générale
+Q20,ETPSAL,ETP moyen annuel rémunéré des salariés,PERSO,M2020,Chirurgie maxillo-faciale  - Stomatologie - Chirurgie orale
+Q20,ETPSAL,ETP moyen annuel rémunéré des salariés,PERSO,M2030,Chirurgie orthopédique et traumatologique
+Q20,ETPSAL,ETP moyen annuel rémunéré des salariés,PERSO,M2040,"Chirurgie plastique, reconstructrice et esthétique"
+Q20,ETPSAL,ETP moyen annuel rémunéré des salariés,PERSO,M2050,Gynécologie - Obstétrique
+Q20,ETPSAL,ETP moyen annuel rémunéré des salariés,PERSO,M2060,Neuro-chirurgie
+Q20,ETPSAL,ETP moyen annuel rémunéré des salariés,PERSO,M2070,Ophtalmologie
+Q20,ETPSAL,ETP moyen annuel rémunéré des salariés,PERSO,M2080,Oto-Rhino-laryngologie
+Q20,ETPSAL,ETP moyen annuel rémunéré des salariés,PERSO,M2100,Chirurgie urologique
+Q20,ETPSAL,ETP moyen annuel rémunéré des salariés,PERSO,M2110,Autres spécialités chirurgicales
+Q20,ETPSAL,ETP moyen annuel rémunéré des salariés,PERSO,M2120,Chirurgie digestive
+Q20,ETPSAL,ETP moyen annuel rémunéré des salariés,PERSO,M2130,Chirurgie vasculaire
+Q20,ETPSAL,ETP moyen annuel rémunéré des salariés,PERSO,M2140,Chirurgie thoracique et cardiaque
+Q20,ETPSAL,ETP moyen annuel rémunéré des salariés,PERSO,M2150,Chirurgie infantile
+Q20,ETPSAL,ETP moyen annuel rémunéré des salariés,PERSO,M3011,Médecins spécialisés en biologie médicale
+Q20,ETPSAL,ETP moyen annuel rémunéré des salariés,PERSO,M3012,Pharmaciens spécialisés en biologie médicale
+Q20,ETPSAL,ETP moyen annuel rémunéré des salariés,PERSO,M3020,Psychiatrie
+Q20,ETPSAL,ETP moyen annuel rémunéré des salariés,PERSO,M3030,Odontologie
+Q20,ETPSAL,ETP moyen annuel rémunéré des salariés,PERSO,M3040,Santé publique (y compris DIM)
+Q20,ETPSAL,ETP moyen annuel rémunéré des salariés,PERSO,M3050,Pharmaciens (hors biologie médicale)
+Q20,ETPSAL,ETP moyen annuel rémunéré des salariés,PERSO,M3060,Médecins du travail
+Q20,ETPSAL,ETP moyen annuel rémunéré des salariés,PERSO,M3070,Autres
+Q20,ETPSAL,ETP moyen annuel rémunéré des salariés,PERSO,M9999,TOTAL PERSONNEL MEDICAL
+Q20,EFFLIB,Effectif des libéraux,PERSO,M1010,"Médecine générale (hors DES urgentistes, hors gériatrie)"
+Q20,EFFLIB,Effectif des libéraux,PERSO,M1020,Anatomie et cytologie pathologiques
+Q20,EFFLIB,Effectif des libéraux,PERSO,M1030,Anesthésie - Réanimation
+Q20,EFFLIB,Effectif des libéraux,PERSO,M1031,Réanimation médicale
+Q20,EFFLIB,Effectif des libéraux,PERSO,M1040,Cardiologie et maladies vasculaires
+Q20,EFFLIB,Effectif des libéraux,PERSO,M1050,Dermatologie - Vénérologie - Allergologie
+Q20,EFFLIB,Effectif des libéraux,PERSO,M1070,Endocrinologie et maladies métaboliques
+Q20,EFFLIB,Effectif des libéraux,PERSO,M1090,Gastro entérologie et hépatologie
+Q20,EFFLIB,Effectif des libéraux,PERSO,M1100,Médecine interne et immunologie clinique
+Q20,EFFLIB,Effectif des libéraux,PERSO,M1110,Néphrologie
+Q20,EFFLIB,Effectif des libéraux,PERSO,M1120,Neurologie
+Q20,EFFLIB,Effectif des libéraux,PERSO,M1130,Oncologie médicale
+Q20,EFFLIB,Effectif des libéraux,PERSO,M1140,Pédiatrie
+Q20,EFFLIB,Effectif des libéraux,PERSO,M1150,Pneumologie
+Q20,EFFLIB,Effectif des libéraux,PERSO,M1160,Radiologie
+Q20,EFFLIB,Effectif des libéraux,PERSO,M1170,Oncologie radiothérapique
+Q20,EFFLIB,Effectif des libéraux,PERSO,M1180,Médecine physique et de réadaptation
+Q20,EFFLIB,Effectif des libéraux,PERSO,M1190,Rhumatologie
+Q20,EFFLIB,Effectif des libéraux,PERSO,M1200,Autres spécialités médicales
+Q20,EFFLIB,Effectif des libéraux,PERSO,M1210,Médecine nucléaire
+Q20,EFFLIB,Effectif des libéraux,PERSO,M1310,Génétique
+Q20,EFFLIB,Effectif des libéraux,PERSO,M1320,Gériatrie
+Q20,EFFLIB,Effectif des libéraux,PERSO,M1330,Hématologie
+Q20,EFFLIB,Effectif des libéraux,PERSO,M1340,Médecine d'urgence
+Q20,EFFLIB,Effectif des libéraux,PERSO,M2010,Chirurgie générale
+Q20,EFFLIB,Effectif des libéraux,PERSO,M2020,Chirurgie maxillo-faciale  - Stomatologie - Chirurgie orale
+Q20,EFFLIB,Effectif des libéraux,PERSO,M2030,Chirurgie orthopédique et traumatologique
+Q20,EFFLIB,Effectif des libéraux,PERSO,M2040,"Chirurgie plastique, reconstructrice et esthétique"
+Q20,EFFLIB,Effectif des libéraux,PERSO,M2050,Gynécologie - Obstétrique
+Q20,EFFLIB,Effectif des libéraux,PERSO,M2060,Neuro-chirurgie
+Q20,EFFLIB,Effectif des libéraux,PERSO,M2070,Ophtalmologie
+Q20,EFFLIB,Effectif des libéraux,PERSO,M2080,Oto-Rhino-laryngologie
+Q20,EFFLIB,Effectif des libéraux,PERSO,M2100,Chirurgie urologique
+Q20,EFFLIB,Effectif des libéraux,PERSO,M2110,Autres spécialités chirurgicales
+Q20,EFFLIB,Effectif des libéraux,PERSO,M2120,Chirurgie digestive
+Q20,EFFLIB,Effectif des libéraux,PERSO,M2130,Chirurgie vasculaire
+Q20,EFFLIB,Effectif des libéraux,PERSO,M2140,Chirurgie thoracique et cardiaque
+Q20,EFFLIB,Effectif des libéraux,PERSO,M2150,Chirurgie infantile
+Q20,EFFLIB,Effectif des libéraux,PERSO,M3011,Médecins spécialisés en biologie médicale
+Q20,EFFLIB,Effectif des libéraux,PERSO,M3012,Pharmaciens spécialisés en biologie médicale
+Q20,EFFLIB,Effectif des libéraux,PERSO,M3020,Psychiatrie
+Q20,EFFLIB,Effectif des libéraux,PERSO,M3030,Odontologie
+Q20,EFFLIB,Effectif des libéraux,PERSO,M3040,Santé publique (y compris DIM)
+Q20,EFFLIB,Effectif des libéraux,PERSO,M3050,Pharmaciens (hors biologie médicale)
+Q20,EFFLIB,Effectif des libéraux,PERSO,M3060,Médecins du travail
+Q20,EFFLIB,Effectif des libéraux,PERSO,M3070,Autres
+Q20,EFFLIB,Effectif des libéraux,PERSO,M9999,TOTAL PERSONNEL MEDICAL

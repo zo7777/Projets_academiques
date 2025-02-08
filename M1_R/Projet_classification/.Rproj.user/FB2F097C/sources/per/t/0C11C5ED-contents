@@ -1,0 +1,672 @@
+---
+title: "Projet Classification"
+author: "Yann KIBAMBA ; Omar Saip SY ; Aymard-Loic KWEKEU-KWEKEU "
+num_etudiants: "21805105 ; 22210576 ; 22210455"
+date: "2023-04-22"
+output: html_document
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# **Sommaire**
+
+* **Introduction**
+* **I) Description du jeu de données**
+* **II) ACP**
+* **III) Cartographie**
+* **IV) Classification à l'aide de plusieurs méthodes**
+* **V) Résultats de l'étude**
+* **Conclusion**
+
+```{r,include=FALSE}
+# install.packages("factoextra")
+library(factoextra)
+library(dplyr)
+library(tidyverse)
+library(FactoMineR)
+library(cowplot)
+library(cluster)
+library(NbClust)
+library(Factoshiny)
+library(leaflet)
+library(countrycode)
+library(rnaturalearth)
+library(plotly)
+library(rAmCharts)
+library(sf)
+library(GGally)
+library(cowplot)
+library(stargazer)
+
+```
+
+# **Introduction**
+
+Un ONG (Organisme Non Gouvernemental) dispose d'une enveloppe de 10 millions de dollars afin d'aider 167 pays (à peu près tous les pays du monde) sur des plans humanitaires, structurels ou autres. A cet effet, nous disposons d'une base de données regroupant certains facteurs socio-économiques et sanitaires  pour aider le directeur dans sa prise de décision.
+La problématique est la suivante: Comment allouer cet somme d'argent de manière stratégique et efficace? Comment déterminer les pays à aider en priorité? 
+Pour se faire, nous procéderons d'abord au traitement des données. Ensuite, nous classifierons les pays en différents groupes. Et, finalement, nous déterminerons les pays à aider en priorité et proposeront une méthode d'allocation du montant que l'on devrait leur allouer à chaque pays.
+
+
+# **I) Description du jeu de données**
+
+
+```{r,comment=" ",echo=FALSE}
+# Import
+data <- read.csv("Pays_donnees.csv",header=TRUE, dec=".", sep=",", row.names = 1)
+data2 <- read.csv("Pays_donnees.csv",header=TRUE, dec=".", sep=",") # sans row.names
+```
+
+
+### **Description des variables et statistiques univariées**
+
+Notre jeu de données est composé de 167 lignes (les pats) et de 10 colonnes (les variables explicatives).
+
+```{r,comment=" ",echo=FALSE}
+## Description des variables
+summary(data)
+#sum(is.na(data))
+```
+
+
+Il ne semble pas y avoir de valeurs aberrantes dans les distributions et le jeu de données ne contient pas de valeurs manquantes.
+Ci-dessous la visualisation des distributions des variables à l'aide de Boxplot.
+
+
+```{r,comment=" ",echo=FALSE,fig.width=15}
+box_EM <- ggplot(data)+geom_boxplot(aes(y=enfant_mort))+ggtitle("boite a moustache des enfants morts")
+box_exports <- ggplot(data)+geom_boxplot(aes(y=exports))+ggtitle("boite a moustache des exports")
+box_sante <- ggplot(data)+geom_boxplot(aes(y=sante))+ggtitle("boite a moustache de la depense en sante(% du PIB)")
+box_imports <- ggplot(data)+geom_boxplot(aes(y=imports))+ggtitle("boite a moustache des imports")
+box_revenu <- ggplot(data)+geom_boxplot(aes(y=revenu))+ggtitle("boite a moustache des revenus moyens")
+box_inflation <- ggplot(data)+geom_boxplot(aes(y=inflation))+ggtitle("boite a moustache du taux de croissance du PIB")
+box_EV <- ggplot(data)+geom_boxplot(aes(y=esper_vie))+ggtitle("boite a moustache de l'esperance de vie")
+box_fert <- ggplot(data)+geom_boxplot(aes(y=fert))+ggtitle("boite a moustache du nbre moyen d'enfants par femme")
+box_pib <- ggplot(data)+geom_boxplot(aes(y=pib_h))+ggtitle("boite a moustache du PIB/hbts")
+
+plot_grid(box_EM,box_exports,box_sante,box_imports,box_revenu,box_inflation,box_EV,box_fert,box_pib,ncol=3,nrow=3)
+
+
+```
+
+
+Tous les boxplots contiennent au moins une valeur que l'on peut qualifier d'atypiques et non d'aberrante en connaissance du jeu de données dû aux variabilités en terme de critères sociaux et économiques à l'échelle mondiale.
+De plus, il ne sera pas nécessaire de centrer et de reduire les variables car cela sera fait à l'aide des méthodes que nous employerons tel que l'ACP.
+
+Pour comprendre les enjeux de l'ONG, nous porterons un bref regard sur la corrélation entre les variables que nous avons à disposition afin d'en savoir plus et d'en relever de potentielles problématiques.
+
+### **corrélation des variables**
+
+```{r,comment=" ",echo=FALSE}
+# Matrice de corrélation
+matrix_cor <- cor(as.matrix(data2[, 2:10]))
+#matrix_cor
+
+# Corrélogramme
+ggcorr(data, method = c("everything", "pearson"),low = "#F21A00",mid = "#EEEEEE",high = "#3B9AB2", hjust=0.7, nbreaks = 8, label = TRUE, label_round = 1)
+
+```
+
+Sans surprise, on voit qu'il y a de fortes corrélations (positives ou négatives) entre les couples de variables suivants :
+
+* enfant_mort et esper_vie |
+* enfant_mort et fert | 
+* exports et imports |
+* exports et revenu |
+* revenu et esper_vie |
+* revenu et pib_h |
+* revenu et fert |
+* esper_vie et fert |
+*  esper_vie et pib_h 
+
+Ci-dessous les visualisations de la variable enfant_mort enfant de la variable fert, de la variable revenu en fonction de la variable export et de la variable revenu en fonction de la variable esper_vie.
+
+
+```{r,comment=" ",echo=FALSE}
+# correlation entre fert et enfant_mort
+model2 <- lm(fert~enfant_mort,data=data2)
+data2 |> plot_ly(x=~enfant_mort,y=~fert) |>
+   add_markers(type="scatter", mode="markers",
+               marker=list(color="red"),name="Nuage de points") |>
+   add_trace(y=fitted(model2),type="scatter",mode='lines',
+            name="Régression",line=list(color="blue")) %>% 
+   layout(title="Correlation entre fert et enfant_mort",xaxis=list(title="nombre d'enfants morts"),
+         yaxis=list(title="Nombre moyen d'enfants par femme"))
+
+
+```
+ 
+Nous avons une relation linéaire positive, la corrélation n'est pas signe de causalité mais il semblerait que le fléau du nombre de décès d'enfants ait un lien avec le nombre d'enfant par femme. Bien évidemment, d'autres facteurs rentre en compte. Un des but de l'ONG est sûrement de contribuer à une réduction du problème pour les pays concernées.
+
+
+```{r,comment=" ",echo=FALSE,message=FALSE}
+
+exports_revenu <- ggplot(data,aes(x=revenu,y=exports))+
+  geom_point()+
+  geom_smooth(method = 'loess',color='red')+
+  ggtitle("Correlation entre exports et revenu")
+
+exports_revenu
+
+```
+
+En raison d'une relation non linéaire nous avons pour ce graphique ajuster avec utilisé l'option "loess" pour lisser localement afin d'ajuster la courbe aux données. Il semblerait que les exports pour un pays puissent être une bonne stratégie pour augmenter leurs revenu net moyen par personne. Les pays ayant une faible valeur pour la variable revenu seront sûrement plus en difficulté.
+
+```{r,comment=" ",echo=FALSE,warnig=FALSE,message=FALSE}
+
+esper_revenu <- ggplot(data,aes(x=revenu,y=esper_vie))+
+  geom_point()+
+  geom_smooth(method = 'loess',color='red')+
+  ggtitle(" Correlation entre esper_vie et revenu ")
+
+esper_revenu
+
+```
+
+Une nouvelle fois, nous avons ajusté la tendance aux données (relation logarithmique). Plus le revenu moyen par personne augmente jusqu'à un certain seuil et plus l'espérance de vie va augmenter. On peut remarquer qu'un pays dispose d'une espérance de vie moyenne de 30 ans ! Il s'agit de l'Haïti.
+
+
+Ces quelques graphiques montre la disparité et l'importance même de trouver la meilleur stratégie possible pour aider les pays le plus équitablement.
+
+
+# **II) ACP**
+
+
+```{r,comment=" ",echo=FALSE,fig.width=15}
+## ACP
+acp <- PCA(data, graph = FALSE)
+
+# Choix du nombre de dimension/ choix des axes
+barplot(acp$eig[,2])# Dimension 1 à 4 ==> 87% de l'information
+
+# Graphique des variables
+plot(acp, choix = "var", axes=c(1,2),title="ACP sur les axes 1 et 2")
+plot(acp, choix = "var", axes=c(3,4),title="ACP sur les axes 3 et 4")
+
+# Graphique des individus
+plot(acp, choix="ind",title="graphique des individus") 
+
+```
+
+L'analyse en composante principale sera utilisée pour explorer la structure sous-jacente des données et de mettre encore un peu plus en évidence les relations entre les variables et individus.
+
+Axes 1 & 2 (axes principaux)
+
+Sur l'axe principale (axe 1) expliquant 45% de l'information, les variables fert et enfant_mort s'oppose aux variables santé, esper_vie, pib_h et revenu. Plus un pays sera corrélé positivement à l'axe 1 et plus il aura de meilleur condition de "bien-être".
+
+L'axe 2 quant à lui met en avant les importations et exportations de biens et services par habitant. Montre la dépendance du pays au marché mondial.
+
+Les variables les moins bien représentées sont santé et inflation. Leurs interprétations sera sûrement plus intéressante sur d'autres axes de l'ACP.
+
+**Axes 3 & 4**
+Dans cette dimension la variable sante est bien mieux représenté et porte l'axe 3 à gauche. Ainsi plus un pays se situe en haut à gauche et plus les dépenses totales de santé par habitant seront élevés.
+
+**Graphique des individus**
+En connaissance du monde économique, on remarque que sur la gauche, il y a des pays que nous qualifieront de "pauvre" issu du continent africain et sur la droite des pays émergent et plus développé. 
+Beaucoup de pays du continent africain à gauche du graphique.
+
+L'axe 2 met en lumière des pays important et exportant beaucoup tels que le Luxembourg ou encore Singapour qui très connu pour son économie ouverte.
+
+
+# **III) Cartographie**
+
+Ci-dessous nous avons représenter une carte mettant en évidence l'espérance de vie pour chacun des pays.
+
+```{r,comment=" ",include=FALSE}
+
+### Table pour la carte
+
+#### Geometry & code des pays
+ne_countries <- ne_countries(scale = "medium", returnclass = "sf")
+
+#### Conservation des colonnes noms de pays et leurs countries_code
+code_countries <- ne_countries |>
+  select("sovereignt","iso_a3")
+
+
+code_countries <- as.data.frame(code_countries) # transformation en data frame
+colnames(code_countries)[1] <- "pays"
+code_countries
+
+```
+
+
+```{r,comment=" ",include=FALSE}
+### Nettoyage & Jointure (avec ne_countries ==> package countrycode )
+#nrow(data2)
+# Notre table final devra avoir 167 après la jointure.
+
+##### Correction des noms pour la jointure
+pays <- setdiff(data2$pays, code_countries$pays) # 15 pays non correspondant
+
+##### Correction
+data2$pays <- gsub("Bahamas", "The Bahamas", data2$pays)
+data2$pays <- gsub("Congo Dem. Rep.", "Democratic Republic of the Congo", data2$pays)
+data2$pays <- gsub("Congo Rep.", "Republic of Congo", data2$pays)
+data2$pays <- gsub("Cote d'Ivoire", "Ivory Coast", data2$pays)
+data2$pays <- gsub("Guinea-Bissau", "Guinea Bissau", data2$pays)
+data2$pays <- gsub("Kyrgyz Republic", "Kyrgyzstan", data2$pays)
+data2$pays <- gsub("Lao", "Laos", data2$pays)
+data2$pays <- gsub("Macedonia FYR", "Macedonia", data2$pays)
+data2$pays <- gsub("Micronesia Fed. Sts.", "Federated States of Micronesia", data2$pays)
+data2$pays <- gsub("Serbia", "Republic of Serbia", data2$pays)
+data2$pays <- gsub("Slovak Republic", "Slovakia", data2$pays)
+data2$pays <- gsub("St. Vincent and the Grenadines", "Saint Vincent and the Grenadines", data2$pays)
+data2$pays <- gsub("Tanzania","United Republic of Tanzania", data2$pays)
+data2$pays <- gsub("Timor-Leste", "East Timor", data2$pays)
+data2$pays <- gsub("United States", "United States of America", data2$pays)
+
+
+##### Jointure
+nationalite <- left_join(data2,code_countries,by = "pays")
+#nrow(nationalite) # Problème de doublons
+
+##### PB de doublon
+liste_doublon <- rownames(as.data.frame(which(table(nationalite$pays) != 1))) # 10 pays à traiter
+
+table_doublon <- subset(nationalite, pays %in% liste_doublon) # table des pays avec doublons (extractions)
+
+
+doublon_traite <- subset(table_doublon, (pays == "France" & iso_a3 == "FRA")| (pays == "Australia" & iso_a3 == "AUS")|(pays == "China" & iso_a3 == "CHN")|(pays == "Denmark" & iso_a3 == "DNK")|(pays == "Finland" & iso_a3 == "FIN")|(pays == "Israel" & iso_a3 == "ISR")|(pays == "Netherlands" & iso_a3 == "NLD")|(pays == "New Zealand" & iso_a3 == "NZL")|(pays == "United Kingdom" & iso_a3 == "GBR")|(pays == "United States of America" & iso_a3 == "USA"))
+
+
+nationalite_sd <- nationalite |>
+  filter(!pays %in% liste_doublon) # table nationalité auquel on a enlever les doublons
+
+data_pays <- arrange(rbind(nationalite_sd,doublon_traite),pays)
+
+# Au format sf pour la carte
+data_pays <- st_as_sf(data_pays)
+#class(data_pays)
+
+
+```
+
+
+
+```{r,comment=" ",echo=FALSE,warning=FALSE}
+#######Affichage carte
+
+pal <- colorBin("YlOrRd", domain = data_pays$esper_vie,bins = c(30, 40, 50, 60, 70, 80, 90,100))
+
+map <- leaflet(data_pays) |>
+  addTiles() |>
+  addPolygons(fillColor = ~ pal(esper_vie),
+              fillOpacity = 0.8,
+              color = "black",
+              weight = 1,
+              popup = ~paste("<strong>esper_vie:</strong> ", data_pays$iso_a3, "<br>", "<strong>EDV:</strong> ", data_pays$esper_vie)) |>
+  addLegend(pal = colorNumeric("YlOrRd", data_pays$esper_vie), values = data_pays$esper_vie, position = "bottomright", title = "Espérance de vie dans le monde")
+
+map
+
+
+```
+
+
+Plus l'espérance de vie des individus d'un pays est élevée, plus ce pays est foncé sur la carte. On note pour cette variable que ce sont en général les pays subsahariens et d'Asie centrale qui ont une espérance de vie moyenne la plus petite. 
+Nous verrons par la suite avec des méthodes de classifications adéquat si nos hypothèses se révèlent vraies.
+
+
+# **IV) Classification à l'aide de plusieurs méthodes**
+
+Afin de déterminer les meilleurs partitions pour regrouper nos pays, nous savons que la partition obtenue par CAH n'est pas nécessairement optimale et que la méthode des K-means dispose de deux inconvénients majeurs à savoir le choix du nombre de classes et que la partition dépend de l'initialisation.
+En connaissance de ces éléments, nous utiliserons une partition obtenue par CAH comme initialisation de l'algorithme de K-means dans un but de consolidation (classification conjointe). La CAH assurera la stabilité des classes trouvées.
+Cela devrait améliorer la partition finale obtenue car à chaque itération l'inertie intra diminuera.
+
+
+### **CAH**
+
+| La Classification Ascendante Hiérarchique (CAH) est une méthode de classification non supervisée qui vise à regrouper des individus en fonction de leur similarité. L’objectif de la CAH est de construire une hiérarchie de groupes emboîtés, en regroupant progressivement les individus les plus proches jusqu’à obtenir un seul groupe contenant tous les individus. La CAH permet ainsi de découvrir des structures sous-jacentes dans les données, en identifiant des groupes d’individus similaires qui peuvent ensuite être utilisés pour effectuer d’autres analyses ou prises de décisions.
+
+| Il existe différentes approches pour la classification ascendante hiérarchique: la stratégie du saut minimale, du saut maximale ou encore de la distance de Ward. Nous testerons les 3 et retiendrons la meilleure.
+
+
+```{r,comment=" ",include=FALSE}
+#### Matrice de distance
+matrice_dist <- dist(data2[,2:ncol(data2)])
+matrice_dist
+```
+
+
+#### **Choix de la stratégie à utiliser**
+
+**Dendogramme avec la methode du saut minimal**
+
+```{r,comment=" ",echo=FALSE,warning=FALSE}
+#### Saut minimale
+CAH_smin <- hclust(matrice_dist, method="single")
+plot(CAH_smin,hang=-1)
+```
+
+
+**Dendogramme avec la methode du saut maximal**
+
+```{r,comment=" ",echo=FALSE,warning=FALSE}
+#### Saut maximale
+CAH_smax <- hclust(matrice_dist, method="complete")
+plot(CAH_smax,hang=-1,title="Dendogramme avec la methode du saut maximal")
+```
+
+
+**Dendogramme avec la methode de WARD**
+
+```{r,comment=" ",echo=FALSE,warning=FALSE}
+#### Ward
+CAH_sward <- hclust(matrice_dist, method="ward.D")
+plot(CAH_sward,hang=-1,title="Dendogramme avec la methode de Ward")
+```
+
+| Le choix entre l’algorithme de Ward, le saut minimal et le saut maximale dépend très souvent des caractéristiques des données et des objectifs de l’analyse finale.
+
+| L’algorithme de Ward peut être préférable lorsque l’objectif est de trouver des clusters compacts et homogènes, avec une variance minimale à l’intérieur de chaque cluster. Cette méthode peut être plus appropriée pour des données avec des clusters sphériques ou globulaires, où chaque groupe est relativement éloigné des autres groupes. 
+
+| Le saut minimal est la distance minimum entre deux groupes qui est égale à la plus petite distance entre un élément de chaque groupe. Cette stratégie peut être préférable lorsque les clusters ont une structure allongée ou « en chaîne », ou lorsqu’il y a des valeurs aberrantes (outliers) qui peuvent biaiser l’algorithme de Ward.
+
+| Le saut maximale est la plus grande distance entre un individu du premier groupe et un individu du second groupe. La méthode est particulièrement utile lorsque les données contiennent des valeurs aberrantes ou des observations qui ont des variances très différentes des autres observations.
+
+| De par ces critères et les dendogrammes obtenues, nous choisirons la distance de Ward comme distance pour la CAH car il évite l'effet de chaine regroupant les individus de proches en proches (saut minimale et saut maximale) .
+
+| En outre, le Dendogramme de la distance de Ward est beaucoup mieux car il partitionne mieux.
+
+
+#### **Evolution de l'inertie**
+```{r,comment=" ",echo=FALSE}
+par(mfrow=c(1,3))
+plot(rev(CAH_sward$height),type = "b",ylab = "Inertie intra",xlab = "Nombre de classes Saut minimale")
+
+plot(rev(CAH_sward$height),type = "b",ylab = "Inertie intra",xlab = "Nombre de classes Saut maximale")
+
+plot(rev(CAH_sward$height),type = "b",ylab = "Inertie intra",xlab = "Nombre de classes Ward")
+```
+
+
+Le tracé de la perte d'inertie nous incite à choisir une partition en 3 (ou 4) groupes pour les trois graphiques d'évolution d'inerties. Nous en choisirons 3 pour l'étude.
+
+
+#### **Methode des centres mobiles**
+
+```{r,comment=" ",include=FALSE}
+#### Obtentions des centres de gravité de la CAH
+
+# Fonction pour récupérer Gk (centre gravité intra-classe)
+cah_centers <- function(jeu, k) {
+  # Effectuer la CAH
+  mat_dist <- dist(jeu)
+  hc <- hclust(mat_dist, method = "ward.D2")
+  
+  # Obtentions classes en fonction de k
+  cl <- cutree(hc, k)
+  
+  # Calculer le centre de gravité de chaque classe
+  centers <- aggregate(jeu, by=list(cl), FUN=mean)[,-1]
+  
+  return(centers)
+}
+
+cg <- cah_centers(data,3) # vecteur des centres de gravité
+#class(cg)
+```
+
+
+
+```{r,comment=" ",echo=FALSE}
+## Méthode des centres mobiles (K-Means)
+pays_kmeans <- kmeans(data,cg)
+#pays_kmeans 
+
+```
+
+La variance inter-groupes de 79.2 est relativement élevée par rapport à la variance totale, ce qui peut indiquer une segmentation réussie. Représentation de nos 3 groupes sur un axe d'ACP.
+
+```{r,comment=" ",echo=FALSE}
+# Exécuter une ACP sur vos données
+res.acp <- princomp(data, cor = TRUE)
+
+# Utiliser la fonction fviz_cluster pour représenter vos groupes sur un axe de l'ACP
+fviz_cluster(pays_kmeans, geom = "point", data = res.acp$score[,1:2])
+
+```
+
+
+```{r,comment=" ",echo=FALSE, fig.width=10}
+res.PCA<-PCA(data,ncp=8,graph=FALSE)
+res.HCPC<-HCPC(res.PCA,nb.clust=3,consol=TRUE,graph=FALSE)
+plot.HCPC(res.HCPC,choice='map',draw.tree=FALSE,title='Plan factoriel')
+
+```
+
+
+Nous obtenons un premier partionnement pour nos 167 pays.
+
+```{r,comment=" ",echo=FALSE}
+# Pays les plus "pauvres"
+groupe_1 <- data[pays_kmeans$cluster == 1, ]
+# Pays "moyens"
+groupe_2 <- data[pays_kmeans$cluster == 2, ]
+# Pays les plus "riches"
+groupe_3 <- data[pays_kmeans$cluster == 3, ]
+
+paste("Nous trouvons ",nrow(groupe_1)," pays pauvres. Ces pays sont: ")
+paste(row.names(groupe_1),collapse =" ; ")
+
+paste("Ensuite, nous trouvons ",nrow(groupe_2)," pays moyens. Ces pays sont: ")
+paste(row.names(groupe_2),collapse =" ; ")
+
+paste("Finalement, nous trouvons ",nrow(groupe_3)," pays riches. Ces pays sont: ")
+paste(row.names(groupe_3),collapse =" ; ")
+
+```
+
+| Ces résultats semblent réalistes. Ce qui confirme que notre classification est bonne.
+
+| Notre objectif est de trouvé les pays les plus dans le besoin, c'est pourquoi nous nous intéresserons aux individus du cluster 1 (représenté en noir). Une nouvelle classification sera réalisé uniquement sur ces individus.
+
+| Prècedement nous avons consolider nos classes, cette fois-ci on va vouloir conserver la hiérarchisation appliqué par la CAH.
+
+| Pour trouver les pays à aider en priorité, nous procéderons a la classification du groupe des pays pauvres. Ce qui résulte aux graphes suivants: 
+
+```{r,comment=" ",echo=FALSE,fig.width=15}
+#PCAshiny(groupe_1)
+
+res_PCA<-PCA(groupe_1,ncp=8,graph=FALSE) # ncp = 8 on essaye de garder toute l'information
+
+res_HCPC<-HCPC(res_PCA,nb.clust=3,consol=FALSE,graph=FALSE)
+
+par(mfrow=c(1,2))
+plot.HCPC(res_HCPC,choice='tree',title='Arbre hiérarchique')
+plot.HCPC(res_HCPC,choice='map',draw.tree=FALSE,title='Plan factoriel')
+plot.HCPC(res_HCPC,choice='3D.map',ind.names=FALSE,centers.plot=FALSE,angle=60,title='Arbre hiérarchique sur le plan factoriel')
+
+
+#res_HCPC$data.clust
+
+```
+
+Le graphe du plan factoriel nous montre que les pays à aider en priorité sont ceux coloriés en noir. L'axe 1 de la nouvelle analyse en composante principale étant toujours déterminé par les facteurs variables fert et enfant_mort s'opposant aux variables esper_vie, pib_h et revenu alors les individus le groupe d'individu le plus à gauche peut être considérer comme le plus "pauvre".
+
+```{r,comment=" ",echo=FALSE}
+vecteur <- res_HCPC$data.clust$clust==1
+#sum(vecteur==TRUE) # nombre de pays à aider prioritairement
+pays_prioritaires <- res_HCPC$data.clust |>
+  filter(clust==1)
+
+paste("le nombre de pays a aider en priorite est: ",nrow(pays_prioritaires))
+paste("ces pays sont:")
+paste(row.names(pays_prioritaires),collapse =" ; ")
+
+```
+
+
+
+# **V) Résultats de l'étude**
+
+| Nous sommes parvenu à classer les pays en 3 groupes (allant des plus pauvres aux plus riches). Par conséquent, nous proposerons une méthode pour le calcul des allocations que l'ONG pourrait faire pour chaque pays. Une idée simple serait de d'attribuer exactement la même somme à tous les pays, ainsi chacun se verrait recevoir environ 59.880$ (10 000 000/167). Cependant, le but du directeur est d'aider non de manière égale mais équitable. 
+C'est pourquoi nous avons songer à utiliser la transformations d'attribut ordinale (groupe d'individus) qui seront considérés comme quantitatif en veillant à respecter les ordres.
+
+| Les résultats de nos calculs sont les suivants:
+
+```{r,comment=" ",echo=FALSE}
+
+groupe_2 <- data[pays_kmeans$cluster == 2, ]
+groupe_3 <- data[pays_kmeans$cluster == 3, ]
+
+groupes <- c("groupe_1","groupe_2","groupe_3")
+nbre_pays <- c(nrow(groupe_1),nrow(groupe_2),nrow(groupe_3))
+
+somme_a_allouer <- 10000000 # les 10000000$ à allouer aux pays
+
+proportion1 <- nrow(groupe_1)/nrow(data2)
+proportion2 <- nrow(groupe_2)/nrow(data2)
+proportion3 <- nrow(groupe_3)/nrow(data2)
+proportions <- c(proportion1,proportion2,proportion3)
+
+ordre1 <- 1
+ordre2 <- 2
+ordre3 <- 3
+ordres <- c(ordre1,ordre2,ordre3)
+
+valeur_ordre1 <- (ordre3-0.5)/(3) # car on se base sur la priorite. Donc la valeur d'ordre 1 signifie la plus grande priorite
+valeur_ordre2 <- (ordre2-0.5)/(3)
+valeur_ordre3 <- (ordre1-0.5)/(3)
+valeur_ordres <- c(valeur_ordre1,valeur_ordre2,valeur_ordre3)
+
+allocation_de_classe <- somme_a_allouer*(valeur_ordres+proportions)/2.5
+allocation_de_chaque_pays <- allocation_de_classe/nbre_pays
+
+
+resume <- data.frame(groupes,nbre_pays,proportions,ordres,valeur_ordres,allocation_de_classe,allocation_de_chaque_pays)
+resume
+#sum(resume$allocation_de_classe) #pour verifier que la somme donne 10000000
+
+
+```
+
+
+
+| De ce fait, nous pensons que l'ONG devrait allouer un montant de 6 041 251 dollars au groupe des pays pauvres. Ce qui résultera a une allocation de 55 424.32 dollars en moyenne pour chaque pays du groupe. 
+| Puis, il allouera un montant de 2 714 571 dollars au groupe des pays moyens. Ce qui résultera a une allocation de 77 559.17 dollars en moyenne pour chaque pays du groupe.
+| Enfin, un montant de 2 714 571 dollars sera alloué au groupe des pays riches. Ce qui résultera a une allocation de 54 093.71 dollars en moyenne pour chaque pays du groupe.
+| Nous remarquons que l'allocation moyenne du groupe des pays moyens est supérieur a celle des pays pauvre. En effet cette supériorité est normale. Elle est due au grand nombre de pays qui se trouvent dans le groupe des pays pauvres.
+
+De ce fait, nous proposons l'allocution suivante au directeur avec une division de la classe des pays pauvre comme il l'a été fait avec la classification:
+
+
+```{r,comment=" ",echo=FALSE}
+# Transformation du groupe 2 initiale en groupe 4
+groupe4 <- groupe_2
+groupe4$clust <- "4"
+
+# Transformation du groupe 3 initiale en groupe 5
+groupe5 <- groupe_3
+groupe5$clust <- "5"
+
+base1 <- rbind(groupe4,groupe5)
+base2 <- rbind(res_HCPC$data.clust,base1)
+
+somme_a_allouer <- 10000000 # les 10000000$ à allouer aux pays
+
+cluster1 <- base2[base2$clust==1,]
+cluster2 <- base2[base2$clust==2,]
+cluster3 <- base2[base2$clust==3,]
+cluster4 <- base2[base2$clust==4,]
+cluster5 <- base2[base2$clust==5,]
+nombre_pays <- c(nrow(cluster1),nrow(cluster2),nrow(cluster3),nrow(cluster4),nrow(cluster5))
+
+les_groupes <- c("1","2","3","4","5")
+
+proportion_1 <- nrow(cluster1)/nrow(base2)
+proportion_2 <- nrow(cluster2)/nrow(base2)
+proportion_3 <- nrow(cluster3)/nrow(base2)
+proportion_4 <- nrow(cluster4)/nrow(base2)
+proportion_5 <- nrow(cluster5)/nrow(base2)
+les_proportions <- c(proportion_1,proportion_2,proportion_3,proportion_4,proportion_5)
+
+
+ordre1 <- 1
+ordre2 <- 2
+ordre3 <- 3
+ordre4 <- 4
+ordre5 <- 5
+les_ordres <- c(ordre1,ordre2,ordre3, ordre4, ordre5)
+
+
+valeur_ordre1 <- (ordre3-0.5)/(3) # car on se base sur la priorite. Donc la valeur d'ordre 1 signifie la plus grande priorite
+valeur_ordre2 <- (ordre2-0.5)/(3)
+valeur_ordre3 <- (ordre1-0.5)/(3)
+v_ordre1 <- (ordre5-0.5)/(5)
+v_ordre2 <- (ordre4-0.5)/(5)
+v_ordre3 <- (ordre3-0.5)/(5)
+v_ordre4 <- (ordre2-0.5)/(5)
+v_ordre5 <- (ordre1-0.5)/(5)
+valeur_des_ordres <- c(v_ordre1,v_ordre2,v_ordre3,v_ordre4,v_ordre5)
+
+allocation_de_classe2 <- somme_a_allouer*(valeur_des_ordres+les_proportions)/3.5
+allocation_de_chaque_pays2 <- allocation_de_classe2/nombre_pays
+
+
+resume2 <- data.frame(les_groupes,nombre_pays,les_proportions,les_ordres,valeur_des_ordres,allocation_de_classe2,allocation_de_chaque_pays2)
+resume2
+#sum(resume2$allocation_de_classe2) #pour verifier que la somme est bien 10000000
+```
+
+• Ainsi, le groupe 1 est le groupe des pays à prioritaire des 34 pays. Chacun de ses pays se verra allouer la somme de 92738.89
+• Ainsi, le groupe 2 est le groupe 2 de la seconde classification(parmi les 109 pays pauvres). Chacun de ses pays se verra allouer la somme de 74251.50
+• Ainsi, le groupe 3 est le groupe 3 de la seconde classification(parmi les 109 pays pauvres). Chacun de ses pays se verra allouer la somme de 52822.93
+• Ainsi, le groupe 4 est le groupe 2 de la classification initiale. Chacun de ses pays se verra allouer la somme de 41598.44
+• Ainsi, le groupe 5 est le groupe 3 de la classification initiale. Chacun de ses pays se verra allouer la somme de 29531.00
+
+# Carte finale des allocutions
+```{r,comment=" ",echo=FALSE,warning=FALSE}
+
+pays <- row.names(base2)
+base2 <- cbind(base2,pays)
+base2$allocation <- ifelse(base2$clust=="1",92738.89,
+                           ifelse(base2$clust=="2",74251.50,
+                                  ifelse(base2$clust=="3",52822.93,
+                                         ifelse(base2$clust=="4",41598.44,29531.00))))
+base_allocation <- base2[,c(11,12)]
+data_pays2 <- merge(data_pays,base_allocation, by = "pays")
+
+
+
+pal2 <- colorBin("YlOrRd", domain = data_pays2$allocation,bins = c(0,20000, 40000, 60000, 80000,100000))
+
+map2 <- leaflet(data_pays2) |>
+  addTiles() |>
+  addPolygons(fillColor = ~ pal2(allocation),
+              fillOpacity = 0.8,
+              color = "black",
+              weight = 1,
+              popup = ~paste("<strong>esper_vie:</strong> ", data_pays2$iso_a3, "<br>", "<strong>EDV:</strong> ", data_pays2$allocation)) |>
+  addLegend(pal = colorNumeric("YlOrRd", data_pays2$allocation), values = data_pays2$allocation, position = "bottomright", title = "Montant des allocutions selon les pays.")
+
+map2
+
+```
+
+
+
+# **Conclusion**
+
+* Nous avons classifié les pays en 3 groupes(pays pauvres, pays moyens et pays riches) principalement, et avons appronfondie l'étude sur les pays les plus pauvres
+* Pour se faire, nous avons opté pour une classification conjointe en choisissant la Classification Ascendante Hiérarchique mélangé avec la méthode des Kmeans.
+* Par conséquent, nous sommes parvenus à trouver les pays à aider en priorité. Ils sont au nombre de 34.
+* Finalement, nous avons conclu que ce groupe de pays devrait recevoir une allocation 3153122 dollars. Ce qui fera une allocation moyenne de 92738.89 dollars par pays.
+
+En fin de compte, il est souvent utile d’essayer plusieurs méthodes d’agrégation pour déterminer la meilleure approche pour l’analyse de cluster spécifique.
+
+Piste d'amélioration:
+
+| • Ajouter des critères de sélection. Ex: niveau d'éducation, taux urbanisation. D'autres variables offriront une image plus complète de la situation des pays
+
+| • Utiliser d'autres algorithmes pour fiabilisé les résultats et potentiellement trouver des résultats meilleurs.
+
+| • Créer un algorithme pouvant prédire la valeur d'allocation pour un pays en fonction de ses critères de sélections. Il faudra bien entendu vérifier la robustesse du modèle.
+
+
+
+
+

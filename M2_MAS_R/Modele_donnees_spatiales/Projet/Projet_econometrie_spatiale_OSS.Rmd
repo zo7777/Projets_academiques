@@ -1,0 +1,936 @@
+---
+title: "Projet d'econometrie spatiale"
+author: "20217765: Omar Saip SY"
+date: "2024-04-03"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = F)
+knitr::opts_chunk$set(comment = "")
+knitr::opts_chunk$set(warning = F)
+knitr::opts_chunk$set(message = F)
+```
+
+
+# **SOMMAIRE**
+
+* **Introduction**
+* **I) Jeu de données**
+* **II) Statistiques descriptives univariées**
+* **III) Statistiques descriptives bivariées**
+* **IV) Matrice de poids spatiales**
+* **V) Analyse de l’autocorrélation spatiale**
+* **VI) Estimation des modèles**
+* **VII) Choix du modèle**
+* **Conclusion**
+
+
+
+
+# **Introduction**
+
+L'économétrie spatiale permet de comprendre les relations entre les variables économiques et sociales à travers un espace géographique. 
+
+Pour arriver à cette compréhension, nous avons décidé d'étudier quelles variables influencent la production d'électricité dans le monde pour l'année 2015. 
+
+Notre analyse se concentre sur un ensemble de variables socio-économiques et démographiques, telles que la densité de population, le pourcentage de militaires par rapport à la population active, le PIB/hab, etc. 
+
+Nous utiliserons des techniques d'économétrie spatiale pour explorer les relations spatiales et comprendre les dynamiques des différents pays du monde.
+
+
+
+
+```{r, include=FALSE}
+library(openxlsx)
+library(tidyverse)
+library(sf)
+library(magrittr)
+library(RColorBrewer)
+library(hrbrthemes)
+library(vtable)
+library(spdep)
+library(tmap)
+library(stringr)
+library(viridis)
+library(lattice)
+library(raster)
+library(orcutt)
+library(cowplot)
+library(corrgram)
+library(corrplot)
+library(stargazer)
+library(estimatr)
+
+library(MASS)
+library(ISLR)
+library(pls)
+library(caret)
+library(glmnet)
+library(rAmCharts)
+library(car)
+library(AER)
+library(readxl)
+
+library(spatialreg)
+library(GGally)
+
+```
+
+
+# **I) Jeu de données**
+
+```{r}
+data <- read_excel("path/Database.xlsx",sheet = 'Data_treated')
+head(data)
+```
+
+Ci-dessus, nous pouvons voir les premières lignes de la base de données. Notre jeu de données est composé de 16 colonnes pour 135 individus correspondant aux différents pays du monde. Parmi les 16 colonnes, nous en avons 3 qui représentent le nom du pays, le code du pays et l'année 2015. 
+Nous avons, parmi les 13 colonnes restantes : 
+
+• **Electricity_production** : cette variable représente le pourcentage d'électricité produite à partir d'énergies fossiles, de gaz naturel et/ou de charbon par rapport à l'électricité produite totale (en %) (électricité produite à partir de EF, GN et/ou C).
+
+• **Access_to_electricity** : elle représente le pourcentage de la population ayant accès à l'électricité (en %).
+
+• **Adolescent_fertility_rate** : cela représente le nombre de naissances pour 1000 femmes âgées de 15 à 19 ans (en pour mille).
+
+• **Agricultural_land** : elle représente le pourcentage de la superficie du pays réservé à l'agriculture (en %).
+
+• **Alternative_and_nuclear_energy** : c'est le pourcentage d'énergie verte utilisée dans la consommation totale du pays (en %).
+
+• **Armed_forces_personnel** : c'est le pourcentage du personnel de l'armée parmi la population active (en %).
+
+• **CO2_emissions** : représente les émissions de CO2 par habitant (en tonnes/hab).
+
+• **GDP_per_capita** : représente le PIB par habitant (en $/hab).
+
+• **High_technology_exports** : représente le pourcentage de matériaux high-tech exportés parmi les produits manufacturés du pays (en %).
+
+• **Population_15_64** : représente le pourcentage de la population active (en %).
+
+• **Population_density** : représente la densité de la population (en hab/km²).
+
+• **Research_and_development_expenditure** : représente le pourcentage du PIB dédié à la Recherche et au Développement (R&D) (en %).
+
+• **Trade** : représente le pourcentage du PIB dédié aux échanges (imports et exports) entre nations (en %).
+
+Cependant, les données nécessitent un traitement pour pouvoir les analyser plus tard.
+
+**Traitement de données**
+
+```{r,collapse=FALSE,echo=TRUE}
+data$Electricity_production <- na.fill(data$Electricity_production,0)
+data$Agricultural_land <- na.fill(data$Agricultural_land,20)
+data[["Alternative_and_nuclear_energy"]] <- na.fill(data[["Alternative_and_nuclear_energy"]],0)
+data <- data[which( !(is.na(data$GDP_per_capita)) ),]
+data$High_technology_exports <- na.fill(data$High_technology_exports,0)
+data$Research_and_development_expenditure <- na.fill(data$Research_and_development_expenditure,0)
+
+data$Access_to_electricity <- na.locf(data$Access_to_electricity)
+data$Armed_forces_personnel <- na.locf(data$Armed_forces_personnel)
+data[["Trade"]] <- na.locf(data[["Trade"]])
+
+```
+
+Nous nous sommes focalisés sur le traitement de données manquantes. Comme vu ci-dessus, nous avons traité certaines données manquantes en les remplissant par une valeur fixe (arbitraire) car : cela ne concerne que 2 ou 3 pays, ou la donnée manquante pouvait être remplacée par 0.
+
+L'autre moyen de traitement est par répétition de la dernière valeur non nulle.
+
+**Jointure entre la carte et nos données**
+
+
+```{r}
+# Importation de la carte
+data("World")
+#World
+World <- st_as_sf(World)
+data_spatiale <- merge(World, data, by.x="iso_a3",by.y="Country_Code")
+
+#data_spatiale <- data_spatiale[(!data_spatiale$iso_a3 in c("CHE","NER","SYR","TZA","<NA>")), ]
+
+```
+
+Afin d'avoir des données spatiales, il nous fallait joindre notre jeu de données à une base géographique. Nous l'avons joint avec la base "World" disponible sur RStudio.
+
+**Résumé des données**
+
+```{r}
+st(data)
+```
+
+
+On peut noter que notre jeu de données ne contient pas de valeurs manquantes. Afin de mieux percevoir les distributions des variables, nous emploierons des boxplots et une cartographie pour la variable endogène.
+
+# **II) Statistiques descriptives univariées**
+
+**Cartographie du pourcentage d'électricité produite à partir EF, GN et/ou C**
+
+```{r}
+ggplot() +
+  geom_sf(data = data_spatiale, aes(fill = Electricity_production)) +
+  scale_fill_gradient(name = "% Electricite produite", low = "lightblue", high = "darkred") +
+  theme_minimal() +
+  labs(title = "Pourcentage d'electricite produite a partir EF, GN et/ou C en 2015")
+
+```
+
+On remarque que la production d'électricité à partir d'énergies fossiles, de gaz naturel et/ou de charbon est plutôt importante en Afrique du Nord, en Afrique du Sud et dans la péninsule Arabique. De manière générale, elle semble plus élevée pour les pays en voie de développement.
+
+```{r}
+par(mfrow=c(1,3),cex.main=0.7)
+boxplot(data$Electricity_production,  main ="Production Elec" ,col = c( "blue") )
+boxplot(data$Access_to_electricity, main ="Acces elec" ,col = c( "blue") )
+boxplot(data$Alternative_and_nuclear_energy,main ="Energie verte" ,col = c( "blue") )
+```
+
+La distribution des variables sur les pays est hétérogène, surtout en ce qui concerne l'accès à l'électricité et l'utilisation d'énergie verte.
+
+```{r}
+par(mfrow=c(1,3),cex.main=0.7)
+boxplot(data$Population_density,  main ="Densite de la population" ,col = c( "blue") )
+boxplot(data$Population_15_64, main ="% de population active" ,col = c( "blue") )
+boxplot(data$Adolescent_fertility_rate,main ="Taux de fertilite (/1000)" ,col = c( "blue") )
+```
+
+La distribution des variables sur les pays est également hétérogène, surtout en ce qui concerne la densité de la population et le pourcentage de la population âgée entre 15 et 64 ans
+
+```{r,fig.width=10}
+par(mfrow=c(2,3),cex.main=0.7)
+boxplot(data$CO2_emissions,  main ="Emissions de CO2" ,col = c( "blue") )
+boxplot(data$GDP_per_capita, main ="PIB/hbts" ,col = c( "blue") )
+boxplot(data$Armed_forces_personnel,main ="Armee" ,col = c( "blue"))
+boxplot(data$High_technology_exports,main ="Export tech" ,col = c( "blue"))
+boxplot(data$Research_and_development_expenditure,main ="Recherche et Dev" ,col = c( "blue"))
+boxplot(data$Trade,main ="Echange" ,col = c( "blue"))
+```
+
+On observe quelques valeurs atypiques sur les boxplots, cependant, les variables mettent en évidence les différences entre les pays.
+
+# **III) Statistiques descriptives bivariées**
+
+**Matrice de Corrélation**
+
+```{r,fig.height=7,fig.width=10}
+# Corrélogramme 
+ggcorr(data[4:16], method = c("everything", "pearson"),high = "#F21A00",mid = "#EEEEEE",low = "#3B9AB2", hjust=0.8, nbreaks = 8, label = TRUE, label_round = 1)
+```
+
+On observe que la variable GDP_per_capita est très fortement corrélée avec les variables CO2_emissions, Alternative_nuclear_energy et Research_and_development_expenditure; ce qui est normal car plus un pays est riche, plus il utilise de l'énergie verte et dépense dans la R&D.
+
+On voit aussi que la fécondité des jeunes filles (âgées de 15 à 19 ans) est synonyme de non accès à l'électricité ; En effet, ces 2 variables sont négativement corrélées.
+
+On ne peut pas déduire grand-chose sur la production d'électricité à partir de EF, GN et/ou C grâce à cette matrice. Ce qui est évident vu qu'aucune variable n'est fortement corrélée à la production d'électricité, que ce soit positivement ou négativement.
+
+À ce stade, nous n'avons pas de résultats concluants qui nous permettraient de choisir des variables de contrôle. De ce fait, nous les prendrons toutes puis enlèverons celles non significatives.
+
+# **IV) Matrice de poids spatiaux**
+
+## **Matrice de continuité**
+
+**Visualisation des centroïdes de chaque pays**
+
+```{r}
+tm_shape(data_spatiale)+tm_polygons(col="white", border.col = "grey25")+
+ tm_layout(frame = FALSE,bg.color="white")+
+  tm_shape(st_centroid(data_spatiale))+tm_dots(size =0.2,col="red")+
+  tm_layout(title ="Centroids",title.position = c('left', 'top'))
+
+```
+
+```{r}
+coord <-st_centroid(st_geometry(data_spatiale))
+data_spatiale.nb <- poly2nb(data_spatiale,queen = TRUE)
+summary(data_spatiale.nb)
+```
+
+Nous retrouvons 131 pays sur nos 135 initiaux, avec un total de 428 liens non nuls entre eux. Cela représente environ 2.49 % de poids non nuls, indiquant une connectivité modérée entre les pays.
+
+En moyenne, chaque pays est relié à environ 3.27 autres pays.
+
+On note l'existence de 16 sous-graphes connectés suggérant la présence de 16 groupes distincts.
+
+```{r}
+## Suppression des pays sans lien
+
+cardinality <- card(data_spatiale.nb)
+
+isolated_features <- which(cardinality == 0)
+isolated_regions <- rownames(data_spatiale)[isolated_features]
+
+
+
+data_spatiale <- data_spatiale[!(rownames(data_spatiale) %in% isolated_regions), ]
+coord <-st_centroid(st_geometry(data_spatiale))
+data_spatiale.nb <- poly2nb(data_spatiale,queen=T)
+```
+
+
+**Représentation des liens entre ces pays sur la carte (contiguité)**
+
+```{r}
+tmap_mode("plot") 
+tm_shape(World)+tm_polygons(col="white", border.col = "grey25")+
+tm_graticules(lines = FALSE)+
+  tm_shape(st_centroid(data_spatiale))+tm_dots(size = .4,col="red")+
+  tm_shape(nb2lines(data_spatiale.nb, coords=coord))+tm_lines(col="black", lwd=0.3)+
+  tm_layout(title ="Voisins contigus (Queen)",title.position = c('left', 'top'),scale=0.5)
+```
+
+
+
+La distance géographique du nord du Canada par rapport aux autres pays pourrait se traduire par une connectivité spatiale plus faible dans l'analyse des voisins.
+
+En effet, sa position est isolee du reste du monde.
+
+
+## **Matrice des plus proches voisins**
+
+Déterminons les plus proches voisins de chaque pays, nous avons choisi d'en sélectionner 5.
+
+```{r}
+mapPPV2.knn<-knearneigh(coord,k=5) 
+head(mapPPV2.knn$nn)
+
+```
+
+```{r}
+mapPPV2.nb<- knn2nb(mapPPV2.knn)
+PPV2.w<-nb2listw(mapPPV2.nb,style="W",zero.policy = T)
+```
+
+
+**Représentation des liens entre ces pays sur la carte (5 plus proches voisins)**
+
+```{r}
+tmap_mode("plot") 
+tm_shape(World)+tm_polygons(col="white", border.col = "grey25")+
+tm_graticules(lines = FALSE)+
+  tm_shape(st_centroid(data_spatiale))+tm_dots(size = .4,col="red")+
+  tm_shape(nb2lines(mapPPV2.nb, coords=coord))+tm_lines(col="black", lwd=0.3)+
+  tm_layout(title ="5 plus proches Voisins",title.position = c('left', 'top'),scale=0.5)
+
+```
+
+
+
+## **Matrice de poids sur la distance euclidienne**
+
+```{r}
+nb1 <- knn2nb(knearneigh(coord, k = 1))
+dsts <- unlist(nbdists(nb1, coord))
+summary(dsts)
+```
+
+
+```{r}
+nb2500km <- dnearneigh(x = st_centroid(data_spatiale), d1 = 0, d2 = 2500)
+nb2500km
+
+```
+
+Pour 2500km on peut voir que chaque point ne compte pas le même nombre de voisin. C'est assez variable.
+
+On note au total 2566 liens entre 119 pays. En moyenne chaque pays a 21.56 voisins.
+
+Le poids de ces liens est d'environ 18.12%.
+
+**Représentation des liens entre ces pays sur la carte (distance euclidienne)**
+
+```{r}
+tmap_mode("plot") 
+tm_shape(World)+tm_polygons(col="white", border.col = "grey25")+
+tm_graticules(lines = FALSE)+
+  tm_shape(st_centroid(data_spatiale))+tm_dots(size = .4,col="red")+
+  tm_shape(nb2lines(nb2500km, coords=coord))+tm_lines(col="black", lwd=0.3)+
+  tm_layout(title ="Voisins distance euclidienne (moins de 2500km)",title.position = c('left', 'top'),scale=0.5)
+```
+
+
+```{r}
+dists <- nbdists(nb2500km, coord)
+
+ids <- lapply(dists, function(x){1/x})
+nb2500km.ids.w <- nb2listw(nb2500km, glist = ids, style = "W",zero.policy = T)
+```
+
+Nous observons qu'il y a plus de liens pour la distance euclidienne (voisins de moins de 2500 km).
+
+De ce fait, nous continuerons avec la distance euclidienne dans la suite de notre étude.
+
+
+# **V) Analyse de l’autocorrélation spatiale**
+
+## **Création du spatial lag avec la matrice de continuité normalisée**
+
+```{r}
+x_prod_elec <- cbind(data_spatiale$Electricity_production)
+wx_prod_elec <- lag.listw(nb2500km.ids.w,x_prod_elec) #spatial lag
+```
+
+
+Comparaison sous forme de boxplot du pourcentage d'électricité produite à partir de EF, GN et/ou C et le spatial lag de cette variable.
+
+```{r}
+par(mfrow=c(1,2),cex.main=0.7)
+boxplot.matrix(x_prod_elec,main="% d'electricite produite")
+boxplot.matrix(wx_prod_elec,main="% d'electricite produite SP")
+```
+
+Le spatial lag représente la moyenne pondérée des valeurs de la variable (pourcentage d'électricité produite à partir de EF, GN et/ou C dans notre cas) dans les pays voisins, reflétant ainsi les interactions spatiales et l'influence de l'environnement géographique sur les valeurs de la variable.
+
+## **Indice de Moran (matrice de distance euclidienne)**
+
+```{r}
+lm_moran <- lm(wx_prod_elec~x_prod_elec)
+summary(lm_moran)
+```
+  
+La régression montre une relation positive entre la production d'électricité à partir de EF, GN et/ou C dans un pays et celle dans les pays voisins (le coefficient de x_prod_elec est très significatif dans le modèle).
+
+Le R² multiple est de 0.11, ce qui signifie que le modèle explique environ 11.12 % de la variabilité de la variable dépendante.
+
+La F-statistique est de 14.64 avec un p-value de 2.1e-04, ce qui indique que le modèle est statistiquement significatif.
+
+L'analyse montre alors que la production d'électricité à partir de EF, GN et/ou C d'un pays est très liée à celle des nations avoisinantes.
+
+
+```{r}
+morantest_prod_elecs_eucl <- moran.test(data_spatiale$Electricity_production,nb2500km.ids.w,randomisation=FALSE,alternative="two.sided")
+morantest_prod_elecs_eucl
+```
+
+La statistique de Moran I est de 3.611, ce qui implique une autocorrélation spatiale significative dans les données.
+
+De plus, la p-value de 3e-04 est inférieure au seuil de 0.05, ce qui confirme l'existence d'une autocorrélation spatiale de la production d'électricité à partir de EF, GN et/ou C entre les pays.
+
+```{r}
+moran.plot(x=data_spatiale$Electricity_production,nb2500km.ids.w,xlab="Pourcentage d'elec produite a partir de EF, GN et/ou C en 2015",ylab="spatial lag de la variable",labels=as.character(data_spatiale$iso_a3))
+```
+
+Dans la partie superieure droite du nuage de points de Moran, on remarque une autocorrélation spatiale positive pour la Russie (RUS). 
+
+```{r}
+morantest_prod_elecs_cont_cm <-moran.mc(data_spatiale$Electricity_production,nb2500km.ids.w,99,alternative="two.sided")
+
+morantest_prod_elecs_cont_cm
+```
+Dans le cadre de la simulation de Monte-Carlo de Moran I, la statistique observée est comparée à une distribution nulle obtenue par des itérations de simulations aléatoires sous l'hypothèse nulle d'absence d'autocorrélation spatiale.
+
+Avec un p-value < 2.2e-16, inférieur au seuil de significativite de 0.05, nous rejetons l'hypothèse nulle d'absence d'autocorrélation spatiale.
+
+Cela indique qu'il existe une autocorrélation spatiale significative dans les données de la production d'électricité à partir de EF, GN et/ou C.
+
+## **LISA(les indicateurs locaux d’autocorrélation spatiale)**
+
+**Données non centrées**
+
+```{r}
+locm <-localmoran(data_spatiale$Electricity_production, nb2500km.ids.w)
+#head(locm)
+```
+
+
+```{r}
+summary(locm)
+```
+
+**Données centrées**
+
+```{r}
+data_spatiale$Electricity_prod_centree <- data_spatiale$Electricity_production-mean(data_spatiale$Electricity_production)
+```
+
+
+```{r}
+locmc <-localmoran(data_spatiale$Electricity_prod_centree, nb2500km.ids.w)
+#head(locmc)
+```
+
+```{r}
+summary(locmc)
+```
+
+Les valeurs de "Ii" représentent les indices de Moran locaux pour chaque observation. Ils mesurent l'autocorrélation spatiale locale pour chaque pays.
+
+Une valeur positive indique une autocorrélation spatiale positive locale, ce qui signifie que les pays avec des pourcentages d'électricité produite à partir de EF, GN et/ou C similaires ont tendance à être proches.
+
+Tandis qu'une valeur négative indique une autocorrélation spatiale négative locale, indiquant un regroupement de valeurs opposées dans l'espace.
+
+Les colonnes "E.Ii" et "Var.Ii" représentent l'espérance et la variance de la distribution des indices de Moran locaux. La colonne "Z.Ii" présente les valeurs z-standardisées des indices de Moran locaux. Une valeur z élevée (positivement ou négativement) indique une forte autocorrélation spatiale locale.
+
+La colonne "Pr(z != E(Ii))" fournit les p-values associées à chaque indice de Moran local. Ils testent si les valeurs observées des indices de Moran locaux sont significativement différentes de leur espérance sous l'hypothèse nulle d'absence d'autocorrélation spatiale locale.
+
+
+## **Cartographie des indices locaux de Moran sur données centrées**
+
+```{r}
+moran.carte <- cbind(data_spatiale, locmc)
+tm_shape(moran.carte) +
+  tm_fill(col = "Ii",
+          style = "quantile",
+          title = "Indice local de Moran sur données centrées") 
+```
+
+Cette cartographie nous montre que :
+
+- Le pourcentage d'électricité produite à partir de EF, GN et/ou C, pour un pays, a une tendance inverse de celui des pays voisins en Amérique du Nord (Canada), Une partie de l'Amérique du Sud (sud-ouest), l'Afrique du sud, le Soudan;
+- Le pourcentage d'électricité produite à partir de EF, GN et/ou C, pour un pays, a la même tendance que celui des pays voisins en Europe, une partie de l'Amérique du Sud (nord, centre et nord-est), en Afrique centrale, le Maghreb, en Océanie et la péninsule Arabique et en Asie;
+- Le pourcentage d'électricité produite à partir de EF, GN et/ou C, pour un pays, ne dépend pas de celui des pays voisins aux États-Unis.
+
+```{r,include=FALSE}
+quadrant <- vector(mode="numeric",length=nrow(locm))
+var<- data_spatiale$Electricity_prod_centree
+local<-locm[,1]-mean(locm[,1])
+signif <- 0.1 
+
+quadrant[var <0 & local<0] <- 1      
+quadrant[var <0 & local>0] <- 2
+quadrant[var >0 & local<0] <- 3
+quadrant[var>0 & local>0] <- 4 
+quadrant[locm[,5]>signif] <- 0   
+
+table(quadrant)
+```
+
+```{r}
+brks <- c(0,1,2,3,4)
+colors <- c("white","blue",rgb(0,0,1,alpha=0.4),rgb(1,0,0,alpha=0.4),"red")
+plot(st_geometry(data_spatiale),border="lightgray",col=colors[findInterval(quadrant,brks,all.inside=FALSE)])
+box()
+legend("bottomleft", legend = c("insignificant","low-low","low-high","high-low","high-high"),
+       fill=colors,bty="n")
+```
+
+On centre les indices locaux par rapport à leur moyenne et on définit un niveau de significativité (ici = 10%).
+
+Par conséquent, sur cette cartographie, nous avons mis en place un système qui nous permet de filtrer les pays. En effet :
+
+- insignificant : représente les pays dont la p-value associée à l'indice de Moran est supérieure à 10%. On considère qu'il y a une absence d'autocorrélation spatiale.
+- low-low : ce sont les pays dont le pourcentage d'électricité produite à partir de EF, GN et/ou C est inférieur à la moyenne et idem pour l'indice de Moran. Ce sont les pays avec un pourcentage d'électricité produite faible et cette production d'électricité est inverse à celle des voisins.
+- low-high : ce sont les pays dont le pourcentage d'électricité produite à partir de EF, GN et/ou C est inférieur à la moyenne et l'indice de Moran est supérieur à la moyenne des indices de Moran. Ce sont les pays avec un pourcentage d'électricité produite faible et cette production d'électricité a la même tendance que celle des voisins.
+- high-low : ce sont les pays dont le pourcentage d'électricité produite à partir de EF, GN et/ou C est supérieur à la moyenne et l'indice de Moran est inférieur à la moyenne des indices de Moran. Ce sont les pays avec un pourcentage d'électricité produite élevé et cette production d'électricité est inverse à celle des voisins.
+- high-high : ce sont les pays dont le pourcentage d'électricité produite à partir de EF, GN et/ou C est supérieur à la moyenne et idem pour l'indice de Moran. Ce sont les pays avec un pourcentage d'électricité produite élevé et cette production d'électricité a la même tendance que celle des voisins.
+
+
+# **VI) Estimation des modèles**
+
+
+```{r}
+equation <- Electricity_production ~ Agricultural_land + Alternative_and_nuclear_energy + Armed_forces_personnel + CO2_emissions + GDP_per_capita + Population_density + Research_and_development_expenditure + Access_to_electricity + Adolescent_fertility_rate + Population_15_64 + Trade - 1
+```
+
+#### **OLS**
+
+OLS (Ordinary Least Squares) est une méthode de régression linéaire qui a une approche d'estimation des paramètres d'un modèle de régression linéaire en minimisant la somme des carrés des résidus.
+
+```{r}
+prod_elecs_OLS <- lm(equation, data = data_spatiale)
+
+summary(prod_elecs_OLS)
+```
+
+En analysant les résultats de ce modèle, nous remarquons qu'il y a beaucoup de variables non significatives.
+
+De ce fait, nous diminuerons les variables explicatives et ne garderons que celles avec les meilleures p-value.
+
+```{r}
+equation <- Electricity_production ~ Agricultural_land + Alternative_and_nuclear_energy + Armed_forces_personnel + CO2_emissions + GDP_per_capita + Population_density -1
+
+prod_elecs_OLS <- lm(equation, data = data_spatiale)
+
+data_spatiale$ols_res<-resid(prod_elecs_OLS)
+summary(prod_elecs_OLS)
+```
+
+Notre modèle ne contient dorénavant que des variables significatives au niveau 10%.
+
+- "Agricultural_land" : Le coefficient est de 0.61. Ce qui signifie que si le pourcentage de terre agricole augmente d'1% pour un pays, alors le pourcentage d'électricité produite à partir de EF, GN et/ou C augmente de 0.61%. C'est une relation positive.
+
+- "Alternative_and_nuclear_energy" : Le coefficient est de -0.64. Ce qui signifie que si le pourcentage d'énergie verte consommée augmente d'1% pour un pays, alors le pourcentage d'électricité produite à partir de EF, GN et/ou C diminue de 0.64%. C'est une relation négative.
+
+- "Armed_forces_personnel" : Le coefficient est de 10.58 Ce qui signifie que si le pourcentage de militaires dans la population active augmente d'1% pour un pays, alors le pourcentage d'électricité produite à partir de EF, GN et/ou C augmente de 10.58%. C'est une relation positive et forte.
+
+- "CO2_emissions" : Le coefficient est de 3.79. Ce qui signifie que si les émissions de CO2 augmentent d'1 tonne/hbts pour un pays, alors le pourcentage d'électricité produite à partir de EF, GN et/ou C augmente de 3.79%. C'est une relation positive.
+
+- "GDP_per_capita" : Le coefficient est de -0.0004. Ce qui signifie que si le PIB augmente d'1 $/hbts pour un pays, alors le pourcentage d'électricité produite à partir de EF, GN et/ou C diminue de 0.0004%. C'est une relation négative et faible.
+
+- "Population_density" : Le coefficient est de 0.048. Ce qui signifie que si la densité de la population augmente d'1 hbts/km2 pour un pays, alors le pourcentage d'électricité produite à partir de EF, GN et/ou C augmente de 0.048%. C'est une relation positive.
+
+Le R-carré est de 83.96%, indiquant que le modèle explique environ 83.96% de la variance de la variable dépendante. C'est un très bon ajustement pour les données de production, où une grande variabilité est souvent observée.
+
+La F-statistique est de 98.55, ce qui est significatif (p < 2.2e-16), indiquant que le modèle est statistiquement significatif et que les variables explicatives, dans leur ensemble, ont un effet significatif sur la variable à expliquer.
+
+**Test d'hétéroscedasticité**
+
+```{r}
+bptest(prod_elecs_OLS)
+```
+
+Le test de Breusch-Pagan s'avere significatif. Donc il y a bien une hétéroscedasticité.
+
+De ce fait nous corrigerons ce probleme d'hétéroscedasticité en appliquant la correction de White.
+
+**correction de l'hétéroscedasticité**
+
+```{r}
+data_spatiale$logresid2 <- log(residuals(prod_elecs_OLS)^2) # on ajoute la variable ln(e^2)
+modeleresid <- lm(data=data_spatiale,logresid2 ~   Agricultural_land + Alternative_and_nuclear_energy + Armed_forces_personnel + CO2_emissions + GDP_per_capita + Population_density -1) # on les régresse sur les x
+data_spatiale$e2chap <- exp(modeleresid$fitted.values)
+
+prod_elecs_OLS <- lm(equation, data = data_spatiale,weights = 1/e2chap)
+
+data_spatiale$ols_res<-resid(prod_elecs_OLS)
+summary(prod_elecs_OLS)
+```
+
+```{r}
+bptest(prod_elecs_OLS)
+```
+
+Le test de Breusch-Pagan n'est pas significatif. Donc il y a bien une homoroscedasticité.
+
+De ce fait, notre modèle est un peu différent du précédent.
+
+- "Agricultural_land" : Le coefficient est de 0.62. Ce qui signifie que si le pourcentage de terre agricole augmente d'1% pour un pays, alors le pourcentage d'électricité produite à partir de EF, GN et/ou C augmente de 0.62%. C'est une relation positive.
+
+- "Alternative_and_nuclear_energy" : Le coefficient est de -0.43 Ce qui signifie que si le pourcentage d'énergie verte consommée augmente d'1% pour un pays, alors le pourcentage d'électricité produite à partir de EF, GN et/ou C diminue de 0.43%. C'est une relation négative.
+
+- "Armed_forces_personnel" : Le coefficient est de 20.69 Ce qui signifie que si le pourcentage de militaires dans la population active augmente d'1% pour un pays, alors le pourcentage d'électricité produite à partir de EF, GN et/ou C augmente de 20.69%. C'est une relation positive et forte.
+
+- "CO2_emissions" : Le coefficient est de 3.12 Ce qui signifie que si les émissions de CO2 augmentent d'1 tonne/hbts pour un pays, alors le pourcentage d'électricité produite à partir de EF, GN et/ou C augmente de 3.12%. C'est une relation positive.
+
+- "GDP_per_capita" : Le coefficient est de -0.0004. Ce qui signifie que si le PIB augmente d'1 $/hbts pour un pays, alors le pourcentage d'électricité produite à partir de EF, GN et/ou C diminue de 0.0004%. C'est une relation négative et faible.
+
+- "Population_density" : Le coefficient est de 0.0397 Ce qui signifie que si la densité de la population augmente d'1 hbts/km2 pour un pays, alors le pourcentage d'électricité produite à partir de EF, GN et/ou C augmente de 0.0397%. C'est une relation positive.
+
+Le R-carré est de 83.5%, indiquant que le modèle explique environ 83.5% de la variance de la variable dépendante. C'est un très bon ajustement pour les données de production, où une grande variabilité est souvent observée.
+
+La F-statistique est de 95.28, ce qui est significatif (p < 2.2e-16), indiquant que le modèle est statistiquement significatif et que les variables explicatives, dans leur ensemble, ont un effet significatif sur la variable à expliquer.
+
+
+
+**Autocorrélation spatiale**
+
+```{r}
+lm.morantest(prod_elecs_OLS,PPV2.w, alternative="greater")
+```
+
+On note la présence d'autocorrélation spatiale positive, significative au niveau 15% (p-value=0.119 < 0.15).
+
+
+#### **SLX**
+
+Le modèle spatial de SLX (Spatial Lag Cross-Regression) est une extension du modèle de régression spatiale qui prend en compte à la fois l'effet spatial de la variable dépendante et l'effet spatial des variables explicatives. La formule générale du modèle SLX peut être écrite comme suit :
+
+$$Y=\rho WY+X \beta+\varepsilon $$
+
+où :
+
+
+$Y$ est le vecteur des observations de la variable dépendante.
+
+$\rho$ est le coefficient de l'effet spatial de la variable dépendante.
+
+$W$ est une matrice de pondération spatiale représentant la relation spatiale entre les observations.
+
+$X \beta$ est le produit matriciel des variables explicatives et de leurs coefficients.
+$\varepsilon$ est le terme d'erreur.
+
+
+```{r}
+data_spatiale$W_Agricultural_land <- lag.listw(nb2500km.ids.w, data_spatiale$Agricultural_land)
+data_spatiale$W_Alternative_and_nuclear_energy <- lag.listw(nb2500km.ids.w, data_spatiale$Alternative_and_nuclear_energy)
+data_spatiale$W_Armed_forces_personnel <- lag.listw(nb2500km.ids.w, data_spatiale$Armed_forces_personnel)
+data_spatiale$W_CO2_emissions <- lag.listw(nb2500km.ids.w, data_spatiale$CO2_emissions) 
+data_spatiale$W_GDP_per_capita <- lag.listw(nb2500km.ids.w, data_spatiale$GDP_per_capita)
+data_spatiale$W_Population_density <- lag.listw(nb2500km.ids.w, data_spatiale$Population_density)
+
+prod_elecs_SLX = lm(Electricity_production~ Agricultural_land+W_Agricultural_land+Alternative_and_nuclear_energy+W_Alternative_and_nuclear_energy+Armed_forces_personnel+W_Armed_forces_personnel+CO2_emissions+W_CO2_emissions+Population_density+W_Population_density-1, 
+                    data=data_spatiale)
+
+data_spatiale$slx_res<-resid(prod_elecs_SLX)
+
+
+summary(prod_elecs_SLX)
+
+```
+
+```{r}
+lm.morantest(prod_elecs_SLX,nb2500km.ids.w, alternative="greater")
+```
+
+
+Ce modèle n'est pas mieux que celui OLS car on a ici, aucun retard de significatif.
+
+Cependant, on note un R2 de 85.18%, ce qui est plutot un bon signe.
+
+Malheureusement, on note une absence d'autocorrélation spatiale positive.
+
+#### **SAR**
+
+Le modèle spatial autorégressif est un modèle qui incorpore l'autorégression spatiale dans le modèle. Voici la formule générale du modèle SAR :
+
+$$Y=\rho WY+X\beta+\varepsilon$$
+
+où :
+
+$Y$ est le vecteur des observations de la variable dépendante.
+$\rho$ est le coefficient de l'autorégression spatiale de la variable dépendante.
+$W$ est une matrice de pondération spatiale représentant la relation spatiale entre les observations.
+$X\beta$ est le produit matriciel des variables explicatives et de leurs coefficients.
+$\varepsilon$ est le terme d'erreur.
+
+
+
+```{r}
+
+prod_elecs_SAR <- lagsarlm(formula = equation, listw = nb2500km.ids.w, data = data_spatiale)
+data_spatiale$sar_res<-resid(prod_elecs_SAR)
+summary(prod_elecs_SAR)
+```
+
+Toutes les variables de ce modèle sont significatives au niveau 5%, sauf "GDP_per_capita".
+
+Le pourcentage de terre agricole, le pourcentage de militaires parmi la population active, les émissions de CO2 et la densité de la population ont un effet positif sur la production d'électricité à partir de EF, GN et/ou C.
+
+Tandis que le pourcentage d'énergie verte consommée et le PIB/hbts ont un effet négatif sur la production d'électricité à partir de EF, GN et/ou C.
+
+Rho est le coefficient d'autocorrelation spatiale pour les erreurs. Il a une valeur de 0.288 avec une p-value significative au niveau 5% (p=0.008 > 0.05), indiquant que l'autocorrelation spatiale est bien présente dans le modele.
+
+
+
+#### **SEM**
+
+Le modèle d'erreur spatiale (SEM - Spatial Error Model) est un modèle de régression spatiale qui incorpore l'autocorrélation spatiale dans les erreurs du modèle. Voici la formule générale du modèle SEM :
+
+$$Y=X\beta+\varepsilon \\
+\varepsilon = \lambda W \varepsilon +U$$
+
+où :
+$Y$ est le vecteur des observations de la variable dépendante.
+$X$ est une matrice des variables explicatives.
+$\beta$ est un vecteur de coefficients des variables explicatives.
+$\varepsilon$ est le terme d'erreur.
+$\lambda$ est le coefficient d'autocorrélation spatiale de l'erreur.
+$W$ est une matrice de pondération spatiale représentant la relation spatiale entre les observations.
+$U$ est un terme d'erreur spatiale.
+
+```{r}
+prod_elecs_SEM = errorsarlm(formula = equation, listw=nb2500km.ids.w,  data=data_spatiale)
+
+data_spatiale$sem_res <- resid(prod_elecs_SEM)
+
+summary(prod_elecs_SEM)
+```
+
+Pour ce modele, toutes les variables ne sont pas significatives. Nous interpreterons alors que les variables significatives au niveau 5%
+
+Le pourcentage de militaires parmi la population active, Les emissions de CO2 et la densite de la population ont un effet positif sur la production d'electricite a partir de EF, GN et/ou C.
+
+Tandis que le pourcentage d'energie verte consomme a un effet negatif sur la production d'electricite a partir de EF, GN et/ou C.
+
+Lambda est le coefficient d'autocorrelation spatiale pour les erreurs. Il a une valeur de 0.016 avec une p-value non significative (p=0.93 > 0.05), indiquant que l'autocorrelation spatiale n'est pas presente pour les erreurs dans le modele.
+
+La valeur de Wald pour Lambda n'est pas significative (p=0.89 > 0.05), nous montrant encore une fois l'absence d'autocorrelation spatiale des erreurs du modele.
+
+#### **SDM**
+
+Le modèle de dépendance spatiale simultanée (SDM - Simultaneous Spatial Dependence Model) est un modèle de régression spatiale qui incorpore à la fois l'autorégression spatiale de la variable dépendante et l'autorégression spatiale des variables explicatives. Voici la formule générale du modèle SDM :
+
+$$Y=\rho WY+X \beta+WX\delta +\varepsilon$$
+où :
+Y est le vecteur des observations de la variable dépendante.
+
+$\rho$ est le coefficient d'autorégression spatiale de la variable dépendante.
+
+$W$ est une matrice de pondération spatiale représentant la relation spatiale entre les observations.
+
+$X$ est une matrice des variables explicatives.
+
+$\beta$ est un vecteur de coefficients des variables explicatives.
+$\delta$ est un vecteur de coefficients de l'autorégression spatiale des variables explicatives.
+
+$\varepsilon$ est le terme d'erreur.
+
+
+```{r}
+prod_elecs_SDM <- lagsarlm(formula = equation, listw = nb2500km.ids.w, data = data_spatiale,Durbin=T)
+data_spatiale$sdm_res <- resid(prod_elecs_SDM)
+summary(prod_elecs_SDM)
+```
+
+Agricultural_land, Alternative_and_nuclear_energy, Armed_forces_personnel, CO2_emissions, GDP_per_capita et Population_density sont les variables explicatives directes.
+
+lag.Agricultural_land, lag.Alternative_and_nuclear_energy, lag.Armed_forces_personnel, lag.CO2_emissions, lag.GDP_per_capita et lag.Population_density sont les retards spatiaux des variables explicatives, qui mesurent l'impact des valeurs des pays voisins sur celui d'intérêt.
+
+Les variables Agricultural_land, Armed_forces_personnel, Population_density et CO2_emissions ont des coefficients positifs et significatifs (p < 0.05), ce qui indique une forte relation positive avec la variable dépendante.
+
+La variable Alternative_and_nuclear_energy a un coefficient négatif significatif (p , 0.05), ce qui indique une forte relation negative avec la variable dépendante.
+
+Le reste des variables ne sont pas significatifs au niveau 5%, ce qui implique que nous avons pas assez de preuves concernant leur importance dans ce modele.
+
+Les coefficients des variables retardées spatialement (lag_) ne sont pas statistiquement significatifs pour la plupart (p > 0.05), indiquant que les effets des pays voisins pour ces variables ne sont pas significatifs dans ce modèle.
+
+
+### **Distribution des résidus**
+
+```{r}
+
+data_spatiale %>%
+  st_drop_geometry() %>%
+  pivot_longer(cols = c('slx_res','sar_res','sem_res','sdm_res'), names_to = "Model") %>%
+  ggplot() +  
+  geom_density(mapping = aes(x = value, 
+                             color = Model, fill = Model), 
+               size = 0.5) + 
+  geom_density(mapping = aes(x = ols_res), 
+               color = "gray20", size = 0.5) + 
+  scale_fill_manual(values = alpha(brewer.pal(n = 4, name = "Dark2"), 0.8)) + 
+  scale_color_manual(values = alpha(brewer.pal(n = 4, name = "Dark2"), 1)) + 
+  guides(color = "none", fill = "none") + 
+  labs(x = "Residus", y = "Densite", 
+       title = "Densite des residus SAR, SDM, SEM et SLX",
+       subtitle = "La densite des residus OLS est indiquee par la ligne noire") + 
+  facet_wrap(~ Model, nrow = 1)
+```
+
+Dans tous les cas, les résidus semblent suivre une loi normale. Ce qui est rassurant.
+
+### **Synthese des resultats**
+
+```{r}
+stargazer(prod_elecs_OLS,prod_elecs_SLX,prod_elecs_SEM,prod_elecs_SDM, type = "text",header=FALSE,model.names = FALSE,
+          dep.var.labels.include = FALSE,column.labels =  c("OLS","SLX","SEM","SDM"),
+          model.numbers          = FALSE,  title="Résultats d'estimation des modèles spatiaux")
+```
+
+
+
+# **VII) Choix du modèle**
+
+### **Lesage et Pace**
+
+#### **SDM VS SAR**
+
+$$H_0 :\delta = 0$$ 
+$$If H_0 rejected = SDM$$
+
+```{r}
+sdm_vs_sar <- LR.Sarlm(prod_elecs_SDM,prod_elecs_SAR)
+
+sdm_vs_sar
+```
+
+Ce test nous permet de dire que le modèle SDM n'est pas meilleur que celui SAR.
+
+#### **SAR VS OLS** 
+
+$$H_0 :\delta = 0$$ 
+$$If H_0 rejected = SAR$$
+
+```{r}
+sar_vs_ols <- LR.Sarlm(prod_elecs_SAR,prod_elecs_OLS)
+sar_vs_ols
+```
+
+Ce teste nous montre que le modèle SAR est meilleur que celui OLS
+
+#### **SDM VS SLX**
+
+$$ H_0 : \ \rho = 0 , \theta \neq 0, \theta + \rho*\beta \neq 0$$
+
+```{r}
+sdm_vs_slx <- LR.Sarlm(prod_elecs_SDM, prod_elecs_SLX)
+sdm_vs_slx
+```
+
+Ce teste révèle que le modèle SLX est meilleur que celui SDM.
+
+#### **SLX VS OLS**
+
+```{r}
+slx_vs_ols<-LR.Sarlm(prod_elecs_SLX,prod_elecs_OLS)
+slx_vs_ols
+```
+
+Ce teste révèle que le modèle SLX est meilleur que celui OLS
+
+#### **SDM VS SEM**
+
+$$ H_0 : \theta + \rho*\beta \neq 0$$
+
+```{r}
+sdm_vs_sem <-LR.Sarlm(prod_elecs_SDM,prod_elecs_SEM)
+sdm_vs_sem
+```
+
+Ce teste révèle que le modèle SDM est meilleur que celui SEM
+
+#### **SEM VS OLS**
+
+```{r}
+sem_vs_ols<-LR.Sarlm(prod_elecs_SEM,prod_elecs_OLS)
+sem_vs_ols
+```
+
+Ce teste révèle que le modèle OLS est meilleur que celui SEM
+
+
+### **AIC**
+
+```{r}
+AICs<-c(AIC(prod_elecs_OLS),AIC(prod_elecs_SLX),AIC(prod_elecs_SAR), AIC(prod_elecs_SEM), AIC(prod_elecs_SDM))
+plot(AICs, type="h", lwd=1.5, xaxt="n", xlab="")
+axis(1, at=1:5,labels=F) #5= number of models
+labels<-c("OLS", "SLX","SAR", "SEM","SDM")
+text(1:5, par("usr")[3]-.25, srt=45, adj=1, labels=labels, xpd=T)
+mtext(side=1, text="Model Specification", line=3)
+symbols(x= which.min(AICs), y=AICs[which.min(AICs)],inches = FALSE, circles=0.2, fg=2,lwd=2,add=T)
+```
+
+Pour le critère de l'AIC le modèle SAR est le plus efficace
+
+### **BIC**
+
+```{r}
+BICs<-c(BIC(prod_elecs_OLS),BIC(prod_elecs_SLX),BIC(prod_elecs_SAR), BIC(prod_elecs_SEM), BIC(prod_elecs_SDM))
+plot(BICs, type="h", lwd=1.5, xaxt="n", xlab="")
+axis(1, at=1:5,labels=F) #5= number of models
+labels<-c("OLS", "SLX","SAR", "SEM","SDM")
+text(1:5, par("usr")[3]-.25, srt=45, adj=1, labels=labels, xpd=T)
+mtext(side=1, text="Model Specification", line=3)
+symbols(x= which.min(BICs), y=BICs[which.min(BICs)],inches = FALSE, circles=0.2, fg=2,lwd=2,add=T)
+```
+
+Pour le critère du BIC c'est également le modèle SAR qui est le plus performant.
+
+
+```{r}
+LLs<-c(logLik(prod_elecs_OLS),logLik(prod_elecs_SLX),logLik(prod_elecs_SAR), logLik(prod_elecs_SEM), logLik(prod_elecs_SDM))
+plot(LLs, type="h", lwd=1.5, xaxt="n", xlab="")
+axis(1, at=1:5,labels=F) #5= number of models
+labels<-c("OLS", "SLX","SAR", "SEM","SDM")
+text(1:5, par("usr")[3]-.25, srt=45, adj=1, labels=labels, xpd=T)
+mtext(side=1, text="Model Specification", line=3)
+symbols(x= which.max(LLs), y=LLs[which.max(LLs)],inches = FALSE, circles=0.2, fg=2,lwd=2,add=T)
+```
+Concernant le maximum de vraisemblance, le modèle SDM est meilleur; mais pas de loin par rapport au modèle SAR.
+
+```{r}
+sdm_vs_sar<-LR.Sarlm(prod_elecs_SDM,prod_elecs_SAR)
+sdm_vs_sar
+```
+
+En comparant le modèle SDM et SAR, la p-value indique que celui SAR est meilleur.
+
+
+# **Conclusion**
+
+Dans le cadre de cette étude portant sur le pourcentage d'electricite produite a partir d'energies fossiles, de gaz naturel et/ou de charbon dans le monde en 2015 , nous avons exploré les relations spatiales entre différentes variables socio-économiques et démographiques.
+
+Les caractéristiques socio-économiques sont distribuées de manière spatialement autocorrélée. On peut penser que les processus socio-économiques locaux influencient le comportement des pays voisins.
+
+Parmi les differents modèles testés, nous avons choisi le modèle SAR qui est globalement satisfaisant et possède les meilleures métriques (AIC et BIC).
+
+Notre étude met en avant l'importance de prendre en compte les interactions spatiales dans l'analyse des phénomènes socio-économiques. Cela peut être utile pour mieux comprendre pourquoi certains pays ont un niveau de developpement different malgre des caracteristiques similaires.
+

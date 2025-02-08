@@ -1,0 +1,1412 @@
+---
+title: "Projet_Machine_Learning"
+author: "Omar_Saip_SY"
+date: "2024-01-15"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+library(AER) # Functions, data sets, examples, demos, and vignettes for the book Christian Kleiber and Achim Zeileis (2008), Applied Econometrics with R, Springer-Verlag, New York
+library(car) #car: Companion to Applied Regression
+# Functions to Accompany J. Fox and S. Weisberg, An R Companion to Applied Regression, Third Edition, Sage, 2019.
+library(sandwich) # Robust Covariance Matrix Estimators
+library(lmtest) #Testing Linear Regression Models
+#A collection of tests, data sets, and examples for diagnostic checking in linear regression models. Furthermore, some generic tools for inference in parametric models are provided
+library(systemfit) #Estimating Systems of Simultaneous Equations
+library(ggplot2) #Create Elegant Data Visualisations Using the Grammar of Graphics
+library(corrplot) #Provides a visual exploratory tool on correlation matrix that supports automatic variable reordering to help detect hidden patterns among variables
+library(stargazer)
+library(cowplot)
+library(rstatix)
+library(ggpubr)
+library(EnvStats)
+
+library(descr)
+library(ggplot2)
+library(psych)
+library(Hmisc)
+library(gmodels) # Cross Tables [CrossTable()]
+library(ggmosaic) # Mosaic plot with ggplot [geom_mosaic()]
+library(corrplot) # Correlation plot [corrplot()]
+library(ggpubr) # Arranging ggplots together [ggarrange()]
+library(cowplot) # Arranging ggplots together [plot_grid()]
+library(caret) # ML [train(), confusionMatrix(), createDataPartition(), varImp(), trainControl()]
+library(ROCR) # Model performance [performance(), prediction()]
+library(plotROC) # ROC Curve with ggplot [geom_roc()]
+library(pROC) # AUC computation [auc()]
+library(PRROC) # AUPR computation [pr.curve()]
+library(rpart) # Decision trees [rpart(), plotcp(), prune()]
+library(rpart.plot) # Decision trees plotting [rpart.plot()]
+library(ranger) # Optimized Random Forest [ranger()]
+library(lightgbm) # Light GBM [lgb.train()]
+library(xgboost) # XGBoost [xgb.DMatrix(), xgb.train()]
+library(MLmetrics) # Custom metrics (F1 score for example)
+library(tidyverse) # Data manipulation
+library(forcats)
+library(tidyr)
+library(ggplot2)
+library(corrplot)
+library(cowplot)
+library(e1071)
+#library(SDMTools) # Pas dispo en 4.0.2
+library(glmnet)
+library(rattle)
+library(randomForest)
+library(plotly)
+library(FactoMineR) 
+library(factoextra) 
+library(class) 
+library(dplyr)
+library(Metrics)
+library(rlang)
+library(stats)
+library(tidyr)
+library(ada)
+library(caret)
+library(pscl)
+library(xgboost)
+library(keras)
+library(tensorflow)
+
+
+### Working directory 
+getwd()
+setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
+```
+
+
+```{r}
+data <- read.csv("train_data.csv",header=T,sep=";")
+```
+
+
+```{r}
+summary(data)
+```
+
+
+```{r}
+liste_col_na <- c("Alley","BsmtQual","BsmtCond","BsmtExposure","BsmtFinType1","BsmtFinType2","FireplaceQu","GarageType","GarageFinish","GarageQual","GarageCond","PoolQC","Fence","MiscFeature")
+
+data <- data %>%
+  mutate_at(vars(liste_col_na), ~ifelse(is.na(.), "ABS", .))
+data <- data %>%
+  mutate_at(vars(c("Electrical")), ~ifelse(is.na(.), "SBrkr", .))
+data <- data %>%
+  mutate_at(vars(c("MasVnrType")), ~ifelse(is.na(.), "BrkCmn", .))
+
+data$MasVnrArea <- na.fill(data$MasVnrArea,fill=0)
+data$LotFrontage <- na.fill(data$LotFrontage,fill=0)
+
+```
+
+
+
+
+
+```{r}
+for (colonne in colnames(data)) {
+  if ( !(is.numeric(data[,colonne])) ) {
+    data[,colonne] <- as.factor(data[,colonne])
+  } 
+
+}
+data$OverallQual <- as.factor(data$OverallQual)
+data$OverallCond <- as.factor(data$OverallCond)
+#data$MoSold <- as.factor(data$MoSold)
+```
+
+
+```{r}
+data$MSSubClass <- as.factor(data$MSSubClass)
+#data$GarageYrBlt <- na.spline(data$GarageYrBlt)
+```
+
+
+
+Enlever var "TotalBsmtSF","BsmtHalfBath","HalfBath","GarageCars" du modele
+
+```{r}
+summary(data)
+```
+
+Surface habitable, surface annex, exterieur, quartier, rue, mois, annee, salecondition, fence, nbre etage, chauffage, qualite chauffage, type de maison
+
+```{r}
+# data_treated <- data
+# 
+# data_treated$Id <- data$Id
+# 
+# data_treated$Surface_habitable <- data$GrLivArea
+# data_treated$Exterieur <- data$Exterior1st
+# data_treated$MSZoning <- data$MSZoning
+# data_treated$HouseStyle <- data$HouseStyle
+# data_treated$LandSlope <- data$LandSlope
+# data_treated$Neighborhood <- data$Neighborhood
+# data_treated$Condition <- data$Condition1
+# data_treated$YearRemodAdd <- data$YearRemodAdd
+# data_treated$Fence <- data$Fence
+# data_treated$HeatingQC <- data$HeatingQC
+# data_treated$OverallQual <- data$OverallQual
+# data_treated$OverallCond <- data$OverallCond
+# 
+# data_treated$Surface_annexe <- data$TotalBsmtSF + data$GarageArea + data$WoodDeckSF + data$OpenPorchSF + data$EnclosedPorch + data$X3SsnPorch + data$ScreenPorch + data$PoolArea
+# 
+# data_treated$Nbre_piece <- data$TotRmsAbvGrd + data$FullBath + data$HalfBath
+# 
+# nbre_etage <- c()
+# for(ligne in 1:nrow(data)){
+#   if(data[ligne,"X1stFlrSF"]!=0 & data[ligne,"X2ndFlrSF"]!=0){
+#     nbre_etage <- c(nbre_etage,2)
+#   }else if(data[ligne,"X1stFlrSF"]==0 & data[ligne,"X2ndFlrSF"]==0){
+#     nbre_etage <- c(nbre_etage,0)
+#   }else{ nbre_etage <- c(nbre_etage,1)}
+# }
+# 
+# data_treated$Nbre_etage <- nbre_etage
+# 
+# data_treated$MoSold <- data$MoSold
+# data_treated$YrSold <- data$YrSold
+# data_treated$SaleCondition <- data$SaleCondition
+# data_treated$SalePrice <- data$SalePrice
+# 
+# 
+# data_treated <- subset(data_treated,select=c(Id,Exterieur,MSZoning,HouseStyle,RoofStyle,LandSlope,Neighborhood,LotFrontage,LotArea,Condition,YearRemodAdd,Fence,HeatingQC,ExterQual,Foundation,Electrical,OverallQual,OverallCond,Surface_habitable,Surface_annexe,Nbre_piece,Nbre_etage,MoSold,YrSold,SaleCondition,SalePrice))
+
+
+```
+
+
+
+```{r}
+data_prediction <- data[is.na(data$SalePrice),]
+
+data <- data[!is.na(data$SalePrice),]
+
+#data <- data[!(is.na(data$MasVnrArea)),]
+#data <- data[!(is.na(data$MasVnrType)),]
+```
+
+
+```{r}
+
+# newdata <- subset(data,select=-c(Id))
+# preprocess <- preProcess(newdata, method = c("center", "scale"))
+# data_processed <- predict(preprocess, newdata = newdata )
+# data_processed$Id <- data$Id
+# 
+# newdata_prediction <- subset(data_prediction,select=-c(Id))
+# preprocess_prediction <- preProcess(newdata_prediction, method = c("center", "scale"))
+# data_prediction_processed <- predict(preprocess_prediction, newdata = newdata_prediction )
+# data_prediction_processed$Id <- data_prediction$Id
+# 
+# reverse_center_scale <- function(scaled_value, original_mean=181873.1, original_sd=79197.33) {
+#   return(scaled_value * original_sd + original_mean)
+# }
+```
+
+
+
+```{r, warning=FALSE}
+for (colonne in colnames(data)) {
+  if (is.numeric(data[[colonne]])) {
+    # Create histogram for numeric variables
+    plot <- ggplot(data = data, aes(x = data[[colonne]])) +
+      geom_histogram() +
+      ggtitle(paste("Histogram of ", colonne))
+  } else {
+    # Create bar plot for categorical variables
+    plot <- ggplot(data = data, aes(x = data[[colonne]])) +
+      geom_bar() +
+      ggtitle(paste("Bar Plot of ", colonne))
+  }
+
+  # Print each plot
+  print(plot)
+}
+```
+
+
+
+```{r, warning=FALSE}
+for (colonne in colnames(data)) {
+  if (is.numeric(data[[colonne]])) {
+    # Create histogram for numeric variables
+    plot <- ggplot(data = data, aes(x = data[[colonne]],y = log(data[["SalePrice"]]))) +
+      geom_point() +
+      ggtitle(paste("Scatter of ", colonne))
+  } else {
+    # Create bar plot for categorical variables
+    plot <- ggplot(data = data, aes(x = data[[colonne]])) +
+      geom_bar() +
+      ggtitle(paste("Bar Plot of ", colonne))
+  }
+
+  # Print each plot
+  print(plot)
+}
+```
+
+
+
+
+
+```{r}
+sapply(data, function(x) length(unique(x)))
+```
+
+
+# Modele 1
+
+```{r}
+#modele <- lm(SalePrice~Alley+BsmtQual+BsmtCond+BsmtExposure+BsmtFinType1+BsmtFinType2+FireplaceQu+GarageType+GarageFinish+GarageQual+GarageCond+Fence,data=data)
+#summary(modele)
+```
+
+# Modele 2
+
+```{r}
+# modele2 <- randomForest(SalePrice~.,data=train_set,mtry=10,ntree=500)
+```
+
+```{r}
+# prediction_modele2_test <- predict(modele2,newdata=test_set[,-77])
+# prediction_modele2_test <- c(round(prediction_modele2_test))
+```
+
+
+```{r}
+# rmse_rf = sqrt(mean((test_set$SalePrice-prediction_modele2_test)^2))
+# rmse_rf
+```
+
+# Modele RF OPTIMISER
+
+```{r}
+# rf_basic <- train(form=SalePrice~. , data=data,
+#                     method = "rf", 
+#                     trControl = trainControl(method="cv"),
+#                     metric = "RMSE",
+#                     lambda = 0,
+#                   maximize = F)
+```
+
+
+# Modele RF 4
+
+```{r}
+
+# modele4 <- train(form=SalePrice~. , data=data,
+#                     method = "rf", 
+#                     trControl = trainControl(method="cv"),
+#                  tuneGrid = expand.grid(mtry = c(2,4,6)),
+#                     metric = "RMSE",
+#                     lambda = 0,
+#                   maximize = F)
+```
+
+
+# Modele RF 5
+
+```{r}
+
+# modele5 <- train(form=SalePrice~. , data=data,
+#                     method = "rf",
+#                     trControl = trainControl(method="cv"),
+#                     metric = "RMSE",
+#                     lambda = 0,
+#                   maximize = F)
+```
+
+
+
+# Modele 6 (Pas Bon)
+
+```{r}
+
+# modele6 <- train(form=SalePrice~. , data=data,
+#                     method = "knn", 
+#                     trControl = trainControl(method="cv"),
+#                     metric = "RMSE",
+#                     lambda = 0,
+#                   maximize = F)
+```
+
+
+# Modele RF 7
+
+```{r}
+
+# modele7 <- train(form=SalePrice~. + Condition1:Condition2 + RoofStyle:RoofMatl + Exterior1st:Exterior2nd +
+#                    BsmtFinType1:BsmtFinType2 , data=data,
+#                     method = "rf",
+#                     trControl = trainControl(method="cv"),
+#                     metric = "RMSE",
+#                     lambda = 0,
+#                   maximize = F)
+```
+
+
+# Modele RF 8
+
+```{r}
+# data_treated <- subset(data, select = -c(GarageYrBlt))
+# 
+# modele8 <- train(form=SalePrice~. + Condition1:Condition2 + RoofStyle:RoofMatl + Exterior1st:Exterior2nd +
+#                    BsmtFinType1:BsmtFinType2 - Condition1 - Condition2 - RoofStyle - RoofMatl - Exterior1st - Exterior2nd-
+#                    BsmtFinType1 - BsmtFinType2, data=data_treated,
+#                     method = "rf",
+#                     trControl = trainControl(method="cv"),
+#                     metric = "RMSE",
+#                     lambda = 0,
+#                   maximize = F)
+```
+
+
+# Modele 9
+
+```{r}
+# data_treated <- subset(data, select = -c(GarageYrBlt, LowQualFinSF))
+# 
+# modele9 <- train(form=SalePrice~. + Condition1:Condition2 + RoofStyle:RoofMatl + Exterior1st:Exterior2nd +
+#                    BsmtFinType1:BsmtFinType2 + SaleType:SaleCondition
+#                  - Condition1 - Condition2 - RoofStyle - RoofMatl - Exterior1st - Exterior2nd-
+#                    BsmtFinType1 - BsmtFinType2 - SaleType - SaleCondition,
+#                  data=data_treated,
+#                     method = "rf",
+#                     trControl = trainControl(method="cv"),
+#                     metric = "RMSE",
+#                     lambda = 0,
+#                   maximize = F)
+```
+
+(Aussi penser a predire GarageYearBuilt et a utiliser la prediction pour predire SalePrice)
+
+# Modele 10
+
+```{r pred garagearblt}
+
+# donnees <- data[!(is.na(data$GarageYrBlt)),]
+# 
+# mod <- train(form=GarageYrBlt~. + Condition1:Condition2 + RoofStyle:RoofMatl + Exterior1st:Exterior2nd +
+#                    BsmtFinType1:BsmtFinType2 + SaleType:SaleCondition
+#                  - Condition1 - Condition2 - RoofStyle - RoofMatl - Exterior1st - Exterior2nd-
+#                    BsmtFinType1 - BsmtFinType2 - SaleType - SaleCondition,
+#                  data=donnees,
+#                     method = "rf",
+#                     trControl = trainControl(method="cv"),
+#                     metric = "RMSE",
+#                   maximize = F)
+# 
+# donnees_a_predire <- predict(mod,newdata=subset(data[is.na(data$GarageYrBlt),],select=-c(GarageYrBlt)))
+# 
+# data_garage_yr_blt <- c(donnees$GarageYrBlt,donnees_a_predire)
+# 
+# data$GarageYrBlt <- data_garage_yr_blt
+
+```
+
+
+```{r modele}
+
+# modele10 <- train(form=SalePrice~. + Condition1:Condition2 + RoofStyle:RoofMatl + Exterior1st:Exterior2nd +
+#                    BsmtFinType1:BsmtFinType2 + SaleType:SaleCondition
+#                  - Condition1 - Condition2 - RoofStyle - RoofMatl - Exterior1st - Exterior2nd-
+#                    BsmtFinType1 - BsmtFinType2 - SaleType - SaleCondition,
+#                  data=data,
+#                     method = "rf",
+#                     trControl = trainControl(method="cv"),
+#                     metric = "RMSE",
+#                   maximize = F)
+
+```
+
+# modele 11
+
+```{r}
+# data_treated <- subset(data, select = -c(GarageYrBlt))
+# 
+# modele11 <- train(form=log(SalePrice)~. + Condition1:Condition2 + RoofStyle:RoofMatl + Exterior1st:Exterior2nd +
+#                    BsmtFinType1:BsmtFinType2 - Condition1 - Condition2 - RoofStyle - RoofMatl - Exterior1st - Exterior2nd-
+#                    BsmtFinType1 - BsmtFinType2, data=data_treated,
+#                     method = "rf",
+#                     trControl = trainControl(method="cv"),
+#                     metric = "RMSE",
+#                     lambda = 0,
+#                   maximize = F)
+```
+
+
+# Modele12
+
+```{r}
+# data_treated <- subset(data, select = -c(GarageYrBlt))
+# 
+# modele12 <- train(form=log(SalePrice)~. + Condition1:Condition2 + RoofStyle:RoofMatl + Exterior1st:Exterior2nd +
+#                    BsmtFinType1:BsmtFinType2 - Condition1 - Condition2 - RoofStyle - RoofMatl - Exterior1st - Exterior2nd-
+#                    BsmtFinType1 - BsmtFinType2, data=data_treated,
+#                     method = "nnet",
+#                     trControl = trainControl(method="cv"),
+#                     metric = "RMSE",
+#                     lambda = 0,
+#                   maximize = F)
+
+```
+
+
+# Modele 13
+
+```{r}
+# data_treated <- subset(data, select = -c(GarageYrBlt))
+# data_treated$SalePrice <- sqrt(data_treated$SalePrice)
+# 
+# modele13 <- train(form=log(SalePrice)~. + Condition1:Condition2 + RoofStyle:RoofMatl + Exterior1st:Exterior2nd +
+#                    BsmtFinType1:BsmtFinType2 - Condition1 - Condition2 - RoofStyle - RoofMatl - Exterior1st - Exterior2nd-
+#                    BsmtFinType1 - BsmtFinType2, data=data_treated,
+#                     method = "rf",
+#                     trControl = trainControl(method="cv"),
+#                     metric = "RMSE",
+#                     lambda = 0,
+#                   maximize = F)
+```
+
+
+# Modele 14
+
+```{r}
+# data_treated <- subset(data, select = -c(GarageYrBlt))
+# data_treated$SalePrice <- sqrt(data_treated$SalePrice)
+# 
+# modele14 <- train(form=SalePrice~. + Condition1:Condition2 + RoofStyle:RoofMatl + Exterior1st:Exterior2nd +
+#                    BsmtFinType1:BsmtFinType2 - Condition1 - Condition2 - RoofStyle - RoofMatl - Exterior1st - Exterior2nd-
+#                    BsmtFinType1 - BsmtFinType2, data=data_treated,
+#                     method = "rf",
+#                     trControl = trainControl(method="cv"),
+#                     metric = "RMSE",
+#                     lambda = 0,
+#                   maximize = F)
+```
+
+
+# Modele 15
+
+```{r}
+# data_treated <- subset(data, select = -c(GarageYrBlt))
+# data_treated$SalePrice <- data_treated$SalePrice / 1000
+# 
+# rf_grid <- expand.grid(mtry = c(10, 100, 500))
+# 
+# modele15 <- train(form=log(SalePrice)~. + Condition1:Condition2 + RoofStyle:RoofMatl + Exterior1st:Exterior2nd +
+#                    BsmtFinType1:BsmtFinType2 - Condition1 - Condition2 - RoofStyle - RoofMatl - Exterior1st - Exterior2nd-
+#                    BsmtFinType1 - BsmtFinType2, data=data_treated,
+#                     method = "rf",
+#                     trControl = trainControl(method="cv"),
+#                     tuneGrid = rf_grid,
+#                     metric = "RMSE",
+#                   maximize = F)
+```
+
+
+# Modele 16
+
+```{r}
+# data_treated <- subset(data, select = -c(GarageYrBlt))
+# 
+# rf_grid <- expand.grid(mtry = c(10, 100, 500))
+# 
+# modele16 <- train(form=log(SalePrice)~. + Condition1:Condition2 + RoofStyle:RoofMatl + Exterior1st:Exterior2nd +
+#                    BsmtFinType1:BsmtFinType2 - Condition1 - Condition2 - RoofStyle - RoofMatl - Exterior1st - Exterior2nd-
+#                    BsmtFinType1 - BsmtFinType2, data=data_treated,
+#                     method = "rf",
+#                     trControl = trainControl(method="cv"),
+#                     tuneGrid = rf_grid,
+#                     metric = "RMSE",
+#                   maximize = F)
+```
+
+
+# Modele 17
+
+```{r}
+# rf_grid <- expand.grid(mtry = c(10, 100, 200, 500))
+# 
+# modele17 <- train(form=log(SalePrice)~. + Condition1:Condition2 + RoofStyle:RoofMatl + Exterior1st:Exterior2nd +
+#                    BsmtFinType1:BsmtFinType2 - Condition1 - Condition2 - RoofStyle - RoofMatl - Exterior1st - Exterior2nd-
+#                    BsmtFinType1 - BsmtFinType2, data=data,
+#                     method = "rf",
+#                     trControl = trainControl(method="cv"),
+#                     tuneGrid=rf_grid,
+#                     metric = "RMSE",
+#                     lambda = 0,
+#                   maximize = F)
+```
+
+
+# Modele 18
+
+```{r}
+# for(var in c("BsmtFullBath","Fireplaces","PoolArea")){
+#   for(i in 1:nrow(data)){
+#     if(data[i,var]!=0){
+#       data[i,var] <- 1
+#     }
+#   }
+#   data[[var]] <- as.factor(data[[var]])
+# }
+# 
+# 
+# rf_grid <- expand.grid(mtry = c(10, 100, 200, 500))
+# 
+# data_treated <- subset(data,select=-c(GarageYrBlt))
+# 
+# modele18 <- train(form=log(SalePrice)~. + Condition1:Condition2 + RoofStyle:RoofMatl + Exterior1st:Exterior2nd +
+#                    BsmtFinType1:BsmtFinType2 - Condition1 - Condition2 - RoofStyle - RoofMatl - Exterior1st - Exterior2nd-
+#                    BsmtFinType1 - BsmtFinType2, data=data_treated,
+#                     method = "rf",
+#                     trControl = trainControl(method="cv"),
+#                     tuneGrid=rf_grid,
+#                     metric = "RMSE",
+#                     lambda = 0,
+#                   maximize = F)
+```
+
+
+# Modele 19
+
+```{r}
+# for(var in c("BsmtFinSF2","LowQualFinSF","BsmtFullBath","BsmtHalfBath","Fireplaces","X3SsnPorch","PoolArea","MiscVal")){
+#   for(i in 1:nrow(data)){
+#     if(data[i,var]!=0){
+#       data[i,var] <- 1
+#     }
+#   }
+#   data[[var]] <- as.factor(data[[var]])
+# }
+# 
+# 
+# rf_grid <- expand.grid(mtry = c(10, 100, 200, 500))
+# 
+# data_treated <- subset(data,select=-c(GarageYrBlt))
+# 
+# data_treated$SalePrice <- log(data_treated$SalePrice) / log(2)
+# 
+# modele19 <- train(form=SalePrice~. + Condition1:Condition2 + RoofStyle:RoofMatl + Exterior1st:Exterior2nd +
+#                    BsmtFinType1:BsmtFinType2 - Condition1 - Condition2 - RoofStyle - RoofMatl - Exterior1st - Exterior2nd-
+#                    BsmtFinType1 - BsmtFinType2, data=data_treated,
+#                     method = "rf",
+#                     trControl = trainControl(method="cv"),
+#                     tuneGrid=rf_grid,
+#                     metric = "RMSE",
+#                     lambda = 0,
+#                   maximize = F)
+```
+
+
+
+# Modele 20
+
+```{r}
+# for(var in c("BsmtFinSF2","LowQualFinSF","BsmtFullBath","BsmtHalfBath","Fireplaces","X3SsnPorch","PoolArea","MiscVal")){
+#   for(i in 1:nrow(data_processed)){
+#     if(data_processed[i,var]!=0){
+#       data_processed[i,var] <- 1
+#     }
+#   }
+#   data_processed[[var]] <- as.factor(data_processed[[var]])
+# }
+
+# 
+# rf_grid <- expand.grid(mtry = c(10, 100, 200, 500))
+# 
+# data_treated <- subset(data_processed,select=-c(GarageYrBlt))
+# 
+# #data_treated$SalePrice <- log(data_treated$SalePrice) / log(2)
+# 
+# modele20 <- train(form=SalePrice~. + Condition1:Condition2 + RoofStyle:RoofMatl + Exterior1st:Exterior2nd +
+#                    BsmtFinType1:BsmtFinType2 - Condition1 - Condition2 - RoofStyle - RoofMatl - Exterior1st - Exterior2nd-
+#                    BsmtFinType1 - BsmtFinType2, data=data_treated,
+#                     method = "rf",
+#                     trControl = trainControl(method="cv"),
+#                     tuneGrid=rf_grid,
+#                     metric = "RMSE",
+#                     lambda = 0,
+#                   maximize = F)
+```
+
+
+# MOdele 21
+
+```{r}
+# data_treated <- subset(data,select=-c(GarageYrBlt))
+# 
+# data_treated$SalePrice <- log(data_treated$SalePrice) 
+# 
+# mod <- glm(SalePrice~. + Condition1:Condition2 + RoofStyle:RoofMatl + Exterior1st:Exterior2nd +
+#                    BsmtFinType1:BsmtFinType2 - Condition1 - Condition2 - RoofStyle - RoofMatl - Exterior1st - Exterior2nd-
+#                    BsmtFinType1 - BsmtFinType2, data=data_treated)
+# 
+# vif(mod)
+
+```
+
+
+
+```{r}
+# for(var in c("BsmtFinSF2","LowQualFinSF","BsmtFullBath","BsmtHalfBath","Fireplaces","X3SsnPorch","PoolArea","MiscVal")){
+#   for(i in 1:nrow(data)){
+#     if(data[i,var]!=0){
+#       data[i,var] <- 1
+#     }
+#   }
+#   data[[var]] <- as.factor(data[[var]])
+# }
+# 
+# 
+# rf_grid <- expand.grid(mtry = c(10, 100, 200, 500))
+# 
+# data_treated <- subset(data,select=-c(GarageYrBlt,TotalBsmtSF,BsmtHalfBath,HalfBath,GarageCars,YearBuilt))
+# 
+# data_treated$SalePrice <- log(data_treated$SalePrice) / log(2)
+# 
+# modele21 <- train(form=SalePrice~. + Condition1:Condition2 + RoofStyle:RoofMatl + Exterior1st:Exterior2nd +
+#                     BsmtFinType1:BsmtFinType2 + ExterQual:ExterCond + BsmtQual:BsmtCond:BsmtExposure +
+#                     GarageQual:GarageCond
+#                   - Condition1 - Condition2 - RoofStyle - RoofMatl - Exterior1st -
+#                     Exterior2nd-BsmtFinType1 - BsmtFinType2 - ExterQual - ExterCond - BsmtQual - BsmtCond - BsmtExposure -
+#                     GarageQual - GarageCond
+#                   , data=data_treated,
+#                      method = "rf",
+#                      trControl = trainControl(method="cv"),
+#                     tuneGrid=rf_grid,
+#                   metric = "RMSE",
+#                   lambda = 0,
+#                   maximize = F)
+```
+
+
+
+# Modele 22
+
+```{r}
+# for(var in c("BsmtFinSF2","LowQualFinSF","BsmtFullBath","BsmtHalfBath","Fireplaces","X3SsnPorch","PoolArea","MiscVal")){
+#   for(i in 1:nrow(data)){
+#     if(data[i,var]!=0){
+#       data[i,var] <- 1
+#     }
+#   }
+#   data[[var]] <- as.factor(data[[var]])
+# }
+# 
+# 
+# rf_grid <- expand.grid(mtry = c(10, 100, 200, 500))
+# 
+# data_treated <- subset(data,select=-c(GarageYrBlt,TotalBsmtSF,BsmtHalfBath,HalfBath,GarageCars,YearBuilt))
+# 
+# #data_treated$SalePrice <- log(data_treated$SalePrice)
+# 
+# modele22 <- train(form=log(SalePrice)~. + Condition1:Condition2 + RoofStyle:RoofMatl + Exterior1st:Exterior2nd +
+#                     BsmtFinType1:BsmtFinType2 + ExterQual:ExterCond + BsmtQual:BsmtCond:BsmtExposure +
+#                     GarageQual:GarageCond
+#                   - Condition1 - Condition2 - RoofStyle - RoofMatl - Exterior1st -
+#                     Exterior2nd-BsmtFinType1 - BsmtFinType2 - ExterQual - ExterCond - BsmtQual - BsmtCond - BsmtExposure -
+#                     GarageQual - GarageCond
+#                   , data=data_treated,
+#                      method = "rf",
+#                      trControl = trainControl(method="cv"),
+#                     tuneGrid=rf_grid,
+#                   metric = "RMSE",
+#                   lambda = 0,
+#                   maximize = F)
+```
+
+
+# Modele 23
+
+```{r,fig.height=10}
+# library(GGally)
+# ggcorr(data[2:ncol(data)], method = c("everything", "pearson"),high = "#F21A00",mid = "#EEEEEE",low = "#3B9AB2", hjust=0.8, nbreaks = 8, label = TRUE, label_round = 1)
+```
+
+
+
+```{r}
+
+# ### TRAITEMENT
+# for(var in c("BsmtFinSF2","LowQualFinSF","BsmtFullBath","BsmtHalfBath","Fireplaces","PoolArea","MiscVal")){
+#   for(i in 1:nrow(data)){
+#     if(data[i,var]!=0){
+#       data[i,var] <- 1
+#     }
+#   }
+#   data[[var]] <- as.factor(data[[var]])
+# }
+#   
+# porch <- c()
+# 
+# for(ligne in 1:nrow(data)){
+#   if(data[ligne,"OpenPorchSF"]==0 & data[ligne,"EnclosedPorch"]==0 & data[ligne,"X3SsnPorch"]==0 & data[ligne,"ScreenPorch"]==0) {
+#     porch <- c(porch,0)
+#   }else{porch <- c(porch,1)}
+# }
+# 
+# data$porch <- as.factor(porch)
+# 
+# data_treated <- subset(data,select=-c(GarageYrBlt,GarageCars,BedroomAbvGr,X1stFlrSF,X2ndFlrSF,BsmtUnfSF,BsmtFinSF2,BsmtFinSF1,BsmtHalfBath,LowQualFinSF,OpenPorchSF,EnclosedPorch,X3SsnPorch,ScreenPorch,YearBuilt))
+# 
+# 
+# 
+# 
+# 
+# ### MODELE
+# 
+# rf_grid <- expand.grid(mtry = c(10, 100, 200, 500))
+# 
+# data_treated$SalePrice <- log(data_treated$SalePrice) / log(2)
+# 
+# modele23 <- train(form=SalePrice~. + Condition1:Condition2 + RoofStyle:RoofMatl + Exterior1st:Exterior2nd +
+#                    BsmtFinType1:BsmtFinType2 - Condition1 - Condition2 - RoofStyle - RoofMatl - Exterior1st - Exterior2nd-
+#                    BsmtFinType1 - BsmtFinType2, data=data_treated,
+#                     method = "rf",
+#                     trControl = trainControl(method="cv"),
+#                     tuneGrid=rf_grid,
+#                     metric = "RMSE",
+#                     lambda = 0,
+#                   maximize = F)
+```
+
+
+# Modele 24
+
+```{r}
+# ### TRAITEMENT
+# for(var in c("BsmtFinSF2","LowQualFinSF","BsmtFullBath","BsmtHalfBath","Fireplaces","PoolArea","MiscVal")){
+#   for(i in 1:nrow(data)){
+#     if(data[i,var]!=0){
+#       data[i,var] <- 1
+#     }
+#   }
+#   data[[var]] <- as.factor(data[[var]])
+# }
+#   
+# porch <- c()
+# 
+# for(ligne in 1:nrow(data)){
+#   if(data[ligne,"OpenPorchSF"]==0 & data[ligne,"EnclosedPorch"]==0 & data[ligne,"X3SsnPorch"]==0 & data[ligne,"ScreenPorch"]==0) {
+#     porch <- c(porch,0)
+#   }else{porch <- c(porch,1)}
+# }
+# 
+# data$porch <- as.factor(porch)
+# 
+# data_treated <- subset(data,select=-c(GarageYrBlt,GarageCars,BedroomAbvGr,X1stFlrSF,X2ndFlrSF,BsmtUnfSF,BsmtFinSF2,BsmtFinSF1,BsmtHalfBath,LowQualFinSF,OpenPorchSF,EnclosedPorch,X3SsnPorch,ScreenPorch,YearBuilt,MiscVal))
+# 
+# 
+# 
+# 
+# 
+# ### MODELE
+# 
+# rf_grid <- expand.grid(mtry = c(10, 100, 200, 500))
+# 
+# data_treated$SalePrice <- log(data_treated$SalePrice) / log(2)
+# 
+# modele24 <- train(form=SalePrice~. + Condition1:Condition2 + RoofStyle:RoofMatl + Exterior1st:Exterior2nd +
+#                    BsmtFinType1:BsmtFinType2 + LotShape:LotConfig + BldgType:HouseStyle + OverallQual:OverallCond +
+#                     ExterQual:ExterCond + BsmtQual:BsmtCond:BsmtExposure + Heating:HeatingQC +
+#                     GarageFinish:GarageQual:GarageCond + SaleType:SaleCondition
+#                   - Condition1 - Condition2 - RoofStyle - RoofMatl - Exterior1st - Exterior2nd-
+#                    BsmtFinType1 - BsmtFinType2 - LotShape - LotConfig - HouseStyle - BldgType -
+#                     OverallQual - OverallCond - ExterQual - ExterCond - BsmtQual - BsmtCond - BsmtExposure -
+#                     Heating - HeatingQC - GarageFinish - GarageQual - GarageCond - SaleType - SaleCondition
+#                   , data=data_treated,
+#                     method = "rf",
+#                     trControl = trainControl(method="cv"),
+#                     tuneGrid=rf_grid,
+#                     metric = "RMSE",
+#                     lambda = 0,
+#                   maximize = F)
+```
+
+
+# Modele 25
+
+```{r}
+# ### TRAITEMENT
+# for(var in c("LowQualFinSF","BsmtFullBath","BsmtHalfBath","Fireplaces","PoolArea","MiscVal")){
+#   for(i in 1:nrow(data)){
+#     if(data[i,var]!=0){
+#       data[i,var] <- 1
+#     }
+#   }
+#   data[[var]] <- as.factor(data[[var]])
+# }
+# 
+# data_treated <- subset(data,select=-c(GarageYrBlt,GarageCars,GarageFinish,TotalBsmtSF,BsmtHalfBath,LowQualFinSF,X3SsnPorch,ScreenPorch,YearBuilt,MiscVal,MSSubClass,PavedDrive))
+# 
+# 
+# 
+# 
+# 
+# ### MODELE
+# 
+# rf_grid <- expand.grid(mtry = c(10, 100, 200, 500))
+# 
+# data_treated$SalePrice <- log(data_treated$SalePrice) / log(2)
+# 
+# modele25 <- train(form=SalePrice~. + Condition1:Condition2 + RoofStyle:RoofMatl + Exterior1st:Exterior2nd +
+#                     + LotShape:LotConfig + BldgType:HouseStyle + OverallQual:OverallCond +
+#                     ExterQual:ExterCond + Heating:HeatingQC +
+#                     GarageQual:GarageCond
+#                   - Condition1 - Condition2 - RoofStyle - RoofMatl - Exterior1st - Exterior2nd-
+#                      LotShape - LotConfig - HouseStyle - BldgType -
+#                     OverallQual - OverallCond - ExterQual - ExterCond -
+#                     Heating - HeatingQC  - GarageQual - GarageCond
+#                   , data=data_treated,
+#                     method = "rf",
+#                     trControl = trainControl(method="cv"),
+#                     tuneGrid=rf_grid,
+#                     metric = "RMSE",
+#                     lambda = 0,
+#                   maximize = F)
+```
+
+
+# Modele 26
+
+```{r}
+### MODELE
+
+# 
+# rf_grid <- expand.grid(mtry = seq(1,501,100))
+# 
+# data_treated$SalePrice <- log(data_treated$SalePrice) / log(2)
+# 
+# modele26 <- train(form=SalePrice~.-Id,
+#                   data=data_treated,
+#                     method = "rf",
+#                     trControl = trainControl(method="cv"),
+#                     tuneGrid=rf_grid,
+#                     metric = "RMSE",
+#                     lambda = 0,
+#                   maximize = F)
+```
+
+
+
+# Modele 27
+
+```{r}
+
+# rf_grid <- expand.grid(mtry = c(10,100,200,500))
+# 
+# 
+# modele27 <- train(form=SalePrice~.-Id,
+#                   data=data_treated,
+#                     method = "rf",
+#                     trControl = trainControl(method="cv"),
+#                     tuneGrid=rf_grid,
+#                     metric = "RMSE",
+#                     lambda = 0,
+#                   maximize = F)
+```
+
+
+#Modele 28
+
+```{r}
+# rf_grid <- expand.grid(mtry = c(5,8,10))
+# 
+# data_treated$SalePrice <- log(data_treated$SalePrice) / log(2)
+# 
+# modele28 <- train(form=SalePrice~.-Id,
+#                   data=data_treated,
+#                     method = "rf",
+#                     trControl = trainControl(method="cv"),
+#                     tuneGrid=rf_grid,
+#                     metric = "RMSE",
+#                     lambda = 0,
+#                   maximize = F)
+```
+
+
+# Modele 29
+
+```{r}
+# for(var in c("BsmtFinSF2","LowQualFinSF","BsmtFullBath","BsmtHalfBath","Fireplaces","X3SsnPorch","PoolArea","MiscVal")){
+#   for(i in 1:nrow(data)){
+#     if(data[i,var]!=0){
+#       data[i,var] <- 1
+#     }
+#   }
+#   data[[var]] <- as.factor(data[[var]])
+# }
+# 
+# 
+# 
+# data_treated <- subset(data,select=-c(GarageYrBlt))
+# 
+# data_treated$SalePrice <- log(data_treated$SalePrice) / log(2)
+# 
+# for (col in colnames(data_treated)){
+#   if ( !(is.numeric(data_treated[,col])) ){
+#     data_treated[,col] <- as.numeric(data_treated[,col]) - 1
+#   }
+# }
+# 
+# data_matrix <- xgb.DMatrix(as.matrix(subset(data_treated,select=-c(SalePrice))),label=data_treated$SalePrice)
+# 
+# 
+# # Perform cross-validated hyperparameter tuning
+# xgb_model <- xgb.cv(
+#   params = list(
+#     objective = "reg:linear",  # For regression
+#     eval_metric = "rmse",       # RMSE evaluation metric
+#     verbose = 0                # Set verbose to 1 for more information
+#   ),
+#   data = data_matrix,
+#   nfold = 5,                    # 5-fold cross-validation
+#   nrounds = 100,                # Number of boosting rounds
+#   early_stopping_rounds = 10,   # Stop if performance hasn't improved for 10 rounds
+#   print_every_n = 10,           # Print performance every 10 rounds
+#   maximize = FALSE              # We're minimizing RMSE
+# )
+# 
+# # Get the best hyperparameters
+# best_params <- xgb_model$params
+# 
+# modele29 <- xgb.train(
+#   params = best_params,
+#   data =data_matrix,
+#   nrounds = 100                  # Number of boosting rounds
+# )
+```
+
+
+# Modele 30
+
+```{r}
+
+# data_treated <- data
+# 
+# data_treated$Surface_annexe <- data$TotalBsmtSF + data$GarageArea + data$WoodDeckSF + data$OpenPorchSF + data$EnclosedPorch + data$X3SsnPorch + data$ScreenPorch + data$PoolArea
+# 
+# data_treated$Nbre_piece <- data$TotRmsAbvGrd + data$FullBath + data$HalfBath
+# 
+# data_treated <- subset(data_treated,select=-c(GarageYrBlt,YearBuilt,TotalBsmtSF,Utilities,TotalBsmtSF,GarageArea,WoodDeckSF,
+#                                       OpenPorchSF,EnclosedPorch,X3SsnPorch,ScreenPorch,PoolArea,
+#                                       TotRmsAbvGrd,FullBath,HalfBath))
+# 
+# data_treated$SalePrice <- log(data_treated$SalePrice) / log(2)
+# 
+# for (col in colnames(data_treated)){
+#   if ( !(is.numeric(data_treated[,col])) ){
+#     data_treated[,col] <- as.numeric(data_treated[,col]) - 1  
+#   }
+# }
+# 
+# data_matrix <- xgb.DMatrix(as.matrix(subset(data_treated,select=-c(SalePrice))),label=data_treated$SalePrice)
+# 
+# 
+# # Perform cross-validated hyperparameter tuning
+# xgb_model <- xgb.cv(
+#   params = list(
+#     objective = "reg:linear",  # For regression
+#     eval_metric = "rmse",       # RMSE evaluation metric
+#     verbose = 0                # Set verbose to 1 for more information
+#   ),
+#   data = data_matrix,
+#   nfold = 5,                    # 5-fold cross-validation
+#   nrounds = 100,                # Number of boosting rounds
+#   early_stopping_rounds = 10,   # Stop if performance hasn't improved for 10 rounds
+#   print_every_n = 10,           # Print performance every 10 rounds
+#   maximize = FALSE              # We're minimizing RMSE
+# )
+# 
+# # Get the best hyperparameters
+# best_params <- xgb_model$params
+# 
+# modele30 <- xgb.train(
+#   params = best_params,
+#   data =data_matrix,
+#   nrounds = 100                  # Number of boosting rounds
+# )
+```
+
+
+
+# Modele 31
+
+```{r}
+# for(var in c("BsmtFinSF2","LowQualFinSF","BsmtFullBath","BsmtHalfBath","Fireplaces","X3SsnPorch","ScreenPorch","PoolArea","MiscVal")){
+#   for(i in 1:nrow(data)){
+#     if(data[i,var]!=0){
+#       data[i,var] <- 1
+#     }
+#   }
+#   data[[var]] <- as.factor(data[[var]])
+# }
+# 
+# 
+# 
+# data_treated <- subset(data,select=-c(GarageYrBlt))
+# 
+# data_treated$SalePrice <- log(data_treated$SalePrice) / log(2)
+# 
+# for (col in colnames(data_treated)){
+#   if ( !(is.numeric(data_treated[,col])) ){
+#     data_treated[,col] <- as.numeric(data_treated[,col]) - 1
+#   }
+# }
+# 
+# data_matrix <- xgb.DMatrix(as.matrix(subset(data_treated,select=-c(SalePrice))),label=data_treated$SalePrice)
+# 
+# 
+# # Perform cross-validated hyperparameter tuning
+# xgb_model <- xgb.cv(
+#   params = list(
+#     objective = "reg:linear",  # For regression
+#     eval_metric = "rmse",       # RMSE evaluation metric
+#     verbose = 0                # Set verbose to 1 for more information
+#   ),
+#   data = data_matrix,
+#   nfold = 5,                    # 5-fold cross-validation
+#   nrounds = 100,                # Number of boosting rounds
+#   early_stopping_rounds = 10,   # Stop if performance hasn't improved for 10 rounds
+#   print_every_n = 10,           # Print performance every 10 rounds
+#   maximize = FALSE              # We're minimizing RMSE
+# )
+# 
+# # Get the best hyperparameters
+# best_params <- xgb_model$params
+# 
+# modele31 <- xgb.train(
+#   params = best_params,
+#   data =data_matrix,
+#   nrounds = 100                  # Number of boosting rounds
+# )
+```
+
+
+# Modele 32 (Meilleur)
+
+```{r}
+# for(var in c("BsmtFinSF2","LowQualFinSF","BsmtFullBath","BsmtHalfBath","Fireplaces","X3SsnPorch","PoolArea","MiscVal")){
+#   for(i in 1:nrow(data)){
+#     if(data[i,var]!=0){
+#       data[i,var] <- 1
+#     }
+#   }
+#   data[[var]] <- as.factor(data[[var]])
+# }
+# 
+# 
+# 
+# data_treated <- subset(data,select=-c(GarageYrBlt))
+# 
+# data_treated$SalePrice <- log(data_treated$SalePrice) / log(2)
+# 
+# for (col in colnames(data_treated)){
+#   if ( !(is.numeric(data_treated[,col])) ){
+#     data_treated[,col] <- as.numeric(data_treated[,col]) - 1
+#   }
+# }
+# 
+# data_matrix <- xgb.DMatrix(as.matrix(subset(data_treated,select=-c(SalePrice))),label=data_treated$SalePrice)
+# 
+# 
+# # Perform cross-validated hyperparameter tuning
+# xgb_model <- xgb.cv(
+#   params = list(
+#     objective = "reg:squarederror",  # For regression
+#     eval_metric = "rmse",       # RMSE evaluation metric
+#     verbose = 0                # Set verbose to 1 for more information
+#   ),
+#   data = data_matrix,
+#   nfold = 7,                    # 5-fold cross-validation
+#   nrounds = 100,                # Number of boosting rounds
+#   early_stopping_rounds = 10,   # Stop if performance hasn't improved for 10 rounds
+#   print_every_n = 10,           # Print performance every 10 rounds
+#   maximize = FALSE              # We're minimizing RMSE
+# )
+# 
+# # Get the best hyperparameters
+# best_params <- xgb_model$params
+# 
+# modele32 <- xgb.train(
+#   params = best_params,
+#   data =data_matrix,
+#   nrounds = 100                  # Number of boosting rounds
+# )
+
+```
+
+
+# Modele 33
+
+```{r}
+# for(var in c("BsmtFinSF2","LowQualFinSF","BsmtFullBath","BsmtHalfBath","Fireplaces","X3SsnPorch","PoolArea","MiscVal")){
+#   for(i in 1:nrow(data)){
+#     if(data[i,var]!=0){
+#       data[i,var] <- 1
+#     }
+#   }
+#   data[[var]] <- as.factor(data[[var]])
+# }
+# 
+# 
+# 
+# data_treated <- subset(data,select=-c(GarageYrBlt,GarageCars,TotalBsmtSF,LowQualFinSF,YearBuilt,PavedDrive))
+# 
+# data_treated$SalePrice <- log(data_treated$SalePrice) / log(2)
+# 
+# for (col in colnames(data_treated)){
+#   if ( !(is.numeric(data_treated[,col])) ){
+#     data_treated[,col] <- as.numeric(data_treated[,col]) - 1
+#   }
+# }
+# 
+# data_matrix <- xgb.DMatrix(as.matrix(subset(data_treated,select=-c(SalePrice))),label=data_treated$SalePrice)
+# 
+# 
+# # Perform cross-validated hyperparameter tuning
+# xgb_model <- xgb.cv(
+#   params = list(
+#     objective = "reg:squarederror",  # For regression
+#     eval_metric = "rmse",       # RMSE evaluation metric
+#     verbose = 0                # Set verbose to 1 for more information
+#   ),
+#   data = data_matrix,
+#   nfold = 7,                    # 5-fold cross-validation
+#   nrounds = 100,                # Number of boosting rounds
+#   early_stopping_rounds = 10,   # Stop if performance hasn't improved for 10 rounds
+#   print_every_n = 10,           # Print performance every 10 rounds
+#   maximize = FALSE              # We're minimizing RMSE
+# )
+# 
+# # Get the best hyperparameters
+# best_params <- xgb_model$params
+# 
+# modele33 <- xgb.train(
+#   params = best_params,
+#   data =data_matrix,
+#   nrounds = 100                  # Number of boosting rounds
+# )
+```
+
+
+# Modele 34
+
+```{r}
+
+# data_treated <- subset(data,select=-c(GarageYrBlt,GarageCars,TotalBsmtSF,YearBuilt,Utilities))
+# 
+# #data_treated$SalePrice <- log(data_treated$SalePrice) / log(2)
+# 
+# for (col in colnames(data_treated)){
+#   if ( !(is.numeric(data_treated[,col])) ){
+#     data_treated[,col] <- as.numeric(data_treated[,col]) - 1
+#   }
+# }
+# 
+# data_matrix <- xgb.DMatrix(as.matrix(subset(data_treated,select=-c(SalePrice))),label=data_treated$SalePrice)
+# 
+# 
+# # Perform cross-validated hyperparameter tuning
+# xgb_model <- xgb.cv(
+#   params = list(
+#     objective = "reg:squarederror",  # For regression
+#     eval_metric = "rmse",       # RMSE evaluation metric
+#     verbose = 0                # Set verbose to 1 for more information
+#   ),
+#   data = data_matrix,
+#   nfold = 7,                    # 5-fold cross-validation
+#   nrounds = 100,                # Number of boosting rounds
+#   early_stopping_rounds = 10,   # Stop if performance hasn't improved for 10 rounds
+#   print_every_n = 10,           # Print performance every 10 rounds
+#   maximize = FALSE              # We're minimizing RMSE
+# )
+# 
+# # Get the best hyperparameters
+# best_params <- xgb_model$params
+# 
+# modele34 <- xgb.train(
+#   params = best_params,
+#   data =data_matrix,
+#   nrounds = 100                  # Number of boosting rounds
+# )
+```
+
+
+# Modele 35
+
+```{r}
+# data_treated <- subset(data,select=-c(GarageYrBlt,GarageCars,YearBuilt,Utilities))
+# 
+# data_treated$SalePrice <- log(data_treated$SalePrice) / log(2)
+# 
+# for (col in colnames(data_treated)){
+#   if ( !(is.numeric(data_treated[,col])) ){
+#     data_treated[,col] <- as.numeric(data_treated[,col]) - 1
+#   }
+# }
+# 
+# data_matrix <- xgb.DMatrix(as.matrix(subset(data_treated,select=-c(SalePrice))),label=data_treated$SalePrice)
+# 
+# 
+# # Perform cross-validated hyperparameter tuning
+# xgb_model <- xgb.cv(
+#   params = list(
+#     objective = "reg:squarederror",  # For regression
+#     eval_metric = "rmse",       # RMSE evaluation metric
+#     verbose = 0                # Set verbose to 1 for more information
+#   ),
+#   data = data_matrix,
+#   nfold = 7,                    # 5-fold cross-validation
+#   nrounds = 100,                # Number of boosting rounds
+#   early_stopping_rounds = 10,   # Stop if performance hasn't improved for 10 rounds
+#   print_every_n = 10,           # Print performance every 10 rounds
+#   maximize = FALSE              # We're minimizing RMSE
+# )
+# 
+# # Get the best hyperparameters
+# best_params <- xgb_model$params
+# 
+# modele35 <- xgb.train(
+#   params = best_params,
+#   data =data_matrix,
+#   nrounds = 100                  # Number of boosting rounds
+# )
+```
+
+
+
+# Modele 36
+
+```{r}
+# for(var in c("BsmtFinSF2","LowQualFinSF","BsmtFullBath","BsmtHalfBath","Fireplaces","X3SsnPorch","PoolArea","MiscVal")){
+#   for(i in 1:nrow(data)){
+#     if(data[i,var]!=0){
+#       data[i,var] <- 1
+#     }
+#   }
+#   data[[var]] <- as.factor(data[[var]])
+# }
+
+
+
+data_treated <- subset(data,select=-c(Utilities,YearBuilt,GarageYrBlt))
+
+data_treated$SalePrice <- log(data$SalePrice) / log(2)
+
+for (col in colnames(data_treated)){
+  if ( !(is.numeric(data_treated[,col])) ){
+    data_treated[,col] <- as.numeric(data_treated[,col]) -1 
+  }
+}
+
+data_matrix <- xgb.DMatrix(as.matrix(subset(data_treated,select=-c(SalePrice))),label=data_treated$SalePrice)
+
+
+# Perform cross-validated hyperparameter tuning
+xgb_model <- xgb.cv(
+  params = list(
+    objective = "reg:squarederror",  # For regression
+    eval_metric = "rmse",       # RMSE evaluation metric
+    verbose = 0                # Set verbose to 1 for more information
+  ),
+  data = data_matrix,
+  nfold = 7,                    # 5-fold cross-validation
+  nrounds = 100,                # Number of boosting rounds
+  early_stopping_rounds = 10,   # Stop if performance hasn't improved for 10 rounds
+  print_every_n = 10,           # Print performance every 10 rounds
+  maximize = FALSE              # We're minimizing RMSE
+)
+
+# Get the best hyperparameters
+best_params <- xgb_model$params
+
+modele42 <- xgb.train(
+  params = best_params,
+  data =data_matrix,
+  nrounds = 100                  # Number of boosting rounds
+)
+```
+
+
+
+# Rendu
+
+```{r}
+fichier_rendre <- read.csv("fichier_a_rendre_.csv",header=T,sep=";")
+```
+
+```{r}
+# for(var in c("BsmtFinSF2","LowQualFinSF","BsmtFullBath","BsmtHalfBath","Fireplaces","X3SsnPorch","ScreenPorch","PoolArea","MiscVal")){
+#   for(i in 1:nrow(data_prediction)){
+#     if(data_prediction[i,var]!=0){
+#       data_prediction[i,var] <- 1
+#     }
+#   }
+#   data_prediction[[var]] <- as.factor(data_prediction[[var]])
+# }
+# 
+for (col in colnames(data_prediction)){
+  if ( !(is.numeric(data_prediction[,col])) ){
+    data_prediction[,col] <- as.numeric(data_prediction[,col]) - 1
+  }
+}
+
+
+donnee_prediction <- data.frame()
+for(id in fichier_rendre$Id){
+  donnee <- data_prediction |> filter(data_prediction$Id==id)
+  donnee <- subset(donnee,select=-c(SalePrice,Utilities,YearBuilt,GarageYrBlt))
+  donnee_prediction <- rbind(donnee_prediction,donnee)
+}
+
+
+```
+
+
+
+```{r}
+#prix_predit <- predict(modele,donnee_prediction)
+```
+
+```{r}
+#fichier_rendre$SalePrice <- prix_predit
+```
+
+
+```{r}
+#prix_predit_rf <- predict(modele2,newdata=donnee_prediction)
+```
+
+
+```{r}
+# prix_predit_rf_opt <-predict(rf_basic,donnee_prediction)
+```
+
+
+```{r}
+prix_predit <-predict(modele42,data.matrix(donnee_prediction))
+```
+
+
+```{r}
+fichier_rendre$SalePrice <- exp(prix_predit * log(2))
+```
+
+
+```{r}
+write.csv(fichier_rendre, file = "C:/Users/monke/Bureau/M2_MAS_R/Machine_learning/student/Groupe10_Modele_44.csv",  row.names = FALSE)
+```
+
+
+Modele 8 bis est le mm sans la var LotArea
+
